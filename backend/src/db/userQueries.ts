@@ -1,6 +1,6 @@
 import { sql } from './db';
 
-export async function findOrCreateUser(googleSub: string, email: string) {
+export async function findOrCreateUser(googleSub: string, email: string, picture: string, name: string) {
   // Check if user exists
   const existingUser = await sql`
     SELECT * FROM users WHERE google_sub = ${googleSub}
@@ -10,8 +10,8 @@ export async function findOrCreateUser(googleSub: string, email: string) {
 
   // Create new user if not found
   const newUser = await sql`
-    INSERT INTO users (google_sub, email)
-    VALUES (${googleSub}, ${email})
+    INSERT INTO users (google_sub, email, picture, name)
+    VALUES (${googleSub}, ${email}, ${picture}, ${name})
     RETURNING *
   `;
 

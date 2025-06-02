@@ -17,13 +17,14 @@ router.post('/google-login', async (req: Request, res: Response) => {
   try {
     const googleUser = await verifyGoogleToken(idToken);
 
-    if (!googleUser.sub || !googleUser.email) {
+    if (!googleUser.sub || !googleUser.email || !googleUser.picture || !googleUser.name) {
       res.status(400).json({ error: 'Invalid Google user data' });
       return;
     }
 
-    // TODO: Check if user exists in DB, create if not
-    const user = await findOrCreateUser(googleUser.sub, googleUser.email);
+    // Check if user exists in DB, create if not
+    const user = await findOrCreateUser(googleUser.sub, googleUser.email, googleUser.picture, googleUser.name);
+
     // Create JWT for your app (adjust secret & payload)
     const token = jwt.sign(
       { email: googleUser.email, sub: googleUser.sub },
