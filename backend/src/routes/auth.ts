@@ -3,8 +3,14 @@ import type { Request, Response } from 'express'
 import { verifyGoogleToken } from '../auth/googleAuth';
 import jwt from 'jsonwebtoken';
 import { findOrCreateUser } from '../db/userQueries';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = express.Router();
+
+router.get('/me', authenticateToken, async (req: any, res: Response) => {
+  const { user } = req;
+  res.json({ user });
+});
 
 router.post('/google-login', async (req: Request, res: Response) => {
   const { idToken } = req.body;
