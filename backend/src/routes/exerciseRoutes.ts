@@ -30,7 +30,7 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
 router.post('/', authenticateToken, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     const { name, category, equipment, description, tutorial_url } = req.body;
-    if (!name || typeof name !== 'string' || !userId) {
+    if (!name || typeof name !== 'string') {
         res.status(400).json({ error: 'Invalid input data' });
         return;
     }

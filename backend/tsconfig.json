@@ -10,6 +10,6 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*"
+    "src/types/express.d.ts",
   ]
 }

@@ -4,8 +4,9 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import userRoutes from './routes/userRoutes'; // optional now, but ready for later
+import userRoutes from './routes/userRoutes'; 
 import authRoutes from './routes/auth';
+import exerciseRoutes from './routes/exerciseRoutes';
 import { setupSocketIO } from './socket';
 
 dotenv.config();
@@ -34,7 +35,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoutes);
-app.use('/api/auth', authRoutes); // Assuming you have auth routes set up
+app.use('/api/auth', authRoutes); 
+app.use('/api/exercises', exerciseRoutes);
 
 // Health check route
 app.get('/', (req, res) => {

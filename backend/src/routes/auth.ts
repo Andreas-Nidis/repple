@@ -5,10 +5,19 @@ import jwt from 'jsonwebtoken';
 import { findOrCreateUser } from '../db/userQueries';
 import { authenticateToken } from '../middleware/authMiddleware';
 
+// Extend Express Request interface to include 'user'
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
 const router = express.Router();
 
 router.get('/me', authenticateToken, async (req: Request, res: Response) => {
-  const { user } = req;
+  const user = req.user;;
   res.json({ user });
 });
 
@@ -23,13 +32,18 @@ router.post('/google-login', async (req: Request, res: Response) => {
   try {
     const googleUser = await verifyGoogleToken(idToken);
 
-    if (!googleUser.sub || !googleUser.email || !googleUser.picture || !googleUser.name) {
+    if (!googleUser.sub || !googleUser.email) {
       res.status(400).json({ error: 'Invalid Google user data' });
       return;
     }
 
     // Check if user exists in DB, create if not
-    const user = await findOrCreateUser(googleUser.sub, googleUser.email, googleUser.picture, googleUser.name);
+    const user = await findOrCreateUser(
+      googleUser.sub as string,
+      googleUser.email as string,
+      googleUser.picture ?? '',
+      googleUser.name ?? ''
+    );
 
     // Create JWT for your app (adjust secret & payload)
     const token = jwt.sign(

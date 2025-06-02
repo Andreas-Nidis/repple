@@ -2,7 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 interface AuthenticatedRequest extends Request {
-  user?: { userId: number; email: string };
+  user?: { 
+    userId: number; 
+    email: string;
+    name: string;
+    picture: string;
+    sub: string; // Google user ID
+    };
 }
 
 export function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -15,7 +21,7 @@ export function authenticateToken(req: AuthenticatedRequest, res: Response, next
     };
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret' ) as { userId: number; email: string };
+        const decoded = jwt.verify(token, process.env.JWT_SECRET! || 'dev-secret' ) as { userId: number; email: string; name: string; picture: string; sub: string };
         req.user = decoded;
         next();
     } catch (error) {
