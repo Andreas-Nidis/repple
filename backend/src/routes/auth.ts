@@ -7,7 +7,7 @@ import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.get('/me', authenticateToken, async (req: any, res: Response) => {
+router.get('/me', authenticateToken, async (req: Request, res: Response) => {
   const { user } = req;
   res.json({ user });
 });
