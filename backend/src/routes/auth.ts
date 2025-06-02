@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express'
 import { verifyGoogleToken } from '../auth/googleAuth';
 import jwt from 'jsonwebtoken';
 
@@ -7,7 +8,10 @@ const router = express.Router();
 router.post('/google-login', async (req: Request, res: Response) => {
   const { idToken } = req.body;
 
-  if (!idToken) return res.status(400).json({ error: 'Missing idToken' });
+  if (!idToken) {
+    res.status(400).json({ error: 'Missing idToken' });
+    return;
+  };
 
   try {
     const googleUser = await verifyGoogleToken(idToken);
