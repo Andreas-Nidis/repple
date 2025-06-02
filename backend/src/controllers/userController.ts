@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { sql } from '../db';
+import { sql } from '../db/db';
 
 export const getUsers = async (req: Request, res: Response) => {
   try {

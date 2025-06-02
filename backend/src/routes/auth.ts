@@ -2,6 +2,7 @@ import express from 'express';
 import type { Request, Response } from 'express'
 import { verifyGoogleToken } from '../auth/googleAuth';
 import jwt from 'jsonwebtoken';
+import { findOrCreateUser } from '../db/userQueries';
 
 const router = express.Router();
 
@@ -16,8 +17,13 @@ router.post('/google-login', async (req: Request, res: Response) => {
   try {
     const googleUser = await verifyGoogleToken(idToken);
 
-    // TODO: Check if user exists in DB, create if not
+    if (!googleUser.sub || !googleUser.email) {
+      res.status(400).json({ error: 'Invalid Google user data' });
+      return;
+    }
 
+    // TODO: Check if user exists in DB, create if not
+    const user = await findOrCreateUser(googleUser.sub, googleUser.email);
     // Create JWT for your app (adjust secret & payload)
     const token = jwt.sign(
       { email: googleUser.email, sub: googleUser.sub },
