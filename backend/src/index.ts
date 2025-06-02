@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes'; // optional now, but ready for later
 import authRoutes from './routes/auth';
+import { setupSocketIO } from './socket';
 
 dotenv.config();
 
@@ -41,18 +42,7 @@ app.get('/', (req, res) => {
 });
 
 // Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('A user connected, socket id:', socket.id);
-
-  // You can listen for events here
-  socket.on('ping', () => {
-    socket.emit('pong');
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
+setupSocketIO(io);
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
