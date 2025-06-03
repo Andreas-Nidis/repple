@@ -3,8 +3,6 @@ import { authenticateToken } from '../middleware/authMiddleware';
 import { sendFriendRequest, getPendingRequests, acceptFriendRequest, rejectFriendRequest, getFriends, removeFriend } from '../db/friendQueries';
 import { getIO, getUserSocketId } from '../socket';
 
-const io = getIO();
-
 const router = express.Router();
 
 // Send a friend request
@@ -19,6 +17,7 @@ router.post('/:friendId', authenticateToken, async (req: Request, res: Response)
 
     try {
         const existingRequest = await sendFriendRequest(user.sub, friendId);
+        const io = getIO();
         const receiverSocketId = getUserSocketId(friendId.toString());
 
         if (receiverSocketId) {
@@ -54,6 +53,17 @@ router.post('/accept/:friendId', authenticateToken, async (req: Request, res: Re
 
     try {
         const acceptedRequest = await acceptFriendRequest(user.sub, friendId);
+
+        const io = getIO();
+        const senderSocketId = getUserSocketId(friendId.toString());
+
+        if (senderSocketId) {
+            io.to(senderSocketId).emit('friendRequestAccepted', {
+                from: user.sub,
+                message: `Your friend request to ${user.name} has been accepted`,
+            });
+        }
+        
         res.status(200).json({ message: 'Friend request accepted', request: acceptedRequest });
     } catch (error) {
         console.error('Error accepting friend request:', error);
