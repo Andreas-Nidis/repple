@@ -5,9 +5,9 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes'; 
-import authRoutes from './routes/auth';
+import authRoutes from './routes/authRoutes';
 import exerciseRoutes from './routes/exerciseRoutes';
-import friendRoutes from './routes/friends';
+import friendRoutes from './routes/friendsRoutes';
 import { setupSocketIO } from './socket';
 
 dotenv.config();

@@ -1,8 +1,13 @@
 import { Server, Socket } from 'socket.io';
 
 const onlineUsers = new Map<string, string>();
+const userSocketMap = new Map<string, string>();
+
+let ioInstance: Server;
 
 export const setupSocketIO = (io: Server) => {
+    ioInstance = io;
+
     io.on('connection', (socket: Socket) => {
         console.log('Socket connected:', socket.id);
 
@@ -28,3 +33,8 @@ export const setupSocketIO = (io: Server) => {
     console.log('Socket.IO setup complete');
 };
     
+export const getUserSocketId = (userId: string) =>{
+    return userSocketMap.get(userId);
+}
+
+export const getIO = () => ioInstance;
