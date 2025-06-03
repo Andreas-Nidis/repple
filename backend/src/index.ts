@@ -7,6 +7,7 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes'; 
 import authRoutes from './routes/auth';
 import exerciseRoutes from './routes/exerciseRoutes';
+import friendRoutes from './routes/friends';
 import { setupSocketIO } from './socket';
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/exercises', exerciseRoutes);
+app.use('/api/friends', friendRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
