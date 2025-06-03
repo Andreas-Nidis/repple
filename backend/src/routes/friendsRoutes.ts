@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
 import { sendFriendRequest, getPendingRequests, acceptFriendRequest, rejectFriendRequest, getFriends, removeFriend } from '../db/friendQueries';
+import { getIO, getUserSocketId } from '../socket';
+
+const io = getIO();
 
 const router = express.Router();
 
@@ -16,6 +19,14 @@ router.post('/:friendId', authenticateToken, async (req: Request, res: Response)
 
     try {
         const existingRequest = await sendFriendRequest(user.sub, friendId);
+        const receiverSocketId = getUserSocketId(friendId.toString());
+
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('friendRequest', {
+                from: user.sub,
+                message: `You have a new friend request from ${user.name}`,
+            });
+        }
         res.status(201).json({ message: 'Friend request sent successfully', request: existingRequest });
     } catch (error) {
         console.error('Error sending friend request:', error);
