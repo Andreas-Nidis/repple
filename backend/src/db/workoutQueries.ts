@@ -1,5 +1,7 @@
 import { sql } from './db';
 
+// Queries for managing workouts in the database
+// These functions allow you to create, read, update, and delete workouts for users.
 export async function getWorkoutsByUser(userId: number) {
     return await sql`
         SELECT * FROM workouts WHERE user_id = ${userId}
@@ -40,4 +42,3 @@ export async function deleteWorkout(workoutId: number) {
     `;
     return deletedWorkout;
 }
-
