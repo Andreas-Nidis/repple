@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { getWorkoutsByUser, getWorkoutById, createWorkout, updateWorkout, deleteWorkout } from '../db/workoutQueries';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // Get all workouts for a user
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
+router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Get a specific workout by ID
-router.get('/:workoutId', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:workoutId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     if (!userId) {
@@ -45,7 +45,7 @@ router.get('/:workoutId', authenticateToken, async (req: Request, res: Response)
 });
 
 // Create a new workout
-router.post('/', authenticateToken, async (req: Request, res: Response) => {
+router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const { name, category } = req.body;
 
@@ -64,7 +64,7 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Update an existing workout
-router.put('/:workoutId', authenticateToken, async (req: Request, res: Response) => {
+router.put('/:workoutId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     const { name } = req.body;
@@ -88,7 +88,7 @@ router.put('/:workoutId', authenticateToken, async (req: Request, res: Response)
 });
 
 // Delete a workout
-router.delete('/:workoutId', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/:workoutId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     if (!userId) {

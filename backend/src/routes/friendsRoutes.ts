@@ -1,28 +1,28 @@
 import express, { Request, Response } from 'express';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
 import { sendFriendRequest, getPendingRequests, acceptFriendRequest, rejectFriendRequest, getFriends, removeFriend } from '../db/friendQueries';
 import { getIO, getUserSocketId } from '../socket';
 
 const router = express.Router();
 
 // Send a friend request
-router.post('/:friendId', authenticateToken, async (req: Request, res: Response) => {
+router.post('/:friendId', authenticateFirebase, async (req: Request, res: Response) => {
     const { friendId } = req.params;
     const { user } = req;
 
-    if (!user || user.sub === friendId) {
+    if (!user || user.uid === friendId) {
         res.status(400).json({ error: 'Invalid friend request' });
         return;
     }
 
     try {
-        const existingRequest = await sendFriendRequest(user.sub, friendId);
+        const existingRequest = await sendFriendRequest(user.uid, friendId);
         const io = getIO();
         const receiverSocketId = getUserSocketId(friendId.toString());
 
         if (receiverSocketId) {
             io.to(receiverSocketId).emit('friendRequest', {
-                from: user.sub,
+                from: user.uid,
                 message: `You have a new friend request from ${user.name}`,
             });
         }
@@ -34,11 +34,19 @@ router.post('/:friendId', authenticateToken, async (req: Request, res: Response)
 });
 
 // Get pending friend requests
-router.get('/pending', authenticateToken, async (req: Request, res: Response) => {
+router.get('/pending', authenticateFirebase, async (req: Request, res: Response) => {
     const { user } = req;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    if (!user.uid) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+    }
 
     try {
-        const pendingRequests = await getPendingRequests(user.sub);
+        const pendingRequests = await getPendingRequests(user.uid);
         res.status(200).json(pendingRequests);
     } catch (error) {
         console.error('Error fetching pending requests:', error);
@@ -47,19 +55,23 @@ router.get('/pending', authenticateToken, async (req: Request, res: Response) =>
 });
 
 // Accept a friend request
-router.post('/accept/:friendId', authenticateToken, async (req: Request, res: Response) => {
+router.post('/accept/:friendId', authenticateFirebase, async (req: Request, res: Response) => {
     const { friendId } = req.params;
     const { user } = req;
+    if (!user || user.uid === friendId) {
+        res.status(400).json({ error: 'Invalid friend request acceptance' });
+        return;
+    }
 
     try {
-        const acceptedRequest = await acceptFriendRequest(user.sub, friendId);
+        const acceptedRequest = await acceptFriendRequest(user.uid, friendId);
 
         const io = getIO();
         const senderSocketId = getUserSocketId(friendId.toString());
 
         if (senderSocketId) {
             io.to(senderSocketId).emit('friendRequestAccepted', {
-                from: user.sub,
+                from: user.uid,
                 message: `Your friend request to ${user.name} has been accepted`,
             });
         }
@@ -72,12 +84,16 @@ router.post('/accept/:friendId', authenticateToken, async (req: Request, res: Re
 });
 
 // Reject a friend request
-router.post('/reject/:friendId', authenticateToken, async (req: Request, res: Response) => {
+router.post('/reject/:friendId', authenticateFirebase, async (req: Request, res: Response) => {
     const { friendId } = req.params;
     const { user } = req;
+    if (!user || user.uid === friendId) {
+        res.status(400).json({ error: 'Invalid friend request rejection' });
+        return;
+    }
 
     try {
-        await rejectFriendRequest(user.sub, friendId);
+        await rejectFriendRequest(user.uid, friendId);
         res.status(200).json({ message: 'Friend request rejected' });
     } catch (error) {
         console.error('Error rejecting friend request:', error);
@@ -86,11 +102,15 @@ router.post('/reject/:friendId', authenticateToken, async (req: Request, res: Re
 });
 
 // Get friends list
-router.get('/friends', authenticateToken, async (req: Request, res: Response) => {
+router.get('/friends', authenticateFirebase, async (req: Request, res: Response) => {
     const { user } = req;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
 
     try {
-        const friends = await getFriends(user.sub);
+        const friends = await getFriends(user.uid);
         res.status(200).json(friends);
     } catch (error) {
         console.error('Error fetching friends list:', error);
@@ -99,12 +119,16 @@ router.get('/friends', authenticateToken, async (req: Request, res: Response) =>
 });
 
 // Remove a friend
-router.delete('/friends/:friendId', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/friends/:friendId', authenticateFirebase, async (req: Request, res: Response) => {
     const { friendId } = req.params;
     const { user } = req;
+    if (!user || user.uid === friendId) {
+        res.status(400).json({ error: 'Invalid friend removal' });
+        return;
+    }
 
     try {
-        const removedFriend = await removeFriend(user.sub, friendId);
+        const removedFriend = await removeFriend(user.uid, friendId);
         if (removedFriend.length === 0) {
             res.status(404).json({ error: 'Friend not found' });
             return;

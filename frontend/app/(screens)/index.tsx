@@ -64,7 +64,7 @@ export default function Login() {
 
             // Create a Google credential with the token
             const googleCredential = GoogleAuthProvider.credential(idToken);
-
+            
             // Sign-in the user with the credential
             return signInWithCredential(getAuth(), googleCredential);
         } catch (error) {
@@ -88,8 +88,42 @@ export default function Login() {
     };
 
     // Handle user state changes
-    function handleAuthStateChanged(user: FirebaseAuthTypes.User | null) {
+    async function handleAuthStateChanged(user: FirebaseAuthTypes.User | null) {
         setUser(user);
+        if (user) {
+            const idToken = await user.getIdToken();
+            console.log('Sending ID token to server');
+            let response;
+            
+            try {
+                response = await fetch('http://localhost:3001/api/auth/firebase-login', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${idToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ idToken }),
+                });
+                console.log('Response from server:', response);
+            } catch (error) {
+                console.error('Error sending ID token to server:', error);
+            }
+
+            let data;
+            if (response) {
+                data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok) {
+                    console.log('Backend login success:', data);
+                } else {
+                    console.error('Backend login failed:', data.error);
+                }
+            } else {
+                console.error('No response received from server.');
+            }
+        }
+
         if (initializing) setInitializing(false);
     }
 

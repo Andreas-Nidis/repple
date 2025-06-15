@@ -1,31 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import admin from '../utils/firebaseAdmin';
+import { DecodedIdToken } from 'firebase-admin/auth';
 
-interface AuthenticatedRequest extends Request {
-  user?: { 
-    userId: number; 
-    email: string;
-    name: string;
-    picture: string;
-    sub: string; // Google user ID
-    };
+export interface AuthenticatedRequest extends Request {
+    user?: DecodedIdToken; // Extend Request to include user information
 }
 
-export function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer token
+export async function authenticateFirebase(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
     
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({ error: 'No token provided'});
         return;
     };
 
+    const token = authHeader.split(' ')[1];
+
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET! || 'dev-secret' ) as { userId: number; email: string; name: string; picture: string; sub: string };
-        req.user = decoded;
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        req.user = decodedToken;
         next();
     } catch (error) {
-        res.status(403).json({ error: 'Invalid token' });
+        console.error('Error verifying Firebase token:', error);
+        res.status(401).json({ error: 'Invalid Firebase token' });
         return;
     };
 };

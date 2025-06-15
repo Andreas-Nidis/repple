@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { getExercisesInWorkout, getExerciseInWorkout, addExerciseToWorkout, updateExerciseInWorkout, removeExerciseFromWorkout } from '../db/workoutExerciseQueries';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // Get all exercises in a workout
-router.get('/:workoutId/exercises', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:workoutId/exercises', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     if (!userId) {
@@ -23,7 +23,7 @@ router.get('/:workoutId/exercises', authenticateToken, async (req: Request, res:
 });
 
 // Get a specific exercise in a workout
-router.get('/:workoutId/exercises/:exerciseId', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     const exerciseId = parseInt(req.params.exerciseId, 10);
@@ -46,7 +46,7 @@ router.get('/:workoutId/exercises/:exerciseId', authenticateToken, async (req: R
 });
 
 // Add an exercise to a workout
-router.post('/:workoutId/exercises', authenticateToken, async (req: Request, res: Response) => {
+router.post('/:workoutId/exercises', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     const { exerciseId, sets, reps, restSeconds } = req.body;
@@ -66,7 +66,7 @@ router.post('/:workoutId/exercises', authenticateToken, async (req: Request, res
 });
 
 // Update an exercise in a workout
-router.put('/:workoutId/exercises/:exerciseId', authenticateToken, async (req: Request, res: Response) => {
+router.put('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     const exerciseId = parseInt(req.params.exerciseId, 10);
@@ -91,7 +91,7 @@ router.put('/:workoutId/exercises/:exerciseId', authenticateToken, async (req: R
 });
 
 // Remove an exercise from a workout
-router.delete('/:workoutId/exercises/:exerciseId', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const workoutId = parseInt(req.params.workoutId, 10);
     const exerciseId = parseInt(req.params.exerciseId, 10);

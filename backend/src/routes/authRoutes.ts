@@ -1,61 +1,44 @@
 import express from 'express';
 import type { Request, Response } from 'express'
-import { verifyGoogleToken } from '../auth/googleAuth';
-import jwt from 'jsonwebtoken';
 import { findOrCreateUser } from '../db/userQueries';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
+import { DecodedIdToken, UserRecord } from 'firebase-admin/auth';
 
 // Extend Express Request interface to include 'user'
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
-}
 
 const router = express.Router();
 
-router.get('/me', authenticateToken, async (req: Request, res: Response) => {
-  const user = req.user;;
-  res.json({ user });
+router.get('/me', authenticateFirebase, async (req: Request, res: Response) => {
+  res.json({ user: req.user });
 });
 
-router.post('/google-login', async (req: Request, res: Response) => {
-  const { idToken } = req.body;
-
-  if (!idToken) {
-    res.status(400).json({ error: 'Missing idToken' });
-    return;
-  };
-
+router.post('/firebase-login', authenticateFirebase, async (req: Request, res: Response) => {
   try {
-    const googleUser = await verifyGoogleToken(idToken);
+    if (!req.user) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+    const { uid, email, name, picture } = req.user;
+    console.log('Firebase user data:', { uid, email, name, picture });
 
-    if (!googleUser.sub || !googleUser.email) {
-      res.status(400).json({ error: 'Invalid Google user data' });
+    if (!uid || !email) {
+      res.status(400).json({ error: 'Invalid Firebase user data' });
       return;
     }
 
     // Check if user exists in DB, create if not
     const user = await findOrCreateUser(
-      googleUser.sub as string,
-      googleUser.email as string,
-      googleUser.picture ?? '',
-      googleUser.name ?? ''
+      uid as string,
+      email as string,
+      name ?? '',
+      picture ?? ''
     );
 
-    // Create JWT for your app (adjust secret & payload)
-    const token = jwt.sign(
-      { email: googleUser.email, sub: googleUser.sub },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '7d' }
-    );
-
-    res.json({ token, user: googleUser });
+    res.json({ user });
+    console.log('User logged in via Firebase:', user);
   } catch (error) {
-    console.error(error);
-    res.status(401).json({ error: 'Invalid Google token' });
+    console.error('Login Error:', error);
+    res.status(401).json({ error: 'Internal Server Error' });
   }
 });
 

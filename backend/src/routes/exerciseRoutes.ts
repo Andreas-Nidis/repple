@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { getExerciseByUser, getExerciseById, createExercise, updateExercise, deleteExercise } from '../db/exerciseQueries';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // Get all exercises for a user
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
+router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (typeof userId !== 'number') {
         res.status(400).json({ error: 'Invalid or missing userId' });
@@ -16,7 +16,7 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Get a specific exercise by ID
-router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:id', authenticateFirebase, async (req: Request, res: Response) => {
     const exerciseId = Number(req.params.id);
     const exercise = await getExerciseById(exerciseId);
     if (!exercise) {
@@ -27,7 +27,7 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Create a new exercise
-router.post('/', authenticateToken, async (req: Request, res: Response) => {
+router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     const { name, category, equipment, description, tutorial_url } = req.body;
     if (!name || typeof name !== 'string') {
@@ -40,7 +40,7 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Update an existing exercise
-router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
+router.put('/:id', authenticateFirebase, async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     const { name, category, equipment, description, tutorial_url } = req.body;
     const updatedExercise = await updateExercise(id, name, category, equipment, description, tutorial_url);
@@ -52,7 +52,7 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Delete an exercise
-router.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/:id', authenticateFirebase, async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     await deleteExercise(id);
     res.status(204).send();

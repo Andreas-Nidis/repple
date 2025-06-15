@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { getIngredientsByMealId, getIngredientById, createIngredient, updateIngredient, deleteIngredient } from '../db/ingredientQueries';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // Get all ingredients
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
+router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const mealId = parseInt(req.query.mealId as string, 10);
     if (isNaN(mealId)) {
         res.status(400).json({ error: 'Invalid meal ID' });
@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Get a specific ingredient by ID
-router.get('/:ingredientId', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
     const ingredientId = parseInt(req.params.ingredientId, 10);
     try {
         const ingredient = await getIngredientById(ingredientId);
@@ -38,7 +38,7 @@ router.get('/:ingredientId', authenticateToken, async (req: Request, res: Respon
 });
 
 // Create a new ingredient
-router.post('/', authenticateToken, async (req: Request, res: Response) => {
+router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
     const { name, category, calories, protein, carbs, fats } = req.body;
 
     if (!name || !category) {
@@ -56,7 +56,7 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Update an existing ingredient
-router.put('/:ingredientId', authenticateToken, async (req: Request, res: Response) => {
+router.put('/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
     const ingredientId = parseInt(req.params.ingredientId, 10);
     const { name, category, calories, protein, carbs, fats } = req.body;
 
@@ -79,7 +79,7 @@ router.put('/:ingredientId', authenticateToken, async (req: Request, res: Respon
 });
 
 // Delete an ingredient
-router.delete('/:ingredientId', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
     const ingredientId = parseInt(req.params.ingredientId, 10);
     try {
         const deletedIngredient = await deleteIngredient(ingredientId);

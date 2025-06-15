@@ -50,3 +50,6 @@ frontend/app-example
 
 #Pods
 frontend/ios/Pods/
+
+# Firebase
+backend/firebase-service-account.json

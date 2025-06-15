@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { getMealsByUser, getMealById, getMealIngredients, getMealSummary, createMeal, addIngredientToMeal, updateMeal, updateMealIngredient, deleteMeal } from '../db/mealQueries';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateFirebase } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // Get all meals for a user
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
+router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Get a specific meal by ID
-router.get('/:mealId', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:mealId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const mealId = parseInt(req.params.mealId, 10);
     if (!userId) {
@@ -44,7 +44,7 @@ router.get('/:mealId', authenticateToken, async (req: Request, res: Response) =>
 });
 
 // Get ingredients for a specific meal
-router.get('/:mealId/ingredients', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:mealId/ingredients', authenticateFirebase, async (req: Request, res: Response) => {
     const mealId = parseInt(req.params.mealId, 10);
     if (isNaN(mealId)) {
         res.status(400).json({ error: 'Invalid meal ID' });
@@ -61,7 +61,7 @@ router.get('/:mealId/ingredients', authenticateToken, async (req: Request, res: 
 });
 
 // Create a new meal
-router.post('/', authenticateToken, async (req: Request, res: Response) => {
+router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const { name, ingredients } = req.body;
 
@@ -80,7 +80,7 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Update an existing meal
-router.put('/:mealId', authenticateToken, async (req: Request, res: Response) => {
+router.put('/:mealId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const mealId = parseInt(req.params.mealId, 10);
     const { name, ingredients } = req.body;
@@ -104,7 +104,7 @@ router.put('/:mealId', authenticateToken, async (req: Request, res: Response) =>
 });
 
 // Update an ingredient in a meal
-router.put('/:mealId/ingredients/:ingredientId', authenticateToken, async (req: Request, res: Response) => {
+router.put('/:mealId/ingredients/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const mealId = parseInt(req.params.mealId, 10);
     const ingredientId = parseInt(req.params.ingredientId, 10);
@@ -129,7 +129,7 @@ router.put('/:mealId/ingredients/:ingredientId', authenticateToken, async (req: 
 });
 
 // Add an ingredient to a meal
-router.post('/:mealId/ingredients', authenticateToken, async (req: Request, res: Response) => {
+router.post('/:mealId/ingredients', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const mealId = parseInt(req.params.mealId, 10);
     const { ingredientId, quantity, unit } = req.body;
@@ -149,7 +149,7 @@ router.post('/:mealId/ingredients', authenticateToken, async (req: Request, res:
 });
 
 // Delete a meal
-router.delete('/:mealId', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/:mealId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const mealId = parseInt(req.params.mealId, 10);
     if (!userId || isNaN(mealId)) {
@@ -171,7 +171,7 @@ router.delete('/:mealId', authenticateToken, async (req: Request, res: Response)
 });
 
 // Get meal summary
-router.get('/:mealId/summary', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:mealId/summary', authenticateFirebase, async (req: Request, res: Response) => {
     const mealId = parseInt(req.params.mealId, 10);
     if (isNaN(mealId)) {
         res.status(400).json({ error: 'Invalid meal ID' });
