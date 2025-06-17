@@ -1,6 +1,7 @@
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { getAuth } from '@react-native-firebase/auth';
 import { useRouter } from 'expo-router';
+import HomeHeader from '@/components/screenComponents/home/HomeHeader';
 
 export default function HomePage() {
   const router = useRouter();
@@ -9,29 +10,12 @@ export default function HomePage() {
   router.replace('/')
   }
 
-  console.log(user);
-  console.log('Baco');
-  
-
   return (
-     <View style={styles.container}>
-        {/* <ProfileIcon> */}
-          {/* <Image style={styles.profilePhoto} src={user?.}/> */}
-        {/* </ProfileIcon> */}
-        <Text>{user?.displayName}!</Text>
-        <TouchableOpacity
-            onPress={() => {
-                getAuth().signOut().then(() => {
-                    console.log('User signed out!');
-                    router.replace('/')
-                }).catch((error) => {
-                    console.error('Sign out error:', error);
-                });
-            }}
-        >
-            <Text>Sign Out</Text>
-        </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <HomeHeader />
+        
+        
+    </SafeAreaView>
   );
 }
 
@@ -39,7 +23,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-  }
+  },
 });
