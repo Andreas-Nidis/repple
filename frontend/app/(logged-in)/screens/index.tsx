@@ -9,9 +9,16 @@ export default function HomePage() {
   router.replace('/')
   }
 
+  console.log(user);
+  console.log('Baco');
+  
+
   return (
      <View style={styles.container}>
-        <Text>Welcome {user?.displayName}</Text>
+        {/* <ProfileIcon> */}
+          {/* <Image style={styles.profilePhoto} src={user?.}/> */}
+        {/* </ProfileIcon> */}
+        <Text>{user?.displayName}!</Text>
         <TouchableOpacity
             onPress={() => {
                 getAuth().signOut().then(() => {

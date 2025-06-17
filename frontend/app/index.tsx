@@ -15,7 +15,8 @@ const { webClientId } = (Constants.expoConfig?.extra as { webClientId: string })
 
 GoogleSignin.configure({
     webClientId: webClientId,
-    offlineAccess: true
+    offlineAccess: true,
+    scopes: ['profile', 'email']
 });
 
 
@@ -68,7 +69,19 @@ export default function Login() {
             const googleCredential = GoogleAuthProvider.credential(idToken);
             
             // Sign-in the user with the credential
-            return signInWithCredential(getAuth(), googleCredential);
+            const firebaseUserCredential = await signInWithCredential(getAuth(), googleCredential);
+            const firebaseUser = firebaseUserCredential.user;
+
+            //Retrieve profile picture from google and store it in firebase
+            const photoURL = response.data?.user.photo;
+            if (photoURL) {
+                await firebaseUser.updateProfile({ photoURL });
+                console.log('Firebase user profile updated with photoURL:', photoURL);
+            } else {
+                console.warn('No photo URL found in Google user profile');
+            }
+
+            return firebaseUser;
         } catch (error) {
             console.error('Error during Google sign-in:', error);
             if (isErrorWithCode(error)) {
