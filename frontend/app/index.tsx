@@ -138,14 +138,15 @@ export default function Login() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text>index</Text>
+            <Text style={styles.titleText}>Repple</Text>
+            <Text style={styles.subtitle}>Create an account</Text>
             <GoogleSigninButton
-                style={{ width: 192, height: 48 }}
+                style={styles.googleButton}
                 size={GoogleSigninButton.Size.Wide}
-                color={GoogleSigninButton.Color.Dark}
+                color={GoogleSigninButton.Color.Light}
                 onPress={() => onGoogleButtonPress().then(() => {
                     console.log('Signed in with Google!')
-                    router.replace('/app/')
+                    router.replace('/(logged-in)/screens')
                 })}
                 disabled={false}
             />
@@ -160,4 +161,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  titleText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    paddingBottom: 2,
+  },
+  subtitle: {
+    fontSize: 16,
+    paddingBottom: 12,
+    fontWeight: 'bold',
+  }, 
+  googleButton: {
+    height: 48, 
+    width: 192,
+    shadowColor: '#171717',
+    shadowOffset: {width: 0, height: 10},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  }
 });

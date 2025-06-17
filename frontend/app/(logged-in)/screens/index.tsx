@@ -6,7 +6,7 @@ export default function HomePage() {
   const router = useRouter();
   const user = getAuth().currentUser;
   if(!user) {
-  router.replace('/(login)/')
+  router.replace('/')
   }
 
   return (
@@ -16,7 +16,7 @@ export default function HomePage() {
             onPress={() => {
                 getAuth().signOut().then(() => {
                     console.log('User signed out!');
-                    router.replace('/(login)/')
+                    router.replace('/')
                 }).catch((error) => {
                     console.error('Sign out error:', error);
                 });
