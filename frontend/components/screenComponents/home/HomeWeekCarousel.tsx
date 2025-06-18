@@ -1,8 +1,9 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import dayjs from 'dayjs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import CalendarModal from './CalendarModal'
 
 const HomeWeekCarousel = () => {
   const [weekDays, setWeekDays] = useState<{day: string; date: string}[]>([]);
@@ -74,6 +75,15 @@ const HomeWeekCarousel = () => {
           contentContainerStyle={{ alignItems: 'center' }}
           renderItem={({ item }) => <Item day={item.day} date={item.date} />} 
         />
+
+        <CalendarModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          selectedDay={selectedDay}
+          loading={loading}
+          entries={entries}
+        />
+
         <TouchableOpacity onPress={() => {}}>
           <Ionicons name='chevron-forward' size={24} color='black' />
         </TouchableOpacity>
@@ -107,5 +117,24 @@ const styles = StyleSheet.create({
   boxText: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    marginTop: 100,
+    marginBottom: 100,
+    marginHorizontal: 20,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 20,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
   },
 })
