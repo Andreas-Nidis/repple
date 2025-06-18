@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
+import { getAuth } from '@react-native-firebase/auth'
 import dayjs from 'dayjs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
@@ -23,11 +24,38 @@ const HomeWeekCarousel = () => {
     setWeekDays(days);
   }, [])
 
+  const handleDayPress = async (date:string) => {
+    setSelectedDay(date);
+    setModalVisible(true);
+    setLoading(true);
+
+    const params = new URLSearchParams({
+      startDate: date,
+      endDate: date,
+    }).toString();
+
+    try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`http://localhost:3001/api/calender?${params}`, {
+        headers: {
+          Authorization: `Bearer: ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      setEntries(data.rows)
+    } catch (error) {
+      console.log('Error fetching or setting data from within handleDayPress', error);
+    } finally {
+      setLoading(false)
+    }
+  }
+  
   const Item = ({day, date}: {day: string, date: string}) => (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => handleDayPress(date)}>
       <View style={styles.dayBox}>
-        <Text style={styles.boxText}>{date}</Text>
         <Text style={styles.boxText}>{day}</Text>
+        <Text style={styles.boxText}>{dayjs(date).format('D')}</Text>
       </View>
     </TouchableOpacity>
   )
