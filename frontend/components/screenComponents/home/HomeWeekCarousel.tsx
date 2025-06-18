@@ -1,10 +1,27 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import dayjs from 'dayjs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 const HomeWeekCarousel = () => {
-  // const [loading, setLoading] = useState(true);
-  // setLoading(false);
+  const [weekDays, setWeekDays] = useState<{day: string; date: string}[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [entries, setEntries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const today = dayjs();
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const current = today.add(i, 'day');
+      days.push({
+        date: current.format('YYYY-MM-DD'),
+        day: current.format('ddd'),
+      });
+    }
+    setWeekDays(days);
+  }, [])
 
   const Item = ({day, date}: {day: string, date: string}) => (
     <TouchableOpacity>
@@ -22,13 +39,13 @@ const HomeWeekCarousel = () => {
         <TouchableOpacity onPress={() => {}}>
           <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
-        <FlatList 
+        {/* <FlatList 
           horizontal
           data={}
           keyExtractor={}
           contentContainerStyle={{ alignItems: 'center' }}
           renderItem={} 
-        />
+        /> */}
         <TouchableOpacity onPress={() => {}}>
           <Ionicons name='chevron-forward' size={24} color='black' />
         </TouchableOpacity>
