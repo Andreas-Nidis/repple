@@ -1,9 +1,12 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
-import dayjs from 'dayjs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import CalendarModal from './CalendarModal'
+import dayjs from 'dayjs'
+import isoWeek from 'dayjs/plugin/isoWeek';
+
+dayjs.extend(isoWeek);
 
 const HomeWeekCarousel = () => {
   const [weekDays, setWeekDays] = useState<{day: string; date: string}[]>([]);
@@ -11,19 +14,24 @@ const HomeWeekCarousel = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(0);
 
-  useEffect(() => {
-    const today = dayjs();
+  const generateWeek = (offset: number) => {
+    const startOfWeek = dayjs().add(offset, 'week').startOf('isoWeek');
     const days = [];
     for (let i = 0; i < 7; i++) {
-      const current = today.add(i, 'day');
+      const current = startOfWeek.add(i, 'day');
       days.push({
         date: current.format('YYYY-MM-DD'),
         day: current.format('ddd'),
       });
     }
     setWeekDays(days);
-  }, [])
+  };
+
+  useEffect(() => {
+    generateWeek(weekOffset);
+  }, [weekOffset])
 
   const handleDayPress = async (date:string) => {
     setSelectedDay(date);
@@ -65,7 +73,11 @@ const HomeWeekCarousel = () => {
   return (
     <View>
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => {
+          const newOffset = weekOffset + -1;
+          setWeekOffset(newOffset);
+          generateWeek(newOffset);
+        }}>
           <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
         <FlatList 
@@ -84,7 +96,11 @@ const HomeWeekCarousel = () => {
           entries={entries}
         />
 
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => {
+          const newOffset = weekOffset + 1;
+          setWeekOffset(newOffset);
+          generateWeek(newOffset);
+        }}>
           <Ionicons name='chevron-forward' size={24} color='black' />
         </TouchableOpacity>
       </View>
