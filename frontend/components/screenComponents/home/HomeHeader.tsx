@@ -12,7 +12,7 @@ const HomeHeader = () => {
 
     return (
         <View style={styles.headerContainer}>
-            <View style={styles.exitAndPhotoContainer}>
+            <View style={styles.exitContainer}>
                 <TouchableOpacity
                 onPress={() => {
                     getAuth().signOut().then(() => {
@@ -40,17 +40,17 @@ const HomeHeader = () => {
 export default HomeHeader
 
 const styles = StyleSheet.create({
-  exitAndPhotoContainer: {
-    flexDirection: 'row',
-    height: '100%',
-    alignItems: 'center',
-  },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     width: '95%',
     marginRight: 35,
+  },
+  exitContainer: {
+    flexDirection: 'row',
+    height: '100%',
+    alignItems: 'center',
   },
   profilePhoto: {
     height: 70,

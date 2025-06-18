@@ -12,6 +12,7 @@ import ingredientRoutes from './routes/ingredientRoutes';
 import mealRoutes from './routes/mealRoutes';
 import workoutRoutes from './routes/workoutRoutes';
 import workoutExerciseRoutes from './routes/workoutExerciseRoutes';
+import calenderRoutes from './routes/calenderRoutes';
 import { setupSocketIO } from './socket';
 
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/workout-exercises', workoutExerciseRoutes);
+app.use('/api/calender', calenderRoutes)
 
 // Health check route
 app.get('/', (req, res) => {

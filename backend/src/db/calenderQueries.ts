@@ -18,12 +18,12 @@ export async function createCalenderEntry(userId: string, workoutId: string, sch
     return result;
 }
 
-export async function toggleCompletion(userId: string, entryId: string) {
+export async function toggleCompletion(userId: string, scheduledDate: string) {
     const result = await sql.query(
         `UPDATE calender_entries
         SET is_completed = NOT is_completed
-        WHERE user_id = $1 AND id = $2
-        RETURNING *`, [userId, entryId]
+        WHERE user_id = $1 AND scheduled_date = $2
+        RETURNING *`, [userId, scheduledDate]
     );
     return result;
 }

@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 router.use(authenticateFirebase);
 
-router.get('/week', async (req, res) => {
+router.get('/', async (req, res) => {
     const userId = req.user?.id;
     const { startDate, endDate } = req.query;
 
