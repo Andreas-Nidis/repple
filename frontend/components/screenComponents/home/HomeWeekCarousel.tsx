@@ -36,7 +36,7 @@ const HomeWeekCarousel = ({fetchWeekData, onSelectDay}: Props) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View>
       <View>
         <TouchableOpacity onPress={() => handleArrowPress('prev')}>
           <Ionicons name='chevron-back' size={24} color='#7a2d55' />
@@ -78,9 +78,9 @@ const HomeWeekCarousel = ({fetchWeekData, onSelectDay}: Props) => {
                 <Text>{dayName}</Text>
                 <Text>{dayNum}</Text>
               </TouchableOpacity>
-
-            )
+            );
           }}
+        />
       )}
     </View>
   )
@@ -89,10 +89,44 @@ const HomeWeekCarousel = ({fetchWeekData, onSelectDay}: Props) => {
 export default HomeWeekCarousel
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+  wrapper: {
+    marginTop: 20,
+    paddingHorizontal: 10,
+  },
+  navRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'lightgray',
-  }
+  },
+  weekLabel: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  carousel: {
+    marginTop: 10,
+    gap: 6,
+  },
+  dayBox: {
+    width: 60,
+    height: 80,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 4,
+  },
+  selectedBox: {
+    borderColor: '#7a2d55',
+    borderWidth: 2,
+  },
+  completedBox: {
+    backgroundColor: '#cce5cc',
+  },
+  dayText: {
+    fontSize: 14,
+  },
+  dayNum: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 })
