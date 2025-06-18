@@ -67,13 +67,13 @@ const HomeWeekCarousel = () => {
         <TouchableOpacity onPress={() => {}}>
           <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
-        {/* <FlatList 
+        <FlatList 
           horizontal
-          data={}
-          keyExtractor={}
+          data={weekDays}
+          keyExtractor={(item) => item.date}
           contentContainerStyle={{ alignItems: 'center' }}
-          renderItem={} 
-        /> */}
+          renderItem={({ item }) => <Item day={item.day} date={item.date} />} 
+        />
         <TouchableOpacity onPress={() => {}}>
           <Ionicons name='chevron-forward' size={24} color='black' />
         </TouchableOpacity>
