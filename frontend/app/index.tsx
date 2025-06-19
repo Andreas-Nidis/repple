@@ -23,7 +23,7 @@ GoogleSignin.configure({
 
 export default function Login() {
     const router = useRouter();
-  console.log('index started');
+    console.log('index started');
     // Set an initializing state whilst Firebase connects
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
@@ -106,8 +106,8 @@ export default function Login() {
     async function handleAuthStateChanged(user: FirebaseAuthTypes.User | null) {
         setUser(user);
         if (user) {
-            const idToken = await user.getIdToken();
-            console.log('Sending ID token to server');
+            const idToken = await user.getIdToken(true);
+            // console.log('Sending ID token to server', idToken);
             let response;
             
             try {
@@ -117,7 +117,6 @@ export default function Login() {
                         Authorization: `Bearer ${idToken}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ idToken }),
                 });
                 console.log('Response from server:', response);
             } catch (error) {

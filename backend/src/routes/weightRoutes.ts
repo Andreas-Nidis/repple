@@ -1,14 +1,12 @@
 import express from 'express';
 import { authenticateFirebase } from '../middleware/authMiddleware';
-import { getWeightEntries, createOrUpdateWeightEntries } from '../db/weightQueries';
+import { getWeightEntries, createWeightEntry, updateWeightEntry, deleteWeightEntries } from '../db/weightQueries';
 
 const router = express.Router();
 router.use(authenticateFirebase);
 
 router.get('/', async (req, res) => {
-    // console.log(req.user);
     const userId = req.user?.id;
-    // console.log(userId);
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return
@@ -18,7 +16,7 @@ router.get('/', async (req, res) => {
     res.json(result);
 })
 
-router.post('/', async(req, res) => {
+router.post('/', async (req, res) => {
     const userId = req.user?.id;
     const { weekStart, weight } = req.body;
 
@@ -27,8 +25,40 @@ router.post('/', async(req, res) => {
         return;
     }
     
-    await createOrUpdateWeightEntries(userId, weekStart, weight);
+    await createWeightEntry(userId, weekStart, weight);
     res.sendStatus(200);
+})
+
+router.put('/:weekStart', async (req, res) => {
+    const userId = req.user?.id;
+    const { weekStart } = req.params;
+    const { weight } = req.body;
+
+    if (!userId || !weekStart || !weight) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+    }
+
+    await updateWeightEntry(userId, weekStart, weight);
+    res.sendStatus(200);
+})
+
+router.delete('/:weekStart', async (req, res) => {
+    try {
+        const { weekStart } = req.params;
+        const userId = req.user?.id;
+
+        if (!userId || !weekStart) {
+            res.status(400).json({ error: 'Missing required fields' });
+            return;
+        }
+
+        await deleteWeightEntries(userId, weekStart);
+        res.status(200).json({ message: 'Weight entry deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting weight:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
 })
 
 export default router;

@@ -21,13 +21,11 @@ const WeightChart = () => {
             try {
                 const user = getAuth().currentUser;
                 const idToken = await user?.getIdToken();
-                console.log('Token Id: ', idToken);
                 const response = await fetch(`http://localhost:3001/api/weights`, {
                     headers: {
                         Authorization: `Bearer ${idToken}`,
                     }
                 })
-                console.log(response);
 
                 if (!response.ok) {
                     const errorText = await response.text(); // Get the real error
@@ -36,7 +34,6 @@ const WeightChart = () => {
                 }
 
                 const data = await response.json();
-                console.log(data);
                 setWeightData(data);
             } catch (error) {
                 console.log('Error fetching and setting weight data:', error);
@@ -45,15 +42,22 @@ const WeightChart = () => {
         loadWeights();
     }, []);
 
-    const weights = weightData.map(data => data.weight);
-    const labels = weightData.map(data => new Date(data.week_start).toLocaleDateString('en-GB', {
-        day: '2-digit', month: '2-digit'
-    }));
+    const weights = weightData
+        .map(data => typeof data.weight === 'number' ? data.weight : parseFloat(data.weight as string))
+        .filter(weight => typeof weight === 'number' && !isNaN(weight));
+    const labels = weightData
+        .filter(data => typeof data.weight === 'number' || !isNaN(parseFloat(data.weight as string)))
+        .map(data =>
+            new Date(data.week_start).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+            })
+        );
 
     return (
         <View style={styles.chartContainer}>
             <TouchableOpacity style={styles.chartTouchableOpacity} onPress={() => setModalVisible(true)}>
-                {weights.length >= 2 ? (
+                {weights.length >= 1 ? (
                 <LineChart 
                     data={{
                         labels: labels,
@@ -89,25 +93,46 @@ const WeightChart = () => {
                     onClose={() => setModalVisible(false)}
                     data={weightData}
                     onSubmit={async (updatedData: WeightEntry[]) => {
-                        const user = getAuth().currentUser;
-                        const idToken = await user?.getIdToken();
+                        try {
+                            const user = getAuth().currentUser;
+                            const idToken = await user?.getIdToken();
 
-                        for(const entry of updatedData) {
-                            await fetch(`http://localhost:3001/api/weights`, {
-                                method: 'POST',
+                            for(const entry of updatedData) {
+                                const dateOnly = new Date(entry.week_start).toISOString().split('T')[0];
+                                const existing = weightData.find(d => d.week_start === dateOnly);
+                                const method = existing ? 'PUT' : 'POST';
+                                console.log(method);
+                                const url = method === 'POST'
+                                    ? `http://localhost:3001/api/weights`
+                                    : `http://localhost:3001/api/weights/${entry.week_start}`;
+                                console.log(url);
+
+                                await fetch(url, {
+                                    method: method,
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${idToken}`,
+                                    },
+                                    body: JSON.stringify({
+                                        weekStart: entry.week_start,
+                                        weight: parseFloat(entry.weight as unknown as string),
+                                    }),
+                                });
+                            }
+
+                           
+                            const response = await fetch(`http://localhost:3001/api/weights`, {
                                 headers: {
-                                    'Content-Type': 'application/json',
                                     Authorization: `Bearer ${idToken}`,
                                 },
-                                body: JSON.stringify({
-                                    weekStart: entry.week_start,
-                                    weight: entry.weight,
-                                }),
                             });
+
+                            const freshData = await response.json();
+                            setWeightData(freshData);
+                            setModalVisible(false);
+                        } catch (error) {
+                            console.error("Failed to save weights:", error);
                         }
-                        
-                        setWeightData(updatedData);
-                        setModalVisible(false);
                     }}
                 
                 />
