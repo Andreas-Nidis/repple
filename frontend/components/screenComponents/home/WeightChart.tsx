@@ -1,4 +1,4 @@
-import { TouchableOpacity, Dimensions, Text } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Dimensions, Text } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { LineChart } from 'react-native-chart-kit'; 
 import { getAuth } from '@react-native-firebase/auth';
@@ -51,75 +51,87 @@ const WeightChart = () => {
     }));
 
     return (
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-            {weights.length >= 2 ? (
-            <LineChart 
-                data={{
-                    labels: labels,
-                    datasets: [{data: weights}]
-                }}
-                width={screenWidth - 32}
-                height={220}
-                yAxisSuffix='KG'
-                yAxisInterval={1}
-                chartConfig={{
-                    backgroundColor: 'white',
-                    backgroundGradientFrom: 'white',
-                    backgroundGradientTo: 'lightgray',
-                    decimalPlaces: 1,
-                    color: (opacity = 1) => `rgba(122, 45, 85, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    propsForDots: {
-                        r: '5',
-                        strokeWidth: '2',
-                        stroke: '#000000'
-                    }
-                }}
-                bezier
-                style={{
-                    marginVertical: 8,
-                    borderRadius: 16
-                }}
-            />) : (
-                <Text>Not enough data available.</Text>
-            )}
-            <WeightModal 
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                data={weightData}
-                onSubmit={async (updatedData: WeightEntry[]) => {
-                    const user = getAuth().currentUser;
-                    const idToken = await user?.getIdToken();
+        <View style={styles.chartContainer}>
+            <TouchableOpacity style={styles.chartTouchableOpacity} onPress={() => setModalVisible(true)}>
+                {weights.length >= 2 ? (
+                <LineChart 
+                    data={{
+                        labels: labels,
+                        datasets: [{data: weights}]
+                    }}
+                    width={screenWidth - 32}
+                    height={220}
+                    yAxisSuffix='KG'
+                    yAxisInterval={1}
+                    chartConfig={{
+                        backgroundColor: 'white',
+                        backgroundGradientFrom: 'white',
+                        backgroundGradientTo: 'lightgray',
+                        decimalPlaces: 1,
+                        color: (opacity = 1) => `rgba(122, 45, 85, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        propsForDots: {
+                            r: '5',
+                            strokeWidth: '2',
+                            stroke: '#000000'
+                        }
+                    }}
+                    bezier
+                    style={{
+                        marginVertical: 8,
+                        borderRadius: 16
+                    }}
+                />) : (
+                    <Text>Not enough data available.</Text>
+                )}
+                <WeightModal 
+                    visible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    data={weightData}
+                    onSubmit={async (updatedData: WeightEntry[]) => {
+                        const user = getAuth().currentUser;
+                        const idToken = await user?.getIdToken();
 
-                    for(const entry of updatedData) {
-                        await fetch(`http://localhost:3001/api/weights`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: `Bearer ${idToken}`,
-                            },
-                            body: JSON.stringify({
-                                weekStart: entry.week_start,
-                                weight: entry.weight,
-                            }),
-                        });
-                    }
-                    
-                    setWeightData(updatedData);
-                    setModalVisible(false);
-                }}
-            
-            />
-        </TouchableOpacity>
+                        for(const entry of updatedData) {
+                            await fetch(`http://localhost:3001/api/weights`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${idToken}`,
+                                },
+                                body: JSON.stringify({
+                                    weekStart: entry.week_start,
+                                    weight: entry.weight,
+                                }),
+                            });
+                        }
+                        
+                        setWeightData(updatedData);
+                        setModalVisible(false);
+                    }}
+                
+                />
+            </TouchableOpacity>
+        </View>
     )
 }
 
 export default WeightChart
 
-// const styles = StyleSheet.create({
-//     container: {
-//         width: '95%',
-//         height: '50%',
-//         backgroundColor: 'lightgray',
-//     }
-// })
+const styles = StyleSheet.create({
+    chartContainer: {
+        marginTop: 20,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 200,
+        width: '95%',
+    },
+    chartTouchableOpacity: {
+        height: '100%', 
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+})
