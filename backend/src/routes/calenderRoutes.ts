@@ -11,6 +11,7 @@ router.use(authenticateFirebase);
 
 router.get('/', async (req, res) => {
     const userId = req.user?.id;
+    console.log('Calender userId: ', userId);
     const { startDate, endDate } = req.query;
 
     try {

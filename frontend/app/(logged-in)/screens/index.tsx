@@ -3,6 +3,7 @@ import { getAuth } from '@react-native-firebase/auth';
 import { useRouter } from 'expo-router';
 import HomeHeader from '@/components/screenComponents/home/HomeHeader';
 import HomeWeekCarousel from '@/components/screenComponents/home/HomeWeekCarousel';
+import WeightChart from '@/components/screenComponents/home/WeightChart';
 
 export default function HomePage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function HomePage() {
     <SafeAreaView style={styles.container}>
       <HomeHeader />
       <HomeWeekCarousel />
+      <WeightChart />
     </SafeAreaView>
   );
 }

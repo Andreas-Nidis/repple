@@ -50,7 +50,7 @@ app.use('/api/meals', mealRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/workout-exercises', workoutExerciseRoutes);
 app.use('/api/calender', calenderRoutes);
-app.use('api/weight', weightRoutes);
+app.use('/api/weights', weightRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
