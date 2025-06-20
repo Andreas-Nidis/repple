@@ -18,42 +18,44 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const userId = req.user?.id;
-    const { weekStart, weight } = req.body;
+    const { entryDate, weight } = req.body;
 
-    if (!userId || !weekStart || !weight) {
+    if (!userId || !entryDate || !weight) {
         res.status(400).json({ error: 'Missing required fields' });
         return;
     }
     
-    await createWeightEntry(userId, weekStart, weight);
+    await createWeightEntry(userId, entryDate, weight);
     res.sendStatus(200);
 })
 
-router.put('/:weekStart', async (req, res) => {
+router.put('/:entryDate', async (req, res) => {
     const userId = req.user?.id;
-    const { weekStart } = req.params;
+    const { entryDate } = req.params;
     const { weight } = req.body;
 
-    if (!userId || !weekStart || !weight) {
+    if (!userId || !entryDate || !weight) {
         res.status(400).json({ error: 'Missing required fields' });
         return;
     }
 
-    await updateWeightEntry(userId, weekStart, weight);
+    await updateWeightEntry(userId, entryDate, weight);
     res.sendStatus(200);
 })
 
-router.delete('/:weekStart', async (req, res) => {
+router.delete('/:entryDate', async (req, res) => {
     try {
-        const { weekStart } = req.params;
+        const { entryDate } = req.params;
         const userId = req.user?.id;
 
-        if (!userId || !weekStart) {
+        if (!userId || !entryDate) {
             res.status(400).json({ error: 'Missing required fields' });
             return;
         }
 
-        await deleteWeightEntries(userId, weekStart);
+        console.log("Starting to delete weight ", entryDate)
+
+        await deleteWeightEntries(userId, entryDate);
         res.status(200).json({ message: 'Weight entry deleted successfully.' });
     } catch (error) {
         console.error('Error deleting weight:', error);

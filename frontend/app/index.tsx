@@ -23,7 +23,7 @@ GoogleSignin.configure({
 
 export default function Login() {
     const router = useRouter();
-    console.log('index started');
+    // console.log('index started');
     // Set an initializing state whilst Firebase connects
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
@@ -37,7 +37,7 @@ export default function Login() {
                 
         try {
             currentUser = GoogleSignin.getCurrentUser();
-            console.log('Current user:', currentUser);
+            // console.log('Current user:', currentUser);
         } catch (error) {
             console.error('Error getting current user:', error);
         }
@@ -53,10 +53,10 @@ export default function Login() {
             // Get the users ID token
             console.log('Attempting Google sign in...');
             const response = await GoogleSignin.signIn();
-            console.log('Google sign in response:', response.data?.idToken);
+            // console.log('Google sign in response:', response.data?.idToken);
             // Try the new style of google-sign in result, from v13+ of that module
             let idToken = response.data?.idToken;
-            console.log('idToken', idToken);
+            // console.log('idToken', idToken);
             if (!idToken) {
                 // if you are using older versions of google-signin, try old style result
                 idToken = response.idToken;
@@ -76,7 +76,7 @@ export default function Login() {
             const photoURL = response.data?.user.photo;
             if (photoURL) {
                 await firebaseUser.updateProfile({ photoURL });
-                console.log('Firebase user profile updated with photoURL:', photoURL);
+                // console.log('Firebase user profile updated with photoURL:', photoURL);
             } else {
                 console.warn('No photo URL found in Google user profile');
             }
@@ -118,7 +118,7 @@ export default function Login() {
                         'Content-Type': 'application/json',
                     },
                 });
-                console.log('Response from server:', response);
+                // console.log('Response from server:', response);
             } catch (error) {
                 console.error('Error sending ID token to server:', error);
             }
@@ -126,7 +126,7 @@ export default function Login() {
             let data;
             if (response) {
                 data = await response.json();
-                console.log('Response data:', data);
+                // console.log('Response data:', data);
 
                 if (response.ok) {
                     console.log('Backend login success:', data);

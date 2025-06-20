@@ -1,46 +1,106 @@
-import { StyleSheet, View, TouchableOpacity, Dimensions, Text } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Dimensions, Text, TextInput, Modal, Button, Platform } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { LineChart } from 'react-native-chart-kit'; 
 import { getAuth } from '@react-native-firebase/auth';
-import WeightModal from './WeightModal';
+import DateTimePicker from '@react-native-community/datetimepicker'
 
 const screenWidth = Dimensions.get('window').width;
 
 type WeightEntry = {
-    week_start: string;
+    entry_date: string;
     weight: number;
 }
 
 const WeightChart = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [weightData, setWeightData] = useState<WeightEntry[]>([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [weightInput, setWeightInput] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    function formatDateLocal(date: Date): string {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const getWeightEntries = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/weights`, {
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            })
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API returned error:', errorText);
+                return;
+            }
+
+            const data = await response.json();
+            setWeightData(data);
+        } catch (error) {
+            console.log('Error fetching and setting weight data:', error);
+        }
+    };
+
+    const handleAddEntry = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+
+            const isoDate = formatDateLocal(selectedDate);
+            const weightNumber = parseFloat(weightInput);
+
+            if (isNaN(weightNumber)) {
+                alert("Please enter a valid number.");
+                return;
+            }
+
+            const response = await fetch('http://localhost:3001/api/weights', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    entryDate: isoDate,
+                    weight: weightNumber
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                console.error("Error posting weight:", error);
+                return;
+            }
+
+            await getWeightEntries(); // Refresh the chart
+            setModalVisible(false);
+            setWeightInput('');
+        } catch (error) {
+            console.error('Failed to add weight entry:', error);
+        }
+    };
+
     
 
+    const entryExistsForDate = (date: Date) => {
+        const selectedDateStr = formatDateLocal(date);
+        return weightData.some(entry => entry.entry_date === selectedDateStr);
+    };
+
     useEffect(() => {
-        const loadWeights = async () => {
-            try {
-                const user = getAuth().currentUser;
-                const idToken = await user?.getIdToken();
-                const response = await fetch(`http://localhost:3001/api/weights`, {
-                    headers: {
-                        Authorization: `Bearer ${idToken}`,
-                    }
-                })
-
-                if (!response.ok) {
-                    const errorText = await response.text(); // Get the real error
-                    console.error('API returned error:', errorText);
-                    return;
-                }
-
-                const data = await response.json();
-                setWeightData(data);
-            } catch (error) {
-                console.log('Error fetching and setting weight data:', error);
-            }
-        }
-        loadWeights();
+        getWeightEntries();
     }, []);
+
+    useEffect(() => {
+        console.log('Current weightData dates:', weightData.map(e => e.entry_date));
+    }, [weightData]);
 
     const weights = weightData
         .map(data => typeof data.weight === 'number' ? data.weight : parseFloat(data.weight as string))
@@ -48,7 +108,7 @@ const WeightChart = () => {
     const labels = weightData
         .filter(data => typeof data.weight === 'number' || !isNaN(parseFloat(data.weight as string)))
         .map(data =>
-            new Date(data.week_start).toLocaleDateString('en-GB', {
+            new Date(data.entry_date).toLocaleDateString('en-GB', {
                 day: '2-digit',
                 month: '2-digit',
             })
@@ -88,54 +148,77 @@ const WeightChart = () => {
                 />) : (
                     <Text>Not enough data available.</Text>
                 )}
-                <WeightModal 
+                <Modal
                     visible={modalVisible}
-                    onClose={() => setModalVisible(false)}
-                    data={weightData}
-                    onSubmit={async (updatedData: WeightEntry[]) => {
-                        try {
-                            const user = getAuth().currentUser;
-                            const idToken = await user?.getIdToken();
+                    animationType='slide'
+                    transparent={true}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Add Weight Entry</Text>
 
-                            for(const entry of updatedData) {
-                                const dateOnly = new Date(entry.week_start).toISOString().split('T')[0];
-                                const existing = weightData.find(d => d.week_start === dateOnly);
-                                const method = existing ? 'PUT' : 'POST';
-                                console.log(method);
-                                const url = method === 'POST'
-                                    ? `http://localhost:3001/api/weights`
-                                    : `http://localhost:3001/api/weights/${entry.week_start}`;
-                                console.log(url);
+                            <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
+                                <Text style={styles.datePickerText}>
+                                    {selectedDate.toDateString()}
+                                </Text>
+                            </TouchableOpacity>
 
-                                await fetch(url, {
-                                    method: method,
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${idToken}`,
-                                    },
-                                    body: JSON.stringify({
-                                        weekStart: entry.week_start,
-                                        weight: parseFloat(entry.weight as unknown as string),
-                                    }),
-                                });
-                            }
+                            {showDatePicker && (
+                                <DateTimePicker
+                                    value={selectedDate}
+                                    mode="date"
+                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                    onChange={(event, date) => {
+                                        setShowDatePicker(false);
+                                        if (date) setSelectedDate(date);
+                                    }}
+                                />
+                            )}
 
-                           
-                            const response = await fetch(`http://localhost:3001/api/weights`, {
-                                headers: {
-                                    Authorization: `Bearer ${idToken}`,
-                                },
-                            });
+                            <TextInput
+                                placeholder="Enter weight (kg)"
+                                keyboardType="numeric"
+                                value={weightInput}
+                                onChangeText={setWeightInput}
+                                style={styles.input}
+                            />
 
-                            const freshData = await response.json();
-                            setWeightData(freshData);
-                            setModalVisible(false);
-                        } catch (error) {
-                            console.error("Failed to save weights:", error);
-                        }
-                    }}
-                
-                />
+                            <View style={styles.buttonRow}>
+                                <Button title="Cancel" color="gray" onPress={() => setModalVisible(false)} />
+                                <Button title="Save" onPress={handleAddEntry} />
+                                {entryExistsForDate(selectedDate) && (
+                                    <Button title="Delete Entry" color="red" onPress={async () => {
+                                        try {
+                                            const user = getAuth().currentUser;
+                                            const idToken = await user?.getIdToken();
+                                            const isoDate = formatDateLocal(selectedDate);
+
+                                            const response = await fetch(`http://localhost:3001/api/weights/${isoDate}`, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    Authorization: `Bearer ${idToken}`
+                                                }
+                                            });
+
+                                            if (!response.ok) {
+                                                const error = await response.text();
+                                                console.error("Failed to delete entry:", error);
+                                                return;
+                                            }
+
+                                            await getWeightEntries();
+                                            setModalVisible(false);
+                                            setWeightInput('');
+                                        } catch (error) {
+                                            console.error("Delete error:", error);
+                                        }
+                                    }} />
+                                )}
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </TouchableOpacity>
         </View>
     )
@@ -158,5 +241,46 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    modalBackground: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '85%',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 16,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        textAlign: 'center'
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 12,
+    },
+    datePickerButton: {
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        marginBottom: 12,
+        alignItems: 'center'
+    },
+    datePickerText: {
+        color: '#000',
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
 })
