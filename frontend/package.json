@@ -16,6 +16,7 @@
     "@react-native-firebase/app": "^22.2.1",
     "@react-native-firebase/auth": "^22.2.1",
     "@react-native-google-signin/google-signin": "^14.0.1",
+    "@react-native-vector-icons/material-design-icons": "^12.0.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
