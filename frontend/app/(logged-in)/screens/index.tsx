@@ -28,7 +28,7 @@ export default function HomePage() {
             <MaterialDesignIcons
                 style={{padding: 5}} 
                 name="weight-lifter"
-                size={30}
+                size={32}
                 color='black'
             />
           </View>
@@ -42,7 +42,7 @@ export default function HomePage() {
             <MaterialDesignIcons
                 style={{padding: 5}} 
                 name="pot-steam-outline"
-                size={30}
+                size={32}
                 color='black'
             />
           </View>
