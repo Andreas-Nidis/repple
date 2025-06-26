@@ -8,7 +8,7 @@ import { getAuth } from '@react-native-firebase/auth';
 type Workout = {
   name: string;
   category: string;
-  // add other properties if needed
+  id: string;
 };
 
 const Index = () => {
@@ -77,8 +77,8 @@ const Index = () => {
     getWorkoutEntries();
   }, []);
 
-  const Item = ({name, category }: {name: string, category: string}) => (
-    <TouchableOpacity onPress={() => router.push('/(logged-in)/screens/workouts/[workoutId]')}>
+  const Item = ({name, category, id }: {name: string, category: string, id: string}) => (
+    <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/${id}`)}>
       <View style={styles.workoutBox}>
         <Text style={styles.boxText}>{name}</Text>
         <Text style={styles.boxText}>{category}</Text>
@@ -101,19 +101,19 @@ const Index = () => {
       </View>
 
       <View style={{flex: 1}}>
-        <View>
+        <View style={styles.flatlist}>
           {workouts.length < 1 ? ( <Text>Create a workout!</Text> ) : (
             <FlatList 
               data={workouts}
-              contentContainerStyle={{ alignItems: 'center' }}
-              renderItem={({ item }) =>  <Item name={item.name} category={item.category} />}
+              contentContainerStyle={{ width: '80%' }}
+              renderItem={({ item }) =>  <Item name={item.name} category={item.category} id={item.id} />}
             />
           )}
         </View>
         <View>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
             <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
-            <Text>Add Workout</Text>
+            <Text style={styles.addButtonText}>Add Workout</Text>
           </TouchableOpacity>
           <Modal 
             visible={modalVisible}
@@ -205,23 +205,23 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   modalBackground: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContent: {
-      width: '85%',
-      backgroundColor: 'white',
-      padding: 20,
-      borderRadius: 16,
-      elevation: 10,
+    width: '85%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 16,
+    elevation: 10,
   },
   modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 16,
-      textAlign: 'center'
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center'
   },
   input: {
     borderWidth: 1,
@@ -234,13 +234,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  workoutButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    // width: '80%',
+  },
   workoutBox: {
     flexDirection: 'row',
-    borderColor: 'black',
-    borderWidth: 1,
+    backgroundColor: 'lightgray',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '80%',
+    width: '100%',
+    height: 30,
+    margin: 10,
+  }, 
+  addButton: {
+    margin: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  }, 
+  addButtonText: {
+    margin: 5,
+  },
+  flatlist: {
+    alignItems: 'center',
+    padding: 10,
   }
 })

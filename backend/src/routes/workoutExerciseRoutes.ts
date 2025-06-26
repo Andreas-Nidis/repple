@@ -5,9 +5,9 @@ import { authenticateFirebase } from '../middleware/authMiddleware';
 const router = express.Router();
 
 // Get all exercises in a workout
-router.get('/:workoutId/exercises', authenticateFirebase, async (req: Request, res: Response) => {
+router.get('/:workoutId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const workoutId = parseInt(req.params.workoutId, 10);
+    const workoutId = req.params.workoutId;
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -23,10 +23,10 @@ router.get('/:workoutId/exercises', authenticateFirebase, async (req: Request, r
 });
 
 // Get a specific exercise in a workout
-router.get('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
+router.get('/:workoutId/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const workoutId = parseInt(req.params.workoutId, 10);
-    const exerciseId = parseInt(req.params.exerciseId, 10);
+    const workoutId = req.params.workoutId;
+    const exerciseId = req.params.exerciseId;
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -48,7 +48,7 @@ router.get('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req
 // Add an exercise to a workout
 router.post('/:workoutId/exercises', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const workoutId = parseInt(req.params.workoutId, 10);
+    const workoutId = req.params.workoutId;
     const { exerciseId, sets, reps, restSeconds } = req.body;
 
     if (!userId || !exerciseId || !sets || !reps) {
@@ -68,8 +68,8 @@ router.post('/:workoutId/exercises', authenticateFirebase, async (req: Request, 
 // Update an exercise in a workout
 router.put('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const workoutId = parseInt(req.params.workoutId, 10);
-    const exerciseId = parseInt(req.params.exerciseId, 10);
+    const workoutId = req.params.workoutId;
+    const exerciseId = req.params.exerciseId;
     const { sets, reps, restSeconds } = req.body;
 
     if (!userId) {
@@ -93,8 +93,8 @@ router.put('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req
 // Remove an exercise from a workout
 router.delete('/:workoutId/exercises/:exerciseId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const workoutId = parseInt(req.params.workoutId, 10);
-    const exerciseId = parseInt(req.params.exerciseId, 10);
+    const workoutId = req.params.workoutId;
+    const exerciseId = req.params.exerciseId;
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;

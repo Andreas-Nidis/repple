@@ -2,21 +2,21 @@ import { sql } from './db';
 
 // Queries for managing workouts in the database
 // These functions allow you to create, read, update, and delete workouts for users.
-export async function getWorkoutsByUser(userId: number) {
+export async function getWorkoutsByUser(userId: string) {
     return await sql`
         SELECT * FROM workouts WHERE user_id = ${userId}
         ORDER BY created_at DESC
     `;
 }
 
-export async function getWorkoutById(workoutId: number) {
+export async function getWorkoutById(workoutId: string) {
     const workout = await sql`
         SELECT * FROM workouts WHERE id = ${workoutId}
     `;
     return workout;
 }
 
-export async function createWorkout(userId: number, name: string, category?: string) {
+export async function createWorkout(userId: string, name: string, category?: string) {
     const [newWorkout] = await sql`
         INSERT INTO workouts (user_id, name, category)
         VALUES (${userId}, ${name}, ${category})
@@ -25,7 +25,7 @@ export async function createWorkout(userId: number, name: string, category?: str
     return newWorkout;
 }
 
-export async function updateWorkout(workoutId: number, name?: string) {
+export async function updateWorkout(workoutId: string, name?: string) {
     const [updatedWorkout] = await sql`
         UPDATE workouts
         SET
@@ -36,7 +36,7 @@ export async function updateWorkout(workoutId: number, name?: string) {
     return updatedWorkout;
 }
 
-export async function deleteWorkout(workoutId: number) {
+export async function deleteWorkout(workoutId: string) {
     const [deletedWorkout] = await sql`
         DELETE FROM workouts WHERE id = ${workoutId} RETURNING *
     `;
