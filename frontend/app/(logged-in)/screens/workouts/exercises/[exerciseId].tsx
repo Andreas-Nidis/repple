@@ -6,27 +6,27 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type ExerciseData = {
   id: string;
-  workout_id: string;
-  exercise_id: string;
-  sets?: number;
-  reps?: number;
-  rest_seconds?: number;
+  name: string;
+  category?: string;
+  equipment?: string;
+  description?: string;
+  tutorial_url?: string;
 }
 
-const WorkoutScreen = () => {
+const ExerciseScreen = () => {
     const router = useRouter();
-    const { workoutId } = useLocalSearchParams();
-    const [exercises, setExercises] = useState<ExerciseData[]>([]);
+    const { exerciseId } = useLocalSearchParams();
+    const [exercise, setExercise] = useState<ExerciseData[]>([]);
 
     // const formatRest = () => {
 
     // } 
 
-    const getWorkoutExercisesById = async () => {
+    const getExerciseById = async () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}`, {
+            const response = await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -39,14 +39,15 @@ const WorkoutScreen = () => {
             }
 
             const data = await response.json();
-            setExercises(data);
+            // console.log(data);
+            setExercise(data);
         } catch (error) {
             console.log('Error fetching and setting weight data:', error);
         }
     }
 
     useEffect(() => {
-        getWorkoutExercisesById();
+        getExerciseById();
     }, []);
 
     // const Item = ({name, sets, reps, formattedRest }: {name: string, sets: number, reps: number, formattedRest: number}) => (
@@ -72,13 +73,13 @@ const WorkoutScreen = () => {
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
             <View>
-                {exercises[0]?.workout_id ? <Text>Hehehe, amazing exercises</Text> : <Text>We need cheese</Text>}
+                <Text>{exercise[0]?.name}</Text>
             </View>
         </SafeAreaView>
     )
 }
 
-export default WorkoutScreen
+export default ExerciseScreen
 
 const styles = StyleSheet.create({
     container: {

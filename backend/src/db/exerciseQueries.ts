@@ -1,20 +1,20 @@
 import { sql } from './db';
 
-export async function getExerciseByUser(userId: number) {
+export async function getExercisesByUser(userId: string) {
     return await sql`
-        SELECT * exercises WHERE user_id = ${userId}
-        ORDER BY created_at DESC
+        SELECT * FROM exercises 
+        WHERE user_id = ${userId}
     `;
 }
 
-export async function getExerciseById(exerciseId: number) {
+export async function getExerciseById(exerciseId: string) {
     const exercise = await sql`
         SELECT * FROM exercises WHERE id = ${exerciseId}
     `;
     return exercise;
 }
 
-export async function createExercise(userId: number, name: string, category?: string, equipment?: string, description?: string, tutorial_url?: string) {
+export async function createExercise(userId: string, name: string, category?: string, equipment?: string, description?: string, tutorial_url?: string) {
     const [newExercise] = await sql`
         INSERT INTO exercises (user_id, name, category, equipment, description, tutorial_url)
         VALUES (${userId}, ${name}, ${category}, ${equipment}, ${description}, ${tutorial_url})
@@ -23,7 +23,7 @@ export async function createExercise(userId: number, name: string, category?: st
     return newExercise;
 }
 
-export async function updateExercise(exerciseId: number, name?: string, category?: string, equipment?: string, description?: string, tutorial_url?: string) {
+export async function updateExercise(exerciseId: string, name?: string, category?: string, equipment?: string, description?: string, tutorial_url?: string) {
     const [updatedExercise] = await sql`
         UPDATE exercises
         SET
@@ -38,7 +38,7 @@ export async function updateExercise(exerciseId: number, name?: string, category
     return updatedExercise;
 }
 
-export async function deleteExercise(exerciseId: number) {
+export async function deleteExercise(exerciseId: string) {
     const [deletedExercise] = await sql`
         DELETE FROM exercises WHERE id = ${exerciseId} RETURNING *
     `;

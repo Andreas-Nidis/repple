@@ -1,28 +1,26 @@
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Button } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, Modal, TextInput, Button } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import { useRouter } from 'expo-router';
 import { getAuth } from '@react-native-firebase/auth';
 
-type Workout = {
+type ExerciseData = {
   name: string;
-  category: string;
   id: string;
-};
+}
 
 const Index = () => {
   const router = useRouter();
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [newWorkoutName, setNewWorkoutName] = useState('');
-  const [newWorkoutCategory, setNewWorkoutCategory] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [exercises, setExercises] = useState<ExerciseData[]>([]);
+  const [exerciseName, setExerciseName] = useState('');
 
-  const getWorkoutEntries = async () => {
+  const getExerciseEntries = async () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch('http://localhost:3001/api/workouts', {
+      const response = await fetch(`http://localhost:3001/api/exercises`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         }
@@ -32,29 +30,27 @@ const Index = () => {
         const errorText = await response.text();
         console.error('API returned error:', errorText);
         return;
-      }
+      };
 
       const data = await response.json();
-      setWorkouts(data);
+      setExercises(data);
     } catch (error) {
-      console.log('Error fetching and setting weight data:', error);
+      console.log('Error fetching exercises data:', error);
     }
   }
 
-  const addWorkoutEntry = async () => {
+  const createNewExercise = async () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      console.log(newWorkoutName, newWorkoutCategory);
-      const response = await fetch('http://localhost:3001/api/workouts', {
+      const response = await fetch(`http://localhost:3001/api/exercises`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({
-          name: newWorkoutName,
-          category: newWorkoutCategory,
+          name: exerciseName
         })
       })
 
@@ -62,26 +58,24 @@ const Index = () => {
         const errorText = await response.text();
         console.error('API returned error:', errorText);
         return;
-      }
+      };
 
-      await getWorkoutEntries();
+      await getExerciseEntries();
       setModalVisible(false);
-      setNewWorkoutName('');
-      setNewWorkoutCategory('');
+      setExerciseName('');
     } catch (error) {
-      console.log('Error fetching and setting weight data:', error);
+      console.log('Error creating new exercise:', error);
     }
   }
 
   useEffect(() => {
-    getWorkoutEntries();
+    getExerciseEntries(); 
   }, []);
 
-  const Item = ({name, category, id }: {name: string, category: string, id: string}) => (
-    <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/${id}`)}>
+  const Item = ({name, id }: {name: string, id: string}) => (
+    <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/exercises/${id}`)}>
       <View style={styles.workoutBox}>
         <Text style={styles.boxText}>{name}</Text>
-        <Text style={styles.boxText}>{category}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -90,28 +84,27 @@ const Index = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity 
-          style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
-          onPress={() => {router.back()}}
+            style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
+            onPress={() => {router.back()}}
         >
-          <Ionicons name='chevron-back' size={24} color='black' />
+            <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
         <Text style={styles.headerText}>Workout Planning</Text>
       </View>
-
       <View style={{flex: 1}}>
         <View style={styles.flatlist}>
-          {workouts.length < 1 ? ( <Text>Create a workout!</Text> ) : (
+          {exercises.length < 1 ? ( <Text>Add an exercise!</Text> ) : (
             <FlatList 
-              data={workouts}
+              data={exercises}
               contentContainerStyle={{ width: '80%' }}
-              renderItem={({ item }) =>  <Item name={item.name} category={item.category} id={item.id} />}
+              renderItem={({ item }) =>  <Item name={item.name} id={item.id} />}
             />
           )}
         </View>
         <View>
           <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
             <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
-            <Text style={styles.addButtonText}>Add Workout</Text>
+            <Text style={styles.addButtonText}>Add Exercise</Text>
           </TouchableOpacity>
           <Modal 
             visible={modalVisible}
@@ -121,38 +114,20 @@ const Index = () => {
           >
             <View style={styles.modalBackground}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Add Workout Name:</Text>
+                <Text style={styles.modalTitle}>Exercise Name:</Text>
                 <TextInput
-                  placeholder="Enter new workout name"
+                  placeholder="Enter new exercise name"
                   keyboardType="default"
-                  value={newWorkoutName}
-                  onChangeText={setNewWorkoutName}
-                  style={styles.input}
-                />
-                <Text style={styles.modalTitle}>Add Workout Category:</Text>
-                <TextInput
-                  placeholder="Push, pull, legs, upper, etc."
-                  keyboardType="default"
-                  value={newWorkoutCategory}
-                  onChangeText={setNewWorkoutCategory}
+                  value={exerciseName}
+                  onChangeText={setExerciseName}
                   style={styles.input}
                 />
                 <Button title="Cancel" color="gray" onPress={() => setModalVisible(false)} />
-                <Button title="Save" onPress={() => addWorkoutEntry()} />
+                <Button title="Save" onPress={() => createNewExercise()} />
               </View>
             </View>
           </Modal>
         </View>
-      </View>
-
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.footerButton}
-          onPress={() => {router.push('/(logged-in)/screens/workouts/exercises')}}
-        >
-          <Ionicons name='list-outline' size={24} color='black' />
-          <Text style={styles.footerText}>Exercise List</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )
@@ -178,29 +153,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     margin: 'auto',
-  },
-  footer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    borderTopWidth: 0.5,
-    borderTopColor: 'black',
-    height: 80,
-  },
-  footerButton: {
-    marginBottom: 10,
-    flexDirection: 'row',
-    borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '80%',
-  },
-  footerText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginLeft: 5,
   },
   modalBackground: {
     flex: 1,
