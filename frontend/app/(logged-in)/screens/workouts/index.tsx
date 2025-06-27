@@ -1,8 +1,8 @@
 import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Button } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useCallback } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { getAuth } from '@react-native-firebase/auth';
 
 type Workout = {
@@ -45,7 +45,6 @@ const Index = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      console.log(newWorkoutName, newWorkoutCategory);
       const response = await fetch('http://localhost:3001/api/workouts', {
         method: 'POST',
         headers: {
@@ -73,9 +72,11 @@ const Index = () => {
     }
   }
 
-  useEffect(() => {
-    getWorkoutEntries();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getWorkoutEntries();
+    }, [])
+  )
 
   const Item = ({name, category, id }: {name: string, category: string, id: string}) => (
     <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/${id}`)}>
