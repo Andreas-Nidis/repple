@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, Modal, TextInput, Button } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { getAuth } from '@react-native-firebase/auth';
@@ -68,9 +68,11 @@ const Index = () => {
     }
   }
 
-  useEffect(() => {
-    getExerciseEntries(); 
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getExerciseEntries();
+    }, [])
+  )
 
   const Item = ({name, id }: {name: string, id: string}) => (
     <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/exercises/${id}`)}>
