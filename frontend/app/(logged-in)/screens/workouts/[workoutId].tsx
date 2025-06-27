@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Button, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-type ExerciseData = {
+type WorkoutData = {
   id: string;
   workout_id: string;
   exercise_id: string;
@@ -13,14 +13,23 @@ type ExerciseData = {
   rest_seconds?: number;
 }
 
+type ExerciseData = {
+    exercise_id: string;
+    sets?: number;
+    reps?: number;
+    rest_seconds?: number;
+}
+
 const WorkoutScreen = () => {
     const router = useRouter();
     const { workoutId } = useLocalSearchParams();
+    const [workout, setWorkout] = useState<WorkoutData[]>([]);
     const [exercises, setExercises] = useState<ExerciseData[]>([]);
+    const [modalVisible, setModalVisible] = useState(false);
 
-    // const formatRest = () => {
-
-    // } 
+    const formatRest = (restInSeconds) => {
+        
+    } 
 
     const getWorkoutExercisesById = async () => {
         try {
@@ -39,9 +48,97 @@ const WorkoutScreen = () => {
             }
 
             const data = await response.json();
-            setExercises(data);
+            console.log(data);
+            setWorkout(data);
+
+            // for (let i; i < workout.)
+
         } catch (error) {
             console.log('Error fetching and setting weight data:', error);
+        }
+    }
+
+    const addExercisetoWorkout = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}/exercises`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    // name: newWorkoutName,
+                    // category: newWorkoutCategory,
+                })
+            })
+        
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API returned error:', errorText);
+                return;
+            }
+        
+            await getWorkoutExercisesById();
+            setModalVisible(false);
+            // setNewExercise();
+            // setNewSets();
+            // setNewReps();
+            // setNewRestInterval();
+        } catch (error) {
+            console.log('Error fetching and setting weight data:', error);
+        }
+    }
+
+    const updateWorkout = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/exercises/${workoutId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    // name: ,
+                    // sets: ,
+                    // reps: ,
+                    // rest_seconds: ,
+                })
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+
+            await getWorkoutById();
+        } catch (error) {
+            console.log('Error updating exercise:', error);
+        }
+    }
+
+    const deleteWorkout = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+        } catch (error) {
+            console.log('Error deleting workout:', error);
         }
     }
 
@@ -49,16 +146,16 @@ const WorkoutScreen = () => {
         getWorkoutExercisesById();
     }, []);
 
-    // const Item = ({name, sets, reps, formattedRest }: {name: string, sets: number, reps: number, formattedRest: number}) => (
-    //     <TouchableOpacity style={styles.workoutButton} onPress={() => setModalVisible(true)}>
-    //         <View style={styles.workoutBox}>
-    //             <Text style={styles.boxText}>{name}</Text>
-    //             <Text style={styles.boxText}>{sets}</Text>
-    //             <Text style={styles.boxText}>{reps}</Text>
-    //             <Text style={styles.boxText}>{formattedRest}</Text>
-    //         </View>
-    //     </TouchableOpacity>
-    // )
+    const Item = ({name, sets, reps, rest }: {name: string, sets: number, reps: number, formattedRest: number}) => (
+        <TouchableOpacity style={styles.exerciseButton} onPress={() => setModalVisible(true)}>
+            <View style={styles.exerciseBox}>
+                <Text style={styles.boxText}>{name}</Text>
+                <Text style={styles.boxText}>{sets}</Text>
+                <Text style={styles.boxText}>{reps}</Text>
+                <Text style={styles.boxText}>{formatRest(rest)}</Text>
+            </View>
+        </TouchableOpacity>
+    )
 
     return (
         <SafeAreaView style={styles.container}>
@@ -72,8 +169,20 @@ const WorkoutScreen = () => {
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
             <View>
-                {exercises[0]?.workout_id ? <Text>Hehehe, amazing exercises</Text> : <Text>We need cheese</Text>}
+                {workout[0]?.workout_id ? <Text>Hehehe, amazing exercises</Text> : <Text>We need cheese</Text>}
             </View>
+            <View>
+                <FlatList  data={}
+                    contentContainerStyle={{ width: '80%' }}
+                    renderItem={({ item }) =>  <Item name={item.name} sets={item.sets} reps={item.reps} rest={item.rest_interval} />}
+                />
+            </View>
+
+            <Button title="Save" onPress={() => updateWorkout()} />
+            <Button title="Delete" onPress={ async () => {
+                await deleteWorkout()
+                router.back()
+            }} />
         </SafeAreaView>
     )
 }
