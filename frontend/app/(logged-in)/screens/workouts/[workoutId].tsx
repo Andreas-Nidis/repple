@@ -1,35 +1,76 @@
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Button, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
 type WorkoutData = {
   id: string;
   workout_id: string;
   exercise_id: string;
+  name: string;
   sets?: number;
   reps?: number;
   rest_seconds?: number;
-}
-
-type ExerciseData = {
-    exercise_id: string;
-    sets?: number;
-    reps?: number;
-    rest_seconds?: number;
 }
 
 const WorkoutScreen = () => {
     const router = useRouter();
     const { workoutId } = useLocalSearchParams();
     const [workout, setWorkout] = useState<WorkoutData[]>([]);
-    const [exercises, setExercises] = useState<ExerciseData[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const formatRest = (restInSeconds) => {
-        
-    } 
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    const RestTimer = ({ initialSeconds }: { initialSeconds: number }) => {
+        const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+        const [isRunning, setIsRunning] = useState(false);
+        const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+        useEffect(() => {
+            if (isRunning) {
+                intervalRef.current = setInterval(() => {
+                    setSecondsLeft(prev => {
+                        if (prev <= 1) {
+                            clearInterval(intervalRef.current!);
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+            } else if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+
+            return () => {
+                if (intervalRef.current) clearInterval(intervalRef.current);
+            };
+        }, [isRunning]);
+
+        const toggleTimer = () => {
+            if (isRunning) {
+            // Reset if running
+                setIsRunning(false);
+                setSecondsLeft(initialSeconds);
+            } else {
+            // Start if stopped
+                setSecondsLeft(initialSeconds);
+                setIsRunning(true);
+            }
+        };
+
+        return (
+            <TouchableOpacity style={{ width: '33%', justifyContent: 'center', alignItems: 'center' }} onPress={toggleTimer}>
+                <Text style={styles.timerText}>{formatTime(secondsLeft)}</Text>
+            </TouchableOpacity>
+        );
+    };
+
 
     const getWorkoutExercisesById = async () => {
         try {
@@ -51,10 +92,8 @@ const WorkoutScreen = () => {
             console.log(data);
             setWorkout(data);
 
-            // for (let i; i < workout.)
-
         } catch (error) {
-            console.log('Error fetching and setting weight data:', error);
+            console.log('Error fetching and setting exercise data in [workoutId] page:', error);
         }
     }
 
@@ -115,7 +154,7 @@ const WorkoutScreen = () => {
                 return;
             }
 
-            await getWorkoutById();
+            await getWorkoutExercisesById();
         } catch (error) {
             console.log('Error updating exercise:', error);
         }
@@ -146,13 +185,15 @@ const WorkoutScreen = () => {
         getWorkoutExercisesById();
     }, []);
 
-    const Item = ({name, sets, reps, rest }: {name: string, sets: number, reps: number, formattedRest: number}) => (
+    const Item = ({name, sets, reps, rest }: {name: string, sets: number, reps: number, rest: number}) => (
         <TouchableOpacity style={styles.exerciseButton} onPress={() => setModalVisible(true)}>
-            <View style={styles.exerciseBox}>
-                <Text style={styles.boxText}>{name}</Text>
-                <Text style={styles.boxText}>{sets}</Text>
-                <Text style={styles.boxText}>{reps}</Text>
-                <Text style={styles.boxText}>{formatRest(rest)}</Text>
+            <View style={styles.exercise}>
+                <Text style={styles.boxTextName}>{name}</Text>
+                <View style={styles.exerciseSubBox}>
+                    <Text style={styles.boxText}>{sets}</Text>
+                    <Text style={styles.boxText}>{reps}</Text>
+                    <RestTimer initialSeconds={rest} />
+                </View>
             </View>
         </TouchableOpacity>
     )
@@ -168,14 +209,32 @@ const WorkoutScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
-            <View>
-                {workout[0]?.workout_id ? <Text>Hehehe, amazing exercises</Text> : <Text>We need cheese</Text>}
-            </View>
-            <View>
-                <FlatList  data={}
-                    contentContainerStyle={{ width: '80%' }}
-                    renderItem={({ item }) =>  <Item name={item.name} sets={item.sets} reps={item.reps} rest={item.rest_interval} />}
-                />
+            <View style={styles.container}>
+                {workout[0]?.workout_id ? 
+                    (
+                        <View style={{ marginTop: 10, padding: 5 }}>
+                            <View style={{ flexDirection: 'row' }}>
+                                <View style={{ width: '30%' }} />  
+                                <View style={styles.exerciseHeader}>
+                                    <Text style={styles.exerciseHeaderText}>Sets</Text>
+                                    <Text style={styles.exerciseHeaderText}>Reps</Text>
+                                    <Text style={styles.exerciseHeaderText}>Rest</Text>
+                                </View>
+                            </View>
+                            <FlatList  
+                                data={workout}
+                                contentContainerStyle={{ paddingTop: 20 }}
+                                renderItem={({ item }) =>  <Item name={item.name} sets={item.sets ?? 0} reps={item.reps ?? 0} rest={item.rest_seconds ?? 0} />}
+                            />
+                        </View> 
+                    ) : (
+                        <Text>Add an exercise!</Text>
+                    )
+                }
+                <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                    <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
+                    <Text style={styles.addButtonText}>Add Exercise</Text>
+                </TouchableOpacity>
             </View>
 
             <Button title="Save" onPress={() => updateWorkout()} />
@@ -207,5 +266,49 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         margin: 'auto',
+    },
+    exerciseButton: {
+        marginBottom: 30,
+        borderBottomWidth: 1,
+        borderBottomColor: 'lightgray',
+    },
+    exercise: {
+        flexDirection: 'row',
+    },
+    boxTextName: {
+        fontSize: 16,
+        width: '30%',
+        padding: 5,
+    },
+    exerciseSubBox: {
+        flexDirection: 'row',
+        width: '70%',
+    },
+    boxText: {
+        textAlign: 'center',
+        fontSize: 16,
+        padding: 5,
+        width: '33%',
+    },
+    timerText: {
+        fontSize: 16,
+    },
+    exerciseHeader: {
+        flexDirection: 'row',
+        width: '70%',
+    },
+    exerciseHeaderText: {
+        textAlign: 'center',
+        fontSize: 16,
+        padding: 5,
+        width: '33%',
+    },
+    addButton: {
+        margin: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+    }, 
+    addButtonText: {
+        margin: 5,
     },
 })
