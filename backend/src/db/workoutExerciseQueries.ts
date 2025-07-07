@@ -2,9 +2,10 @@ import { sql } from './db';
 
 export async function getExercisesInWorkout(workoutId: string) {
     return await sql`
-        SELECT we.*, e.name, e.category, e.equipment, e.description, e.tutorial_url
+        SELECT we.*, e.name, e.category, e.equipment, e.description, e.tutorial_url, w.name AS workout_name
         FROM workout_exercises we
         JOIN exercises e ON we.exercise_id = e.id
+        JOIN workouts w ON we.workout_id = w.id
         WHERE we.workout_id = ${workoutId}
     `;
 }

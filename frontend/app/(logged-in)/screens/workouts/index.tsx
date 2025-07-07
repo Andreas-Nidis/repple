@@ -82,7 +82,7 @@ const Index = () => {
     <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/${id}`)}>
       <View style={styles.workoutBox}>
         <Text style={styles.boxText}>{name}</Text>
-        <Text style={styles.boxText}>{category}</Text>
+        {/* <Text style={styles.boxText}>{category}</Text> */}
       </View>
     </TouchableOpacity>
   )

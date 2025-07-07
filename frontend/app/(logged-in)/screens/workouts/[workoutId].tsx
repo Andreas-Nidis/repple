@@ -345,13 +345,16 @@ const WorkoutScreen = () => {
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
             <View style={styles.container}>
-                <TextInput
-                    placeholder={workoutName || 'Workout Name'}
-                    keyboardType='default'
-                    value={workoutName}
-                    onChangeText={setWorkoutName}
-                    style={{ padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, margin: 10 }}
-                />
+                <View style={{ alignItems: 'center', marginTop: 10}}>
+                    <Text style={{ fontSize: 18, fontWeight: '500', margin: 10 }}>Workout Name:</Text>
+                    <TextInput
+                        placeholder={workoutName || 'Workout Name'}
+                        keyboardType='default'
+                        value={workoutName}
+                        onChangeText={setWorkoutName}
+                        style={{ fontWeight: '600', padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, margin: 10 }}
+                    />
+                </View>
                 {workout[0]?.workout_id ? 
                     (
                         <View style={{ marginTop: 10, padding: 5 }}>
@@ -585,10 +588,10 @@ const styles = StyleSheet.create({
         margin: 5,
     },
     modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     modalContent: {
         width: '85%',

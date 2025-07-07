@@ -2,24 +2,26 @@ import express from "express";
 import { authenticateFirebase } from "../middleware/authMiddleware";
 import {
     getEntriesForWeek,
-    createCalenderEntry,
+    createCalendarEntry,
     toggleCompletion
-} from '../db/calenderQueries';
+} from '../db/calendarQueries';
 
 const router = express.Router();
 router.use(authenticateFirebase);
 
 router.get('/', async (req, res) => {
     const userId = req.user?.id;
-    console.log('Calender userId: ', userId);
+    console.log('Calendar userId: ', userId);
     const { startDate, endDate } = req.query;
+    console.log('Calendar startDate: ', startDate);
+    console.log('Calendar endDate: ', endDate);
 
     try {
         const entries = await getEntriesForWeek(userId, String(startDate), String(endDate));
         res.json(entries);
     } catch (error) {
         console.log(error);
-        res.status(500).json({error: 'Failed to fetch calender entries'});
+        res.status(500).json({error: 'Failed to fetch calendar entries'});
     }
 });
 
@@ -28,11 +30,11 @@ router.post('/', async (req, res) => {
     const { workout_id, scheduled_date } = req.body;
 
     try {
-        const entry = await createCalenderEntry(userId, workout_id, scheduled_date);
+        const entry = await createCalendarEntry(userId, workout_id, scheduled_date);
         res.status(201).json(entry);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ error: 'Failed to create calender entry' })
+        res.status(500).json({ error: 'Failed to create calendar entry' })
     }
 })
 

@@ -48,11 +48,18 @@ const HomeWeekCarousel = () => {
       const idToken = await user?.getIdToken();
       const response = await fetch(`http://localhost:3001/api/calender?${params}`, {
         headers: {
-          Authorization: `Bearer: ${idToken}`,
+          Authorization: `Bearer ${idToken}`,
         },
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('API returned error:', errorText);
+        return;
+      }
+
       const data = await response.json();
-      setEntries(data.rows)
+      setEntries(data)
     } catch (error) {
       console.log('Error fetching or setting data from within handleDayPress', error);
     } finally {
