@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Button, FlatList } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Button, FlatList, Modal, TextInput } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -6,20 +6,33 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
 type WorkoutData = {
-  id: string;
-  workout_id: string;
-  exercise_id: string;
-  name: string;
-  sets?: number;
-  reps?: number;
-  rest_seconds?: number;
+    id: string;
+    workout_id: string;
+    exercise_id: string;
+    name: string;
+    sets?: number;
+    reps?: number;
+    rest_seconds?: number;
 }
+
+type ExerciseData = {
+    id: string;
+    name: string;
+    category?: string;
+};
 
 const WorkoutScreen = () => {
     const router = useRouter();
     const { workoutId } = useLocalSearchParams();
     const [workout, setWorkout] = useState<WorkoutData[]>([]);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
+    const [addModalVisible, setAddModalVisible] = useState(false);
+    const [userExercises, setUserExercises] = useState<ExerciseData[]>([]);
+    const [workoutName, setWorkoutName] = useState('');
+    const [selectedExerciseId, setSelectedExerciseId] = useState('');
+    const [sets, setSets] = useState(0);
+    const [reps, setReps] = useState(0);
+    const [rest, setRest] = useState(0);
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
@@ -71,6 +84,28 @@ const WorkoutScreen = () => {
         );
     };
 
+    const getWorkoutName = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+            const data = await response.json();
+            console.log('Fetched workout name:', data);
+            setWorkoutName(data.name);
+        } catch (error) {
+            console.log('Error fetching workout name:', error);
+        }
+    }
 
     const getWorkoutExercisesById = async () => {
         try {
@@ -97,6 +132,31 @@ const WorkoutScreen = () => {
         }
     }
 
+    const getUserExercises = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/exercises`, {
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API returned error:', errorText);
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Fetched exercises:', data);
+            setUserExercises(data);
+
+        } catch (error) {
+            console.log('Error fetching and setting exercises in workout screen:', error);
+        }
+    }
+
     const addExercisetoWorkout = async () => {
         try {
             const user = getAuth().currentUser;
@@ -108,8 +168,10 @@ const WorkoutScreen = () => {
                     Authorization: `Bearer ${idToken}`,
                 },
                 body: JSON.stringify({
-                    // name: newWorkoutName,
-                    // category: newWorkoutCategory,
+                    exerciseId: selectedExerciseId,
+                    sets: sets,
+                    reps: reps,
+                    restSeconds: rest,
                 })
             })
         
@@ -120,13 +182,82 @@ const WorkoutScreen = () => {
             }
         
             await getWorkoutExercisesById();
-            setModalVisible(false);
-            // setNewExercise();
-            // setNewSets();
-            // setNewReps();
-            // setNewRestInterval();
+            setAddModalVisible(false);
+            setSelectedExerciseId('');
+            setSets(0);
+            setReps(0);
+            setRest(0);
         } catch (error) {
-            console.log('Error fetching and setting weight data:', error);
+            console.log('Error adding exercise to workout:', error);
+        }
+    }
+
+    const updateWorkoutExercise = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}/exercises/${selectedExerciseId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    sets: sets,
+                    reps: reps,
+                    restSeconds: rest,
+                })
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+
+            await getWorkoutExercisesById();
+            setExerciseModalVisible(false);
+            setSelectedExerciseId('');
+            setSets(0);
+            setReps(0);
+            setRest(0);
+        } catch (error) {
+            console.log('Error updating exercise in workout:', error);
+            setExerciseModalVisible(false);
+            setSelectedExerciseId('');
+            setSets(0);
+            setReps(0); 
+            setRest(0);
+            alert('Error updating exercise. Please try again.');
+        }
+    }
+
+    const deleteWorkoutExercise = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}/exercises/${selectedExerciseId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+
+            console.log('Exercise deleted successfully');
+            await getWorkoutExercisesById();
+            setExerciseModalVisible(false);
+            setSelectedExerciseId('');
+            setSets(0);
+            setReps(0);
+            setRest(0);
+        } catch (error) {
+            console.log('Error deleting exercise from workout:', error);
         }
     }
 
@@ -134,17 +265,14 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/exercises/${workoutId}`, {
+            const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${idToken}`,
                 },
                 body: JSON.stringify({
-                    // name: ,
-                    // sets: ,
-                    // reps: ,
-                    // rest_seconds: ,
+                    name: workoutName,
                 })
             });
 
@@ -176,6 +304,8 @@ const WorkoutScreen = () => {
                 console.log('API returned error:', errorText);
                 return;
             }
+
+            console.log('Workout deleted successfully');
         } catch (error) {
             console.log('Error deleting workout:', error);
         }
@@ -183,10 +313,15 @@ const WorkoutScreen = () => {
 
     useEffect(() => {
         getWorkoutExercisesById();
+        getUserExercises();
+        getWorkoutName();
     }, []);
 
-    const Item = ({name, sets, reps, rest }: {name: string, sets: number, reps: number, rest: number}) => (
-        <TouchableOpacity style={styles.exerciseButton} onPress={() => setModalVisible(true)}>
+    const Item = ({name, sets, reps, rest, exerciseId }: {name: string, sets: number, reps: number, rest: number, exerciseId: string}) => (
+        <TouchableOpacity style={styles.exerciseButton} onPress={() => {
+            setExerciseModalVisible(true)
+            setSelectedExerciseId(exerciseId);
+        }}>
             <View style={styles.exercise}>
                 <Text style={styles.boxTextName}>{name}</Text>
                 <View style={styles.exerciseSubBox}>
@@ -210,6 +345,13 @@ const WorkoutScreen = () => {
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
             <View style={styles.container}>
+                <TextInput
+                    placeholder={workoutName || 'Workout Name'}
+                    keyboardType='default'
+                    value={workoutName}
+                    onChangeText={setWorkoutName}
+                    style={{ padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, margin: 10 }}
+                />
                 {workout[0]?.workout_id ? 
                     (
                         <View style={{ marginTop: 10, padding: 5 }}>
@@ -224,18 +366,149 @@ const WorkoutScreen = () => {
                             <FlatList  
                                 data={workout}
                                 contentContainerStyle={{ paddingTop: 20 }}
-                                renderItem={({ item }) =>  <Item name={item.name} sets={item.sets ?? 0} reps={item.reps ?? 0} rest={item.rest_seconds ?? 0} />}
+                                renderItem={({ item }) =>  <Item name={item.name} sets={item.sets ?? 0} reps={item.reps ?? 0} rest={item.rest_seconds ?? 0} exerciseId={item.exercise_id} />}
                             />
+
+                            <Modal
+                                visible={exerciseModalVisible}
+                                animationType="slide"
+                                transparent={true}
+                                onRequestClose={() => setExerciseModalVisible(false)}
+                            >
+                                <View style={styles.modalBackground}>
+                                    <View style={styles.modalContent}>
+                                        <Text style={styles.modalTitle}>Sets:</Text>
+                                        <TextInput
+                                            placeholder="Sets"
+                                            keyboardType="numeric"
+                                            value={sets.toString()}
+                                            onChangeText={text => setSets(Number(text))}
+                                            style={styles.input}
+                                        />
+                                        <Text style={styles.modalTitle}>Reps:</Text>
+                                        <TextInput
+                                            placeholder="Reps"
+                                            keyboardType="numeric"
+                                            value={reps.toString()}
+                                            onChangeText={text => setReps(Number(text))}
+                                            style={styles.input}
+                                        />
+                                        <Text style={styles.modalTitle}>Rest (seconds):</Text>
+                                        <TextInput
+                                            placeholder="Rest Interval (seconds)"
+                                            keyboardType="numeric"
+                                            value={rest.toString()}
+                                            onChangeText={text => setRest(Number(text))}
+                                            style={styles.input}
+                                        />
+
+                                        
+                                        <Button title="Save" onPress={() => {updateWorkoutExercise()}} />
+                                        <Button title="Remove" color="red" onPress={() => deleteWorkoutExercise()} />
+                                        <Button title="Close" onPress={() => {
+                                            setSelectedExerciseId('');
+                                            setExerciseModalVisible(false)
+                                        }} />
+                                    </View>
+                                </View>
+                            </Modal>
+                            
                         </View> 
                     ) : (
                         <Text>Add an exercise!</Text>
                     )
                 }
-                <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
                     <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Add Exercise</Text>
                 </TouchableOpacity>
             </View>
+
+            <Modal
+                visible={addModalVisible}
+                animationType='slide'
+                transparent={true}
+                onRequestClose={() => setAddModalVisible(false)}
+            >
+                <View style={styles.modalBackground}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Select Exercise:</Text>
+                        <FlatList
+                            horizontal
+                            data={userExercises}
+                            keyExtractor={item => item.id}
+                            contentContainerStyle={{ paddingBottom: 10 }}
+                            renderItem={({ item }) => { 
+                                const isSelected = item.id === selectedExerciseId;
+
+                                return (
+                                    <TouchableOpacity 
+                                        style={{
+                                            backgroundColor: isSelected ? '#222222' : '#eee',
+                                            padding: 16,
+                                            marginRight: 10,
+                                            borderRadius: 10,
+                                            borderWidth: isSelected ? 2 : 1,
+                                            borderColor: isSelected ? '#222222' : '#bababa',
+                                            shadowColor: isSelected ? '#222222' : undefined,
+                                            shadowOpacity: isSelected ? 0.3 : 0,
+                                            shadowOffset: { width: 0, height: 2 },
+                                            shadowRadius: isSelected ? 4 : 0,
+                                            elevation: isSelected ? 4 : 0,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}     
+                                        onPress={() => setSelectedExerciseId(item.id)}
+                                    >
+                                        <Text
+                                            style={{
+                                                color: isSelected ? 'white' : 'black',
+                                                fontWeight: isSelected ? 'bold' : 'normal',
+                                                fontSize: 16,
+                                            }}
+                                        >{item.name}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            }
+                        />
+                        <Text style={styles.modalTitle}>Sets:</Text>
+                        <TextInput
+                            placeholder="Sets"
+                            keyboardType="numeric"
+                            value={sets.toString()}
+                            onChangeText={text => setSets(Number(text))}
+                            style={styles.input}
+                        />
+                        <Text style={styles.modalTitle}>Reps:</Text>
+                        <TextInput
+                            placeholder="Reps"
+                            keyboardType="numeric"
+                            value={reps.toString()}
+                            onChangeText={text => setReps(Number(text))}
+                            style={styles.input}
+                        />
+                        <Text style={styles.modalTitle}>Rest (seconds):</Text>
+                        <TextInput
+                            placeholder="Rest Interval (seconds)"
+                            keyboardType="numeric"
+                            value={rest.toString()}
+                            onChangeText={text => setRest(Number(text))}
+                            style={styles.input}
+                        />
+                        <Button title="Save" onPress={() => {
+                                if (!selectedExerciseId || !sets || !reps || !rest) {
+                                    alert('Please fill in all fields');
+                                    return;
+                                };
+
+                                addExercisetoWorkout();
+                                setAddModalVisible(false);
+                            }
+                        } />
+                        <Button title="Cancel" color="gray" onPress={() => setAddModalVisible(false)} />
+                    </View>
+                </View>
+            </Modal>
 
             <Button title="Save" onPress={() => updateWorkout()} />
             <Button title="Delete" onPress={ async () => {
@@ -310,5 +583,31 @@ const styles = StyleSheet.create({
     }, 
     addButtonText: {
         margin: 5,
+    },
+    modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    },
+    modalContent: {
+        width: '85%',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 16,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        textAlign: 'center'
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 12,
     },
 })

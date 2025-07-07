@@ -29,7 +29,7 @@ export async function updateWorkout(workoutId: string, name?: string) {
     const [updatedWorkout] = await sql`
         UPDATE workouts
         SET
-            name = COALESCE(${name}, name),
+            name = COALESCE(${name}, name)
         WHERE id = ${workoutId}
         RETURNING *
     `;
