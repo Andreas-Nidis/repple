@@ -107,6 +107,7 @@ const IngredientScreen = () => {
                 <Text style={styles.headerText}>{ingredientName}</Text>
             </View>
             <View style={styles.inputsContainer}>
+                <Text style={styles.inputHeader}>Protein</Text>
                 <TextInput
                     placeholder={protein.toString() || "Protein"}
                     keyboardType="numeric"
@@ -114,6 +115,7 @@ const IngredientScreen = () => {
                     onChangeText={text => setProtein(Number(text))}
                     style={styles.input}
                 />
+                <Text style={styles.inputHeader}>Fat</Text>
                 <TextInput
                     placeholder={fat.toString() || "Fat"}
                     keyboardType="numeric"
@@ -121,6 +123,7 @@ const IngredientScreen = () => {
                     onChangeText={text => setFat(Number(text))}
                     style={styles.input}
                 />
+                <Text style={styles.inputHeader}>Carbohydrates</Text>
                 <TextInput
                     placeholder={carbs.toString() || "Carbs"}
                     keyboardType="numeric"
@@ -128,6 +131,8 @@ const IngredientScreen = () => {
                     onChangeText={text => setCarbs(Number(text))}
                     style={styles.input}
                 />
+
+                <Text style={styles.inputHeader}>***per 100g/ml</Text>
                 <Button title="Save" onPress={() => updateIngredient()} />
                 <Button title="Delete" onPress={ async () => {
                     await deleteIngredient()
@@ -163,12 +168,22 @@ const styles = StyleSheet.create({
     inputsContainer: {
         width: '95%',
         marginTop: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     input: {
         borderWidth: 1,
         borderColor: '#ccc',
         padding: 10,
         borderRadius: 8,
-        marginBottom: 12,
+        marginBottom: 20,
+        width: '60%',
+        textAlign: 'center',
+  },
+  inputHeader: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 10,
+        textAlign: 'center',
   },
 })
