@@ -119,6 +119,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
               return;
           }
 
+          setSelectedWorkoutId(null);
           onClose();
       } catch (error) {
           console.log('Error adding calendar entry:', error);
@@ -213,8 +214,11 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
 
   useEffect(() => {
     getUserWorkouts();
-    getWorkoutExercisesById();
-  }, []);
+
+    if (workoutId) {
+      getWorkoutExercisesById();
+    }
+  }, [workoutId]);
   
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>

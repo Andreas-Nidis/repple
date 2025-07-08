@@ -1,19 +1,15 @@
 import express, { Request, Response } from 'express';
-import { getIngredientsByMealId, getIngredientById, createIngredient, updateIngredient, deleteIngredient } from '../db/ingredientQueries';
+import { getAllIngredientsByUserId, getIngredientById, createIngredient, updateIngredient, deleteIngredient } from '../db/ingredientQueries';
 import { authenticateFirebase } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // Get all ingredients
 router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
-    const mealId = parseInt(req.query.mealId as string, 10);
-    if (isNaN(mealId)) {
-        res.status(400).json({ error: 'Invalid meal ID' });
-        return;
-    }
+    const userId = req.user?.id; // Assuming user ID is stored in req.user after authentication
     
     try {
-        const ingredients = await getIngredientsByMealId(mealId);
+        const ingredients = await getAllIngredientsByUserId(userId);
         res.json(ingredients);
     } catch (error) {
         console.error('Error fetching ingredients:', error);
@@ -39,15 +35,21 @@ router.get('/:ingredientId', authenticateFirebase, async (req: Request, res: Res
 
 // Create a new ingredient
 router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
-    const { name, category, calories, protein, carbs, fats } = req.body;
+    const userId = req.user?.id; // Assuming user ID is stored in req.user after authentication
+    const { name } = req.body;
 
-    if (!name || !category) {
-        res.status(400).json({ error: 'Name and category are required' });
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    if (!name) {
+        res.status(400).json({ error: 'Name is required' });
         return;
     }
 
     try {
-        const newIngredient = await createIngredient(name, calories, protein, carbs, fats);
+        const newIngredient = await createIngredient(userId, name);
         res.status(201).json(newIngredient);
     } catch (error) {
         console.error('Error creating ingredient:', error);

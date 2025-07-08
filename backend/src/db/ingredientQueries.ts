@@ -1,12 +1,9 @@
 import { sql } from './db';
 
-export async function getIngredientsByMealId(mealId: number) {
+export async function getAllIngredientsByUserId(userId: string) {
     return await sql`
-        SELECT i.*, mi.quantity, mi.unit
-        FROM meal_ingredients mi
-        JOIN ingredients i ON mi.ingredient_id = i.id
-        WHERE mi.meal_id = ${mealId}
-        ORDER BY i.name
+        SELECT * FROM ingredients 
+        WHERE user_id = ${userId}
     `;
 }
 
@@ -17,10 +14,10 @@ export async function getIngredientById(ingredientId: number) {
     return ingredient;
 }
 
-export async function createIngredient(name: string, calories: number, protein: number, carbs: number, fat: number) {
+export async function createIngredient(userId: string, name: string) {
     const [newIngredient] = await sql`
-        INSERT INTO ingredients (name, calories, protein, carbs, fat)
-        VALUES (${name}, ${calories}, ${protein}, ${carbs}, ${fat})
+        INSERT INTO ingredients (user_id, name)
+        VALUES (${userId}, ${name})
         RETURNING *
     `;
     return newIngredient;
