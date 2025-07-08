@@ -218,7 +218,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     if (workoutId) {
       getWorkoutExercisesById();
     }
-  }, [workoutId]);
+  }, [workoutId, visible]);
   
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>

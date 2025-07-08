@@ -7,6 +7,7 @@ const router = express.Router();
 // Get all meals for a user
 router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
+
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -24,15 +25,15 @@ router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
 // Get a specific meal by ID
 router.get('/:mealId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const mealId = parseInt(req.params.mealId, 10);
+    const mealId = req.params.mealId;
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
     }
 
     try {
-        const meal = await getMealById(mealId);
-        if (!meal || meal.user_id !== userId) {
+        const meal = await getMealById(userId, mealId);
+        if (!meal) {
             res.status(404).json({ error: 'Meal not found' });
             return;
         }
@@ -45,14 +46,16 @@ router.get('/:mealId', authenticateFirebase, async (req: Request, res: Response)
 
 // Get ingredients for a specific meal
 router.get('/:mealId/ingredients', authenticateFirebase, async (req: Request, res: Response) => {
-    const mealId = parseInt(req.params.mealId, 10);
-    if (isNaN(mealId)) {
-        res.status(400).json({ error: 'Invalid meal ID' });
+    const userId = req.user?.id;
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
         return;
     }
+    const mealId = req.params.mealId;
+
 
     try {
-        const ingredients = await getMealIngredients(mealId);
+        const ingredients = await getMealIngredients(userId, mealId);
         res.json(ingredients);
     } catch (error) {
         console.error('Error fetching meal ingredients:', error);
@@ -63,15 +66,15 @@ router.get('/:mealId/ingredients', authenticateFirebase, async (req: Request, re
 // Create a new meal
 router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const { name, ingredients } = req.body;
+    const { name } = req.body;
 
-    if (!userId || !name || !ingredients || !Array.isArray(ingredients)) {
-        res.status(400).json({ error: 'Name and ingredients are required' });
+    if (!userId || !name) {
+        res.status(400).json({ error: 'Name is required or unaothorized' });
         return;
     }
 
     try {
-        const newMeal = await createMeal(userId, name, ingredients);
+        const newMeal = await createMeal(userId, name);
         res.status(201).json(newMeal);
     } catch (error) {
         console.error('Error creating meal:', error);
@@ -82,7 +85,7 @@ router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
 // Update an existing meal
 router.put('/:mealId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const mealId = parseInt(req.params.mealId, 10);
+    const mealId = req.params.mealId;
     const { name, ingredients } = req.body;
 
     if (!userId || !name) {
@@ -106,17 +109,17 @@ router.put('/:mealId', authenticateFirebase, async (req: Request, res: Response)
 // Update an ingredient in a meal
 router.put('/:mealId/ingredients/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const mealId = parseInt(req.params.mealId, 10);
-    const ingredientId = parseInt(req.params.ingredientId, 10);
+    const mealId = req.params.mealId;
+    const ingredientId = req.params.ingredientId;
     const { quantity, unit } = req.body;
 
-    if (!userId || isNaN(mealId) || isNaN(ingredientId)) {
-        res.status(400).json({ error: 'Invalid meal or ingredient ID' });
+    if (!userId || !mealId || !ingredientId) {
+        res.status(400).json({ error: 'Invalid meal or ingredient ID or unauthorized' });
         return;
     }
 
     try {
-        const updatedIngredient = await updateMealIngredient(mealId, ingredientId, quantity, unit);
+        const updatedIngredient = await updateMealIngredient(userId, mealId, ingredientId, quantity, unit);
         if (!updatedIngredient) {
             res.status(404).json({ error: 'Ingredient not found in this meal' });
             return;
@@ -131,16 +134,16 @@ router.put('/:mealId/ingredients/:ingredientId', authenticateFirebase, async (re
 // Add an ingredient to a meal
 router.post('/:mealId/ingredients', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const mealId = parseInt(req.params.mealId, 10);
+    const mealId = req.params.mealId;
     const { ingredientId, quantity, unit } = req.body;
 
-    if (!userId || isNaN(mealId) || !ingredientId || !quantity || !unit) {
+    if (!userId || !mealId || !ingredientId || !quantity || !unit) {
         res.status(400).json({ error: 'Ingredient ID, quantity, and unit are required' });
         return;
     }
 
     try {
-        const newIngredient = await addIngredientToMeal(mealId, ingredientId, quantity, unit);
+        const newIngredient = await addIngredientToMeal(userId, mealId, ingredientId, quantity, unit);
         res.status(201).json(newIngredient);
     } catch (error) {
         console.error('Error adding ingredient to meal:', error);
@@ -151,14 +154,14 @@ router.post('/:mealId/ingredients', authenticateFirebase, async (req: Request, r
 // Delete a meal
 router.delete('/:mealId', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const mealId = parseInt(req.params.mealId, 10);
-    if (!userId || isNaN(mealId)) {
+    const mealId = req.params.mealId;
+    if (!userId || !mealId) {
         res.status(400).json({ error: 'Invalid meal ID' });
         return;
     }
 
     try {
-        const deletedMeal = await deleteMeal(mealId);
+        const deletedMeal = await deleteMeal(userId, mealId);
         if (!deletedMeal || deletedMeal.user_id !== userId) {
             res.status(404).json({ error: 'Meal not found' });
             return;
@@ -172,14 +175,15 @@ router.delete('/:mealId', authenticateFirebase, async (req: Request, res: Respon
 
 // Get meal summary
 router.get('/:mealId/summary', authenticateFirebase, async (req: Request, res: Response) => {
-    const mealId = parseInt(req.params.mealId, 10);
-    if (isNaN(mealId)) {
-        res.status(400).json({ error: 'Invalid meal ID' });
+    const userId = req.user?.id;
+    const mealId = req.params.mealId;
+    if (!userId || !mealId) {
+        res.status(400).json({ error: 'Invalid meal ID or unauthorized' });
         return;
     }
 
     try {
-        const summary = await getMealSummary(mealId);
+        const summary = await getMealSummary(userId, mealId);
         res.json(summary);
     } catch (error) {
         console.error('Error fetching meal summary:', error);

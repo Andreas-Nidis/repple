@@ -14,6 +14,7 @@ import workoutRoutes from './routes/workoutRoutes';
 import workoutExerciseRoutes from './routes/workoutExerciseRoutes';
 import calendarRoutes from './routes/calenderRoutes';
 import weightRoutes from './routes/weightRoutes';
+import mealIngredientsRoutes from './routes/mealIngredientsRoutes';
 import { setupSocketIO } from './socket';
 
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/exercises', exerciseRoutes);
 app.use('/api/friends', friendRoutes);
 app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/meals', mealRoutes);
+app.use('/api/meal-ingredients', mealIngredientsRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/workout-exercises', workoutExerciseRoutes);
 app.use('/api/calendar', calendarRoutes);

@@ -1,29 +1,30 @@
 import { sql } from './db';
 
-export async function getMealsByUser(userId: number) {
+export async function getMealsByUser(userId: string) {
     return await sql`
-        SELECT * FROM meals WHERE user_id = ${userId}
-        ORDER BY created_at DESC
+        SELECT * FROM meals 
+        WHERE user_id = ${userId} 
     `;
 }
 
-export async function getMealById(mealId: number) {
-    const [meal] = await sql`
-        SELECT * FROM meals WHERE id = ${mealId}
+export async function getMealById(userId: string, mealId: string) {
+    const meal = await sql`
+        SELECT * FROM meals 
+        WHERE id = ${mealId} AND user_id = ${userId}
     `;
     return meal;
 }
 
-export async function createMeal(userId: number, name: string, ingredients: { ingredientId: number, quantity: number, unit: string }[]) {
+export async function createMeal(userId: string, name: string) {
     const [newMeal] = await sql`
-        INSERT INTO meals (user_id, name, ingredients)
-        VALUES (${userId}, ${name}, ${JSON.stringify(ingredients)})
+        INSERT INTO meals (user_id, name)
+        VALUES (${userId}, ${name})
         RETURNING *
     `;
     return newMeal;
 }
 
-export async function updateMeal(mealId: number, name?: string, ingredients?: { ingredientId: number, quantity: number, unit: string }[]) {
+export async function updateMeal(userId: string, mealId: string, name?: string, ingredients?: { ingredientId: number, quantity: number, unit: string }[]) {
     const [updatedMeal] = await sql`
         UPDATE meals
         SET
@@ -35,52 +36,57 @@ export async function updateMeal(mealId: number, name?: string, ingredients?: { 
     return updatedMeal;
 }
 
-export async function deleteMeal(mealId: number) {
+export async function deleteMeal(userId: string, mealId: string) {
     const [deletedMeal] = await sql`
-        DELETE FROM meals WHERE id = ${mealId} RETURNING *
+        DELETE FROM meals 
+        WHERE id = ${mealId} AND user_id = ${userId}
+        RETURNING *
     `;
     return deletedMeal;
 }
 
-export async function getMealIngredients(mealId: number) {
+export async function getMealIngredients(userId: string, mealId: string) {
     return await sql`
         SELECT i.*, mi.quantity, mi.unit
         FROM meal_ingredients mi
         JOIN ingredients i ON mi.ingredient_id = i.id
-        WHERE mi.meal_id = ${mealId}
+        WHERE mi.meal_id = ${mealId} AND i.user_id = ${userId}
         ORDER BY i.name
     `;
 }
 
-export async function addIngredientToMeal(mealId: number, ingredientId: number, quantity: number, unit: string) {
+export async function addIngredientToMeal(userID: string, mealId: string, ingredientId: string, quantity: number, unit: string) {
     const [newIngredient] = await sql`
         INSERT INTO meal_ingredients (meal_id, ingredient_id, quantity, unit)
         VALUES (${mealId}, ${ingredientId}, ${quantity}, ${unit})
+        WHERE user_id = ${userID}
         RETURNING *
     `;
     return newIngredient;
 }
 
-export async function removeIngredientFromMeal(mealId: number, ingredientId: number) {
+export async function removeIngredientFromMeal(userId: string, mealId: number, ingredientId: number) {
     const [deletedIngredient] = await sql`
-        DELETE FROM meal_ingredients WHERE meal_id = ${mealId} AND ingredient_id = ${ingredientId} RETURNING *
+        DELETE FROM meal_ingredients 
+        WHERE meal_id = ${mealId} AND ingredient_id = ${ingredientId} AND user_id = ${userId}
+        RETURNING *
     `;
     return deletedIngredient;
 }
 
-export async function updateMealIngredient(mealId: number, ingredientId: number, quantity?: number, unit?: string) {
+export async function updateMealIngredient(userId: string, mealId: string, ingredientId: string, quantity?: number, unit?: string) {
     const [updatedIngredient] = await sql`
         UPDATE meal_ingredients
         SET
             quantity = COALESCE(${quantity}, quantity),
             unit = COALESCE(${unit}, unit)
-        WHERE meal_id = ${mealId} AND ingredient_id = ${ingredientId}
+        WHERE meal_id = ${mealId} AND ingredient_id = ${ingredientId} AND user_id = ${userId}
         RETURNING *
     `;
     return updatedIngredient;
 }
 
-export async function getMealSummary(mealId: number) {
+export async function getMealSummary(userId: string, mealId: string) {
     const [summary] = await sql`
         SELECT
             SUM(i.calories * mi.quantity) AS total_calories,
@@ -89,7 +95,7 @@ export async function getMealSummary(mealId: number) {
             SUM(i.fat * mi.quantity) AS total_fat
         FROM meal_ingredients mi
         JOIN ingredients i ON mi.ingredient_id = i.id
-        WHERE mi.meal_id = ${mealId}
+        WHERE mi.meal_id = ${mealId} AND i.user_id = ${userId}
     `;
     return summary;
 }

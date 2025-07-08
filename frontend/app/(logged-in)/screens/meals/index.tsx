@@ -30,6 +30,13 @@ const index = () => {
           <Ionicons name='list-outline' size={24} color='black' />
           <Text style={styles.footerText}>Ingredients List</Text>
         </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.footerButton}
+          onPress={() => {router.push('/(logged-in)/screens/meals/mealList')}}
+        >
+          <Ionicons name='list-outline' size={24} color='black' />
+          <Text style={styles.footerText}>Meals List</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )
@@ -62,10 +69,10 @@ const styles = StyleSheet.create({
     width: '100%',
     borderTopWidth: 0.5,
     borderTopColor: 'black',
-    height: 80,
+    height: 120,
   },
   footerButton: {
-    marginBottom: 10,
+    marginBottom: 20,
     flexDirection: 'row',
     borderColor: 'black',
     borderWidth: 1,
