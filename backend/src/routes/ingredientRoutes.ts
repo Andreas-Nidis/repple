@@ -19,9 +19,11 @@ router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
 
 // Get a specific ingredient by ID
 router.get('/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
-    const ingredientId = parseInt(req.params.ingredientId, 10);
+    const ingredientId = req.params.ingredientId;
+    const userId = req.user?.id;
+    
     try {
-        const ingredient = await getIngredientById(ingredientId);
+        const ingredient = await getIngredientById(userId, ingredientId);
         if (!ingredient) {
             res.status(404).json({ error: 'Ingredient not found' });
             return;
@@ -59,16 +61,12 @@ router.post('/', authenticateFirebase, async (req: Request, res: Response) => {
 
 // Update an existing ingredient
 router.put('/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
-    const ingredientId = parseInt(req.params.ingredientId, 10);
-    const { name, category, calories, protein, carbs, fats } = req.body;
-
-    if (!name || !category) {
-        res.status(400).json({ error: 'Name and category are required' });
-        return;
-    }
+    const ingredientId = req.params.ingredientId;
+    const userId = req.user?.id;
+    const { protein, carbs, fat } = req.body;
 
     try {
-        const updatedIngredient = await updateIngredient(ingredientId, name, calories, protein, carbs, fats);
+        const updatedIngredient = await updateIngredient(userId, ingredientId, protein, carbs, fat);
         if (!updatedIngredient) {
             res.status(404).json({ error: 'Ingredient not found' });
             return;
@@ -82,7 +80,7 @@ router.put('/:ingredientId', authenticateFirebase, async (req: Request, res: Res
 
 // Delete an ingredient
 router.delete('/:ingredientId', authenticateFirebase, async (req: Request, res: Response) => {
-    const ingredientId = parseInt(req.params.ingredientId, 10);
+    const ingredientId = req.params.ingredientId;
     try {
         const deletedIngredient = await deleteIngredient(ingredientId);
         if (!deletedIngredient) {

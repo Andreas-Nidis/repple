@@ -1,0 +1,174 @@
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Button } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { getAuth } from '@react-native-firebase/auth'
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const IngredientScreen = () => {
+    const router = useRouter();
+    const { ingredientId } = useLocalSearchParams();
+    const [ingredientName, setIngredientName] = useState('');
+    const [protein, setProtein] = useState(0);
+    const [fat, setFat] = useState(0);
+    const [carbs, setCarbs] = useState(0);
+
+    const getIngredientById = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/ingredients/${ingredientId}`, {
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+
+            const data = await response.json();
+            // console.log('Fetched ingredient data:', data);
+            setIngredientName(data.name || '');
+            setProtein(data.protein || 0);
+            setFat(data.fat || 0);
+            setCarbs(data.carbs || 0);
+        } catch (error) {
+            console.log('Error fetching and setting ingredient data:', error);
+        }
+    }
+
+    const updateIngredient = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/ingredients/${ingredientId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    protein: protein,
+                    fat: fat,
+                    carbs: carbs,
+                })
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+
+            await getIngredientById();
+            router.back();
+        } catch (error) {
+            console.log('Error updating exercise:', error);
+        }
+    }
+
+    const deleteIngredient = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`http://localhost:3001/api/ingredients/${ingredientId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                }
+            });
+
+            if(!response.ok) {
+                const errorText = await response.text();
+                console.log('API returned error:', errorText);
+                return;
+            }
+
+        } catch (error) {
+            console.log('Error deleting exercise:', error);
+        }
+    }
+
+    useEffect(() => {
+        getIngredientById();
+    }, []);
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <TouchableOpacity 
+                    style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
+                    onPress={() => {router.back()}}
+                >
+                    <Ionicons name='chevron-back' size={24} color='black' />
+                </TouchableOpacity>
+                <Text style={styles.headerText}>{ingredientName}</Text>
+            </View>
+            <View style={styles.inputsContainer}>
+                <TextInput
+                    placeholder={protein.toString() || "Protein"}
+                    keyboardType="numeric"
+                    value={protein.toString()}
+                    onChangeText={text => setProtein(Number(text))}
+                    style={styles.input}
+                />
+                <TextInput
+                    placeholder={fat.toString() || "Fat"}
+                    keyboardType="numeric"
+                    value={fat.toString()}
+                    onChangeText={text => setFat(Number(text))}
+                    style={styles.input}
+                />
+                <TextInput
+                    placeholder={carbs.toString() || "Carbs"}
+                    keyboardType="numeric"
+                    value={carbs.toString()}
+                    onChangeText={text => setCarbs(Number(text))}
+                    style={styles.input}
+                />
+                <Button title="Save" onPress={() => updateIngredient()} />
+                <Button title="Delete" onPress={ async () => {
+                    await deleteIngredient()
+                    router.back()
+                }} />
+            </View>
+        </SafeAreaView>
+    )
+}
+
+export default IngredientScreen
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#fff',
+        flex: 1,
+        alignItems: 'center',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        borderBottomWidth: 0.5,
+        borderBottomColor: 'lightgray',
+        height: 40,
+        paddingHorizontal: 16,
+    },
+    headerText: {
+        fontSize: 18,
+        fontWeight: '600',
+        margin: 'auto',
+    },
+    inputsContainer: {
+        width: '95%',
+        marginTop: 20,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 12,
+  },
+})
