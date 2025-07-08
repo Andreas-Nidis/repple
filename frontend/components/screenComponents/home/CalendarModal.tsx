@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View, Button, FlatList } from 'react-native';
 import dayjs from 'dayjs';
 import { getAuth } from '@react-native-firebase/auth';
 
@@ -27,8 +27,12 @@ type WorkoutData = {
     sets?: number;
     reps?: number;
     rest_seconds?: number;
-
 }
+
+type UserWorkout = {
+  id: string;
+  name: string;
+};
 
 const CalendarModal: React.FC<CalendarModalProps> = ({
   visible,
@@ -40,6 +44,32 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   const [workout, setWorkout] = useState<WorkoutData[]>([]);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
   const workoutId = entries.length > 0 ? entries[0].workout_id : '';
+  const [modalVisible, setModalVisible] = useState(false);
+  const [userWorkouts, setUserWorkouts] = useState<UserWorkout[]>([]);
+
+  const getUserWorkouts = async () => {
+      try {
+          const user = getAuth().currentUser;
+          const idToken = await user?.getIdToken();
+          const response = await fetch('http://localhost:3001/api/workouts', {
+              headers: {
+                  Authorization: `Bearer ${idToken}`,
+              }
+          });
+
+          if (!response.ok) {
+              const errorText = await response.text();
+              console.log('API returned error:', errorText);
+              return;
+          }
+
+          const data = await response.json();
+          console.log(data);
+          setUserWorkouts(data);
+      } catch (error) {
+          console.log('Error fetching user workouts:', error);
+      }
+  };
 
   const getWorkoutExercisesById = async () => {
       try {
@@ -70,14 +100,15 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       try {
           const user = getAuth().currentUser;
           const idToken = await user?.getIdToken();
-          const response = await fetch(`http://localhost:3001/api/calendar-entries`, {
+          console.log('Selected Day:', selectedDay);
+          const response = await fetch(`http://localhost:3001/api/calendar`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${idToken}`,
               },
               body: JSON.stringify({
-                  date: selectedDay,
+                  scheduled_date: selectedDay,
                   workout_id: selectedWorkoutId,
               }),
           });
@@ -93,6 +124,29 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           console.log('Error adding calendar entry:', error);
       }
   }
+
+  const removeEntry = async () => {
+      try {
+          const user = getAuth().currentUser;
+          const idToken = await user?.getIdToken();
+          const response = await fetch(`http://localhost:3001/api/calendar/${entries[0].id}`, {
+              method: 'DELETE',
+              headers: {
+                  Authorization: `Bearer ${idToken}`,
+              },
+          });
+
+          if (!response.ok) {
+              const errorText = await response.text();
+              console.log('API returned error:', errorText);
+              return;
+          }
+
+          onClose();
+      } catch (error) {
+          console.log('Error removing calendar entry:', error);
+      }
+  };
 
   const formatTime = (seconds: number) => {
       const m = Math.floor(seconds / 60);
@@ -158,6 +212,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   )
 
   useEffect(() => {
+    getUserWorkouts();
     getWorkoutExercisesById();
   }, []);
   
@@ -194,11 +249,69 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                 rest={item.rest_seconds ?? 0}
               />
             ))}
+            <Button title="Remove Workout" onPress={removeEntry} />
           </View>
         ) : (
           <View style={styles.entry}>
             <Text>No workout scheduled for this day.</Text>
-            <Button title="Add Workout" onPress={addEntry} />
+            <Button title="Add Workout" onPress={() => setModalVisible(true)} />
+
+            <Modal
+              visible={modalVisible}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setModalVisible(false)}
+            >
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalTitle}>Select Workout</Text>
+                <FlatList
+                  horizontal
+                  data={userWorkouts}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => {
+                    const isSelected = item.id === selectedWorkoutId;
+                    
+                    return (
+                        <TouchableOpacity 
+                          style={{
+                            backgroundColor: isSelected ? '#222222' : '#eee',
+                            padding: 16,
+                            marginRight: 10,
+                            borderRadius: 10,
+                            borderWidth: isSelected ? 2 : 1,
+                            borderColor: isSelected ? '#222222' : '#bababa',
+                            shadowColor: isSelected ? '#222222' : undefined,
+                            shadowOpacity: isSelected ? 0.3 : 0,
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowRadius: isSelected ? 4 : 0,
+                            elevation: isSelected ? 4 : 0,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            maxHeight: 80,
+                          }}     
+                          onPress={() => setSelectedWorkoutId(item.id)}
+                        >
+                          <Text
+                            style={{
+                              color: isSelected ? 'white' : 'black',
+                              fontWeight: isSelected ? 'bold' : 'normal',
+                              fontSize: 16,
+                            }}
+                          >{item.name}</Text>
+                        </TouchableOpacity>
+                    );
+                  }}
+                />
+
+                <Button
+                  title="Select Workout"
+                  onPress={() => {
+                    addEntry();
+                    setModalVisible(false);
+                  }}
+                />
+              </View>
+            </Modal>
           </View>
         )}
 

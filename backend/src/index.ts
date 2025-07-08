@@ -12,7 +12,7 @@ import ingredientRoutes from './routes/ingredientRoutes';
 import mealRoutes from './routes/mealRoutes';
 import workoutRoutes from './routes/workoutRoutes';
 import workoutExerciseRoutes from './routes/workoutExerciseRoutes';
-import calenderRoutes from './routes/calenderRoutes';
+import calendarRoutes from './routes/calenderRoutes';
 import weightRoutes from './routes/weightRoutes';
 import { setupSocketIO } from './socket';
 
@@ -49,7 +49,7 @@ app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/workout-exercises', workoutExerciseRoutes);
-app.use('/api/calender', calenderRoutes);
+app.use('/api/calendar', calendarRoutes);
 app.use('/api/weights', weightRoutes);
 
 // Health check route

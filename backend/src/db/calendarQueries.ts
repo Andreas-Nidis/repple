@@ -27,3 +27,12 @@ export async function toggleCompletion(userId: string, scheduledDate: string) {
     );
     return result;
 }
+
+export async function deleteCalendarEntry(userId: string, id: string) {
+    const result = await sql.query(
+        `DELETE FROM calendar_entries
+        WHERE user_id = $1 AND id = $2
+        RETURNING *`, [userId, id]
+    );
+    return result;
+}

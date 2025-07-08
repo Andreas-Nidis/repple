@@ -46,7 +46,7 @@ const HomeWeekCarousel = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch(`http://localhost:3001/api/calender?${params}`, {
+      const response = await fetch(`http://localhost:3001/api/calendar?${params}`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },
