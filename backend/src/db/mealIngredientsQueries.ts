@@ -10,41 +10,34 @@ export async function getIngredientsInMeal(userId:string, mealId: string) {
     `;
 }
 
-export async function getExerciseInWorkout(workoutId: string, exerciseId: string) {
-    const [exercise] = await sql`
-        SELECT we.*, e.name, e.category, e.equipment, e.description, e.tutorial_url
-        FROM workout_exercises we
-        JOIN exercises e ON we.exercise_id = e.id
-        WHERE we.workout_id = ${workoutId} AND we.exercise_id = ${exerciseId}
+export async function addIngredientToMeal(userId: string, mealId: string, ingredientId: string, quantity: number) {
+    return await sql`
+        INSERT INTO meal_ingredients (meal_id, ingredient_id, quantity)
+        SELECT ${mealId}, ${ingredientId}, ${quantity}
+        WHERE EXISTS (
+            SELECT 1 FROM meals m WHERE m.id = ${mealId} AND m.user_id = ${userId}
+        )
+        ON CONFLICT (meal_id, ingredient_id) DO NOTHING
     `;
-    return exercise;
 }
 
-export async function addExerciseToWorkout(workoutId: string, exerciseId: string, sets: number, reps: number, restSeconds?: number) {
-    const [workoutExercise] = await sql`
-        INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, rest_seconds)
-        VALUES (${workoutId}, ${exerciseId}, ${sets}, ${reps}, ${restSeconds})
-        RETURNING *
+export async function updateIngredientInMeal(userId: string, mealId: string, ingredientId: string, quantity: number) {
+    return await sql`
+        UPDATE meal_ingredients
+        SET quantity = ${quantity}
+        WHERE meal_id = ${mealId} AND ingredient_id = ${ingredientId}
+        AND EXISTS (
+            SELECT 1 FROM meals m WHERE m.id = ${mealId} AND m.user_id = ${userId}
+        )
     `;
-    return workoutExercise;
 }
 
-export async function updateExerciseInWorkout(workoutId: string, exerciseId: string, sets?: number, reps?: number, restSeconds?: number) {
-    const [updatedExercise] = await sql`
-        UPDATE workout_exercises
-        SET
-            sets = COALESCE(${sets}, sets),
-            reps = COALESCE(${reps}, reps),
-            rest_seconds = COALESCE(${restSeconds}, rest_seconds)
-        WHERE workout_id = ${workoutId} AND exercise_id = ${exerciseId}
-        RETURNING *
+export async function removeIngredientFromMeal(userId: string, mealId: string, ingredientId: string) {
+    return await sql`
+        DELETE FROM meal_ingredients
+        WHERE meal_id = ${mealId} AND ingredient_id = ${ingredientId}
+        AND EXISTS (
+            SELECT 1 FROM meals m WHERE m.id = ${mealId} AND m.user_id = ${userId}
+        )
     `;
-    return updatedExercise;
-}
-
-export async function removeExerciseFromWorkout(workoutId: string, exerciseId: string) {
-    const [removedExercise] = await sql`
-        DELETE FROM workout_exercises WHERE workout_id = ${workoutId} AND exercise_id = ${exerciseId} RETURNING *
-    `;
-    return removedExercise;
 }

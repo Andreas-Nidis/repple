@@ -156,7 +156,7 @@ router.delete('/:mealId', authenticateFirebase, async (req: Request, res: Respon
     const userId = req.user?.id;
     const mealId = req.params.mealId;
     if (!userId || !mealId) {
-        res.status(400).json({ error: 'Invalid meal ID' });
+        res.status(400).json({ error: 'Invalid meal ID or unauthorized' });
         return;
     }
 
