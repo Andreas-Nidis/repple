@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { LineChart } from 'react-native-chart-kit'; 
 import { getAuth } from '@react-native-firebase/auth';
 import DateTimePicker from '@react-native-community/datetimepicker'
+import { BASE_URL } from '@/utils/api';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -29,7 +30,7 @@ const WeightChart = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/weights`, {
+            const response = await fetch(`${BASE_URL}/api/weights`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -61,7 +62,7 @@ const WeightChart = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:3001/api/weights', {
+            const response = await fetch(`${BASE_URL}/api/weights`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -98,9 +99,9 @@ const WeightChart = () => {
         getWeightEntries();
     }, []);
 
-    useEffect(() => {
-        console.log('Current weightData dates:', weightData.map(e => e.entry_date));
-    }, [weightData]);
+    // useEffect(() => {
+    //     console.log('Current weightData dates:', weightData.map(e => e.entry_date));
+    // }, [weightData]);
 
     const weights = weightData
         .map(data => typeof data.weight === 'number' ? data.weight : parseFloat(data.weight as string))
@@ -194,7 +195,7 @@ const WeightChart = () => {
                                             const idToken = await user?.getIdToken();
                                             const isoDate = formatDateLocal(selectedDate);
 
-                                            const response = await fetch(`http://localhost:3001/api/weights/${isoDate}`, {
+                                            const response = await fetch(`${BASE_URL}/api/weights/${isoDate}`, {
                                                 method: 'DELETE',
                                                 headers: {
                                                     Authorization: `Bearer ${idToken}`

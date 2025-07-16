@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { BASE_URL } from '@/utils/api';
 
 const IngredientScreen = () => {
     const router = useRouter();
@@ -16,7 +17,7 @@ const IngredientScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/ingredients/${ingredientId}`, {
+            const response = await fetch(`${BASE_URL}/api/ingredients/${ingredientId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -43,7 +44,7 @@ const IngredientScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/ingredients/${ingredientId}`, {
+            const response = await fetch(`${BASE_URL}/api/ingredients/${ingredientId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ const IngredientScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/ingredients/${ingredientId}`, {
+            const response = await fetch(`${BASE_URL}/api/ingredients/${ingredientId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${idToken}`,

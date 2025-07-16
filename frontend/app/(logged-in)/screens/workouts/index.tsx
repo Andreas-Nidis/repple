@@ -4,6 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getAuth } from '@react-native-firebase/auth';
+import { BASE_URL } from '@/utils/api';
 
 type Workout = {
   name: string;
@@ -22,7 +23,7 @@ const Index = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch('http://localhost:3001/api/workouts', {
+      const response = await fetch(`${BASE_URL}/api/workouts`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         }
@@ -45,7 +46,7 @@ const Index = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch('http://localhost:3001/api/workouts', {
+      const response = await fetch(`${BASE_URL}/api/workouts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

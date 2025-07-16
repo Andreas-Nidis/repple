@@ -1,4 +1,4 @@
-package com.draydude.repple.debug
+package com.draydude.repple
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

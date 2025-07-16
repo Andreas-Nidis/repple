@@ -4,6 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { getAuth } from '@react-native-firebase/auth';
+import { BASE_URL } from '@/utils/api';
 
 type IngredientData = {
   name: string;
@@ -20,7 +21,7 @@ const Index = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch(`http://localhost:3001/api/ingredients`, {
+      const response = await fetch(`${BASE_URL}/api/ingredients`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         }
@@ -43,7 +44,7 @@ const Index = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch(`http://localhost:3001/api/ingredients`, {
+      const response = await fetch(`${BASE_URL}/api/ingredients`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

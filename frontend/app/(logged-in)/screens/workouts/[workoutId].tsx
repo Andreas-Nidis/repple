@@ -4,6 +4,7 @@ import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import { BASE_URL } from '@/utils/api';
 
 type WorkoutData = {
     id: string;
@@ -88,7 +89,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
+            const response = await fetch(`${BASE_URL}/api/workouts/${workoutId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -111,7 +112,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}`, {
+            const response = await fetch(`${BASE_URL}/api/workout-exercises/${workoutId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -136,7 +137,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/exercises`, {
+            const response = await fetch(`${BASE_URL}/api/exercises`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -161,7 +162,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}/exercises`, {
+            const response = await fetch(`${BASE_URL}/api/workout-exercises/${workoutId}/exercises`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -196,7 +197,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}/exercises/${selectedExerciseId}`, {
+            const response = await fetch(`${BASE_URL}/api/workout-exercises/${workoutId}/exercises/${selectedExerciseId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -236,7 +237,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}/exercises/${selectedExerciseId}`, {
+            const response = await fetch(`${BASE_URL}/api/workout-exercises/${workoutId}/exercises/${selectedExerciseId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${idToken}`,
@@ -265,7 +266,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
+            const response = await fetch(`${BASE_URL}/api/workouts/${workoutId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -292,7 +293,7 @@ const WorkoutScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
+            const response = await fetch(`${BASE_URL}/api/workouts/${workoutId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${idToken}`,

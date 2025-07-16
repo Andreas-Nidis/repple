@@ -1,4 +1,4 @@
-package com.draydude.repple.debug
+package com.draydude.repple
 
 import android.app.Application
 import android.content.res.Configuration

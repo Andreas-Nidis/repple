@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   profilePhoto: {
     height: 70,
     width: 70,
-    borderRadius: '100%',
+    borderRadius: 35,
   },
   displayName: {
     fontSize: 24,

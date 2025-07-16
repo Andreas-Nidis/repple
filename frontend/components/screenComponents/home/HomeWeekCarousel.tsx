@@ -5,6 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import CalendarModal from './CalendarModal'
 import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek';
+import { BASE_URL } from '@/utils/api'
 
 dayjs.extend(isoWeek);
 
@@ -46,7 +47,7 @@ const HomeWeekCarousel = () => {
     try {
       const user = getAuth().currentUser;
       const idToken = await user?.getIdToken();
-      const response = await fetch(`http://localhost:3001/api/calendar?${params}`, {
+      const response = await fetch(`${BASE_URL}/api/calendar?${params}`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },

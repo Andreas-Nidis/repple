@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { BASE_URL } from '@/utils/api';
 
 const ExerciseScreen = () => {
     const router = useRouter();
@@ -17,7 +18,7 @@ const ExerciseScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
+            const response = await fetch(`${BASE_URL}/api/exercises/${exerciseId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -44,7 +45,7 @@ const ExerciseScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
+            const response = await fetch(`${BASE_URL}/api/exercises/${exerciseId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,7 +76,7 @@ const ExerciseScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
+            const response = await fetch(`${BASE_URL}/api/exercises/${exerciseId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${idToken}`,

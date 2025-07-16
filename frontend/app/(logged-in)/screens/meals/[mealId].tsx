@@ -5,6 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getAuth } from '@react-native-firebase/auth';
 import { PieChart } from 'react-native-gifted-charts';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import { BASE_URL } from '@/utils/api';
 
 type MealData = {
     id: string;
@@ -51,7 +52,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/meals/${mealId}`, {
+            const response = await fetch(`${BASE_URL}/api/meals/${mealId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -75,7 +76,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/meal-ingredients/${mealId}`, {
+            const response = await fetch(`${BASE_URL}/api/meal-ingredients/${mealId}`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -99,7 +100,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/ingredients`, {
+            const response = await fetch(`${BASE_URL}/api/ingredients`, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                 }
@@ -162,7 +163,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/meal-ingredients/${mealId}/${selectedIngredientId}`, {
+            const response = await fetch(`${BASE_URL}/api/meal-ingredients/${mealId}/${selectedIngredientId}`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${idToken}`,
@@ -197,7 +198,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/meal-ingredients/${mealId}/${selectedIngredientId}`, {
+            const response = await fetch(`${BASE_URL}/api/meal-ingredients/${mealId}/${selectedIngredientId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${idToken}`,
@@ -226,7 +227,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/meal-ingredients/${mealId}/${selectedIngredientId}`, {
+            const response = await fetch(`${BASE_URL}/api/meal-ingredients/${mealId}/${selectedIngredientId}`, {
                 method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${idToken}`,
@@ -256,7 +257,7 @@ const MealScreen = () => {
         try {
             const user = getAuth().currentUser;
             const idToken = await user?.getIdToken();
-            const response = await fetch(`http://localhost:3001/api/meals/${mealId}`, {
+            const response = await fetch(`${BASE_URL}/api/meals/${mealId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${idToken}`,

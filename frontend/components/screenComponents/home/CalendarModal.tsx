@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View, Button, FlatList } from 'react-native';
 import dayjs from 'dayjs';
 import { getAuth } from '@react-native-firebase/auth';
+import { BASE_URL } from '@/utils/api';
 
 
 type CalendarEntry = {
@@ -51,7 +52,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       try {
           const user = getAuth().currentUser;
           const idToken = await user?.getIdToken();
-          const response = await fetch('http://localhost:3001/api/workouts', {
+          const response = await fetch(`${BASE_URL}/api/workouts`, {
               headers: {
                   Authorization: `Bearer ${idToken}`,
               }
@@ -75,7 +76,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       try {
           const user = getAuth().currentUser;
           const idToken = await user?.getIdToken();
-          const response = await fetch(`http://localhost:3001/api/workout-exercises/${workoutId}`, {
+          const response = await fetch(`${BASE_URL}/api/workout-exercises/${workoutId}`, {
               headers: {
                   Authorization: `Bearer ${idToken}`,
               }
@@ -101,7 +102,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           const user = getAuth().currentUser;
           const idToken = await user?.getIdToken();
           console.log('Selected Day:', selectedDay);
-          const response = await fetch(`http://localhost:3001/api/calendar`, {
+          const response = await fetch(`${BASE_URL}/api/calendar`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       try {
           const user = getAuth().currentUser;
           const idToken = await user?.getIdToken();
-          const response = await fetch(`http://localhost:3001/api/calendar/${entries[0].id}`, {
+          const response = await fetch(`${BASE_URL}/api/calendar/${entries[0].id}`, {
               method: 'DELETE',
               headers: {
                   Authorization: `Bearer ${idToken}`,

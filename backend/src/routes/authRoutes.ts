@@ -13,7 +13,9 @@ router.get('/me', authenticateFirebase, async (req: Request, res: Response) => {
 });
 
 router.post('/firebase-login', authenticateFirebase, async (req: Request, res: Response) => {
+  console.log('/firebase-login post route activated');
   try {
+    console.log('User details', req.user);
     if (!req.user) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -25,7 +27,7 @@ router.post('/firebase-login', authenticateFirebase, async (req: Request, res: R
       res.status(400).json({ error: 'Invalid Firebase user data' });
       return;
     }
-
+    console.log('Finding or creating user in database');
     // Check if user exists in DB, create if not
     const user = await findOrCreateUser(
       uid as string,

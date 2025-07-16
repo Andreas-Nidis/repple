@@ -9,6 +9,7 @@ import {
     GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
+import { BASE_URL } from '@/utils/api';
 
 import Constants from 'expo-constants';
 const { webClientId } = (Constants.expoConfig?.extra as { webClientId: string });
@@ -18,6 +19,7 @@ GoogleSignin.configure({
     offlineAccess: true,
     scopes: ['profile', 'email']
 });
+
 
 
 
@@ -31,21 +33,6 @@ export default function Login() {
     const onGoogleButtonPress = async () => {
         console.log('onGoogleButtonPress started');
 
-        console.log('Google Signin configured');
-        // Check if the user is already signed in
-        let currentUser;
-                
-        try {
-            currentUser = GoogleSignin.getCurrentUser();
-            // console.log('Current user:', currentUser);
-        } catch (error) {
-            console.error('Error getting current user:', error);
-        }
-        
-        console.log('Checking if user is already signed in...');
-        const isSignedIn = !!currentUser;
-        console.log('Is user signed in:', isSignedIn);
-
         try {
             // Check if your device supports Google Play
             await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -53,10 +40,7 @@ export default function Login() {
             // Get the users ID token
             console.log('Attempting Google sign in...');
             const response = await GoogleSignin.signIn();
-            // console.log('Google sign in response:', response.data?.idToken);
-            // Try the new style of google-sign in result, from v13+ of that module
             let idToken = response.data?.idToken;
-            // console.log('idToken', idToken);
             if (!idToken) {
                 // if you are using older versions of google-signin, try old style result
                 idToken = response.idToken;
@@ -76,7 +60,6 @@ export default function Login() {
             const photoURL = response.data?.user.photo;
             if (photoURL) {
                 await firebaseUser.updateProfile({ photoURL });
-                // console.log('Firebase user profile updated with photoURL:', photoURL);
             } else {
                 console.warn('No photo URL found in Google user profile');
             }
@@ -84,6 +67,10 @@ export default function Login() {
             return firebaseUser;
         } catch (error) {
             console.error('Error during Google sign-in:', error);
+            if (typeof error === 'object' && error !== null && 'code' in error) {
+                console.error('Error code:', (error as { code: string }).code);
+            }
+            
             if (isErrorWithCode(error)) {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
@@ -104,37 +91,35 @@ export default function Login() {
 
     // Handle user state changes
     async function handleAuthStateChanged(user: FirebaseAuthTypes.User | null) {
+        // console.log('handleAuthStateChanged fired, user:', user?.displayName);
+        // console.log(BASE_URL);
         setUser(user);
         if (user) {
             const idToken = await user.getIdToken(true);
             // console.log('Sending ID token to server', idToken);
-            let response;
-            
+            console.log(BASE_URL);
             try {
-                response = await fetch('http://localhost:3001/api/auth/firebase-login', {
+                // console.log('Attempting firebase post request with user', user.displayName);
+                const response = await fetch(`${BASE_URL}/api/auth/firebase-login`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${idToken}`,
                         'Content-Type': 'application/json',
                     },
                 });
-                // console.log('Response from server:', response);
-            } catch (error) {
-                console.error('Error sending ID token to server:', error);
-            }
 
-            let data;
-            if (response) {
-                data = await response.json();
-                // console.log('Response data:', data);
+                const data = await response.json();
+                console.log('Response data:', data);
 
                 if (response.ok) {
                     console.log('Backend login success:', data);
+                    console.log('Signed in with Google!')
+                    router.replace('/(logged-in)/screens')
                 } else {
-                    console.error('Backend login failed:', data.error);
+                    console.error('Backend login failed:', data);
                 }
-            } else {
-                console.error('No response received from server.');
+            } catch (error) {
+                console.error('Error sending ID token to server:', error);
             }
         }
 
@@ -144,9 +129,15 @@ export default function Login() {
     useEffect(() => {
         const subscriber = onAuthStateChanged(getAuth(), handleAuthStateChanged);
         return subscriber; // unsubscribe on unmount
-    });
+    }, []);
 
-    if (initializing) return null;
+    if (initializing) {
+        return (
+            <SafeAreaView style={styles.container}>
+            <Text>Loading...</Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -156,10 +147,7 @@ export default function Login() {
                 style={styles.googleButton}
                 size={GoogleSigninButton.Size.Wide}
                 color={GoogleSigninButton.Color.Light}
-                onPress={() => onGoogleButtonPress().then(() => {
-                    console.log('Signed in with Google!')
-                    router.replace('/(logged-in)/screens')
-                })}
+                onPress={onGoogleButtonPress}
                 disabled={false}
             />
         </SafeAreaView>

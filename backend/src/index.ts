@@ -42,7 +42,7 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-app.use('/api/users', userRoutes);
+// app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/friends', friendRoutes);
