@@ -3,6 +3,7 @@ import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View, But
 import dayjs from 'dayjs';
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
+import socket from '@/utils/socket';
 
 
 type CalendarEntry = {
@@ -211,6 +212,17 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     </View>
   )
 
+  const socketEmitWorkoutActivity = () => {
+    const user = getAuth().currentUser;
+    if(!socket.connected) return;
+    
+    socket.emit('friendsActivity', {
+      firebaseId: user?.uid,
+      workoutId: workoutId,
+      action: workoutToggle ? 'finished' : 'started',
+    })
+  }
+
   useEffect(() => {
     getUserWorkouts();
 
@@ -253,7 +265,10 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
               />
             ))}
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <TouchableOpacity style={styles.toggleButton} onPress={() => setWorkoutToggle(!workoutToggle)}>
+              <TouchableOpacity style={styles.toggleButton} onPress={() => {
+                setWorkoutToggle(!workoutToggle);
+                socketEmitWorkoutActivity();
+              }}>
                 <Text style={styles.toggleText}>{workoutToggle ? 'Finish Workout' : 'Start Workout'}</Text>
               </TouchableOpacity>
             </View>

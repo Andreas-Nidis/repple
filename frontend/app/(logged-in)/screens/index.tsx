@@ -8,6 +8,7 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import Friends from '@/components/screenComponents/home/Friends';
 import socket from '@/utils/socket';
 import { useEffect } from 'react';
+import Toast from 'react-native-toast-message';
 
 export default function HomePage() {
   const router = useRouter();
@@ -37,9 +38,26 @@ export default function HomePage() {
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
 
+    const handler = (payload: any) => {
+      console.log('Friend activity:', payload);
+      const { userId, workoutId, action } = payload;
+      
+      Toast.show({
+        type: 'info',
+        text1: `Your friend has ${action} a workout`,
+        text2: `Workout ID: ${workoutId}`,
+        position: 'top',
+        visibilityTime: 3000,
+      });
+    };
+
+    socket.on('friendActivity', handler);
+
+
     return () => {
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
+      socket.off('friendActivity', handler);
     };
   }, [])
 
@@ -80,6 +98,7 @@ export default function HomePage() {
         </TouchableOpacity>
       </View>
       <Friends />
+      <Toast />
     </SafeAreaView>
   );
 }

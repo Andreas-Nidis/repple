@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { getFriends } from './db/friendQueries';
+import { getUserIdByFirebaseId } from './db/userQueries';
 
 const onlineUsers = new Map<string, string>();
 const userSocketMap = new Map<string, string>();
@@ -17,7 +18,12 @@ export const setupSocketIO = (io: Server) => {
         });
 
         // Handle login event
-        socket.on('identify', (userId: string) => {
+        socket.on('identify', async (firebaseId: string) => {
+            const userId = await getUserIdByFirebaseId(firebaseId);
+            if (!userId) {
+                console.log('No user found for Firebase ID:', firebaseId);
+                return;
+            }
             onlineUsers.set(socket.id, userId);
             userSocketMap.set(userId, socket.id);
             console.log(`User ${userId} is online!`);
@@ -35,23 +41,37 @@ export const setupSocketIO = (io: Server) => {
                 io.emit('userOffline', userId);
             }
         });
+
+        socket.on('friendsActivity', async (payload) => {
+            console.log('SOCKET: friencActivity activated.')
+            const {firebaseId, workoutId, action} = payload;
+
+            const userId = await getUserIdByFirebaseId(firebaseId);
+            if (!userId) {
+                console.log('No user found for Firebase ID:', firebaseId);
+                return;
+            }
+
+            const friends = await getFriends(userId);
+            console.log(friends);
+            friends.forEach(friend => {
+                const friendSocketId = userSocketMap.get(friend.friend_id);
+                console.log(friendSocketId);
+                if (friendSocketId) {
+                    io.to(friendSocketId).emit('friendActivity', {
+                        userId,
+                        workoutId,
+                        action,
+                    })
+                }
+            });
+        })
     });
     console.log('Socket.IO setup complete');
 };
     
 export const getUserSocketId = (userId: string) =>{
     return userSocketMap.get(userId);
-}
-
-export const emitToFriends = async (userId: string, payload: any, io: any) => {
-    const friends = await getFriends(userId);
-
-    friends.forEach(friend => {
-        const friendSocketId = userSocketMap.get(friend.friend_id);
-        if (friendSocketId) {
-            io.to(friendSocketId).emit('friendActivity', payload);
-        }
-    });
 }
 
 export const getIO = () => ioInstance;

@@ -13,3 +13,13 @@ export async function findUser(uid: string, email: string, picture: string, name
   }
   
 }
+
+export async function getUserIdByFirebaseId(uid: string) {
+  const rows = await sql`
+    SELECT id FROM users WHERE uid = ${uid}
+  `;
+  if (rows.length > 0 && rows[0].id) {
+    return rows[0].id;
+  }
+  return null;
+}
