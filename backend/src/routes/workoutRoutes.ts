@@ -1,12 +1,15 @@
 import express, { Request, Response } from 'express';
 import { getWorkoutsByUser, getWorkoutById, createWorkout, updateWorkout, deleteWorkout } from '../db/workoutQueries';
 import { authenticateFirebase } from '../middleware/authMiddleware';
+import { emitToFriends } from '../socket';
+import { io } from '../index';
 
 const router = express.Router();
 
 // Get all workouts for a user
 router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const userId = req.user?.id;
+    console.log(userId);
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -109,5 +112,33 @@ router.delete('/:workoutId', authenticateFirebase, async (req: Request, res: Res
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+router.post('/start', authenticateFirebase, async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    await emitToFriends(userId, {
+        type: 'workout_started',
+    }, io)
+
+    res.status(200).send('Workout started and friends notified.');
+})
+
+router.post('/finish', authenticateFirebase, async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    await emitToFriends(userId, {
+        type: 'workout_finished',
+    }, io)
+
+    res.status(200).send('Workout finished and friends notified.');
+})
 
 export default router;

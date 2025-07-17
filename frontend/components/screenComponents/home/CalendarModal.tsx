@@ -47,6 +47,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   const workoutId = entries.length > 0 ? entries[0].workout_id : '';
   const [modalVisible, setModalVisible] = useState(false);
   const [userWorkouts, setUserWorkouts] = useState<UserWorkout[]>([]);
+  const [workoutToggle, setWorkoutToggle] = useState<boolean>(false);
 
   const getUserWorkouts = async () => {
       try {
@@ -228,7 +229,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
         {loading ? (
           <ActivityIndicator />
         ) : entries?.length > 0 ? (
- 
+          
           <View style={{ marginTop: 10, padding: 5 }}>
             <View style={{justifyContent: 'center', alignItems: 'center',}}>
               <Text style={styles.workoutTitle}>{workout[0]?.workout_name}</Text>
@@ -251,6 +252,11 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                 rest={item.rest_seconds ?? 0}
               />
             ))}
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity style={styles.toggleButton} onPress={() => setWorkoutToggle(!workoutToggle)}>
+                <Text style={styles.toggleText}>{workoutToggle ? 'Finish Workout' : 'Start Workout'}</Text>
+              </TouchableOpacity>
+            </View>
             <Button title="Remove Workout" onPress={removeEntry} />
           </View>
         ) : (
@@ -398,4 +404,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 20,
   },
+  toggleButton: {
+    padding: 20,
+    backgroundColor: '#eee',
+    borderWidth: 1,
+    width: '50%',
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: '400',
+    textAlign: 'center',
+  }
 });

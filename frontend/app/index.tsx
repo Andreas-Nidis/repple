@@ -10,6 +10,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
 import { BASE_URL } from '@/utils/api';
+import socket from '@/utils/socket';
 
 import Constants from 'expo-constants';
 const { webClientId } = (Constants.expoConfig?.extra as { webClientId: string });
@@ -83,6 +84,7 @@ export default function Login() {
         if (user) {
             const idToken = await user.getIdToken(true);
             console.log(BASE_URL);
+
             try {
                 const response = await fetch(`${BASE_URL}/api/auth/login`, {
                     method: 'POST',
@@ -103,6 +105,12 @@ export default function Login() {
                 }
             } catch (error) {
                 console.error('Error sending ID token to server:', error);
+            }
+        } else {
+            // User logged out — disconnect the socket
+            console.log('Disconnecting socket');
+            if (socket.connected) {
+                socket.disconnect();
             }
         }
     }

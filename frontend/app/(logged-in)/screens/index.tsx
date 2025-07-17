@@ -6,13 +6,43 @@ import HomeWeekCarousel from '@/components/screenComponents/home/HomeWeekCarouse
 import WeightChart from '@/components/screenComponents/home/WeightChart';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import Friends from '@/components/screenComponents/home/Friends';
+import socket from '@/utils/socket';
+import { useEffect } from 'react';
 
 export default function HomePage() {
   const router = useRouter();
   const user = getAuth().currentUser;
-  if(!user) {
-    router.replace('/')
-  }
+  useEffect(() => {
+    if(!user) {
+      router.replace('/');
+      return;
+    }
+
+    const handleConnect = () => {
+      console.log('Socket connected! ID:', socket.id);
+      socket.emit('identify', user.uid);
+    };
+
+    const handleDisconnect = (reason: any, details: any) => {
+      console.log(reason);
+      console.log(details?.message);
+      console.log(details?.description);
+      console.log(details?.context);
+    };
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+    };
+  }, [])
+
 
   return (
     <SafeAreaView style={styles.container}>

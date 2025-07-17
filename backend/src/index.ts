@@ -25,18 +25,18 @@ const server = http.createServer(app);
 
 // Initialize Socket.IO server
 // Socket.IO server (new Server(server)) is configured with CORS allowing your app to connect.
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:8081'], // React Native Expo default origin or app URL
+    origin: '*', // React Native Expo default origin or app URL
     methods: ['GET', 'POST'],
-    credentials: true,
+    credentials: false,
   },
 });
 
 // Enable CORS middleware for REST API
 app.use(cors({
-  origin: ['http://localhost:8081'], // Same as above
-  credentials: true,
+  origin: '*', // Same as above
+  credentials: false,
 }));
 
 app.use(express.json());
@@ -62,7 +62,7 @@ app.get('/', (req, res) => {
 // Socket.IO connection handling
 setupSocketIO(io);
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Socket server running on http://0.0.0.0:${PORT}`);
 });
