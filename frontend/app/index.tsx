@@ -99,8 +99,8 @@ export default function Login() {
             // console.log('Sending ID token to server', idToken);
             console.log(BASE_URL);
             try {
-                // console.log('Attempting firebase post request with user', user.displayName);
-                const response = await fetch(`${BASE_URL}/api/auth/firebase-login`, {
+                console.log('Attempting firebase post request with user:', user.email);
+                const response = await fetch(`${BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${idToken}`,

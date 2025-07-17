@@ -20,11 +20,16 @@ export async function authenticateFirebase(req: AuthenticatedRequest, res: Respo
     try {
         const decodedToken = await admin.auth().verifyIdToken(token);
 
-        const result = await sql`SELECT id FROM users WHERE uid = ${decodedToken.uid}`;
+        let result = await sql`SELECT id FROM users WHERE uid = ${decodedToken.uid}`;
 
         if (result.length === 0) {
-            res.status(401).json({ error: 'User not found in database' });
-            return;
+            // User doesn't exist in DB — create them
+            const insertResult = await sql`
+                INSERT INTO users (uid, email, name, picture)
+                VALUES (${decodedToken.uid}, ${decodedToken.email}, ${decodedToken.name}, ${decodedToken.picture})
+                RETURNING id
+            `;
+            result = insertResult;
         }
 
         req.user = {
