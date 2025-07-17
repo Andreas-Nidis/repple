@@ -26,12 +26,12 @@ router.post('/login', authenticateFirebase, async (req: Request, res: Response) 
     }
 
     console.log('Finding user in database');
-    // Check if user exists in DB, create if not
+    // Check if user exists in DB
     const user = await findUser(
       uid as string,
       email as string,
-      name ?? '',
-      picture ?? ''
+      name as string,
+      picture as string,
     );
 
     res.json({ user });

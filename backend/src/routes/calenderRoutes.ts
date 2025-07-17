@@ -12,10 +12,7 @@ router.use(authenticateFirebase);
 
 router.get('/', async (req, res) => {
     const userId = req.user?.id;
-    console.log('Calendar userId: ', userId);
     const { startDate, endDate } = req.query;
-    console.log('Calendar startDate: ', startDate);
-    console.log('Calendar endDate: ', endDate);
 
     try {
         const entries = await getEntriesForWeek(userId, String(startDate), String(endDate));

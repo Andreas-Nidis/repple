@@ -100,8 +100,8 @@ const WorkoutScreen = () => {
                 console.log('API returned error:', errorText);
                 return;
             }
+
             const data = await response.json();
-            console.log('Fetched workout name:', data);
             setWorkoutName(data.name);
         } catch (error) {
             console.log('Error fetching workout name:', error);

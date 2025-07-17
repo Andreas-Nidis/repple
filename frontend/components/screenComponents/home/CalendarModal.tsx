@@ -65,10 +65,9 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           }
 
           const data = await response.json();
-          console.log(data);
           setUserWorkouts(data);
       } catch (error) {
-          console.log('Error fetching user workouts:', error);
+          console.log('Error fetching user workouts in the Calendar:', error);
       }
   };
 
@@ -89,11 +88,10 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           }
 
           const data = await response.json();
-          console.log(data);
           setWorkout(data);
 
       } catch (error) {
-          console.log('Error fetching and setting exercise data in [workoutId] page:', error);
+          console.log('Error fetching and setting exercise data in the Calendar:', error);
       }
   }
 
@@ -101,7 +99,6 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       try {
           const user = getAuth().currentUser;
           const idToken = await user?.getIdToken();
-          console.log('Selected Day:', selectedDay);
           const response = await fetch(`${BASE_URL}/api/calendar`, {
               method: 'POST',
               headers: {

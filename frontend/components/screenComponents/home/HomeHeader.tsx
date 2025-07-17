@@ -10,6 +10,8 @@ const HomeHeader = () => {
     router.replace('/')
     }
 
+    const firstName = user?.displayName?.split(' ')[0];
+
     return (
         <View style={styles.headerContainer}>
             <View style={styles.exitContainer}>
@@ -32,7 +34,7 @@ const HomeHeader = () => {
                 </TouchableOpacity>
             </View>
             <Image style={styles.profilePhoto} src={user?.photoURL || ''}/>
-            <Text style={styles.displayName}>{user?.displayName}!</Text>
+            <Text style={styles.displayName}>{firstName || 'Nameless'}!</Text>
         </View>
     )
 }

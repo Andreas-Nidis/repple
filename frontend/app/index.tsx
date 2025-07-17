@@ -25,24 +25,20 @@ GoogleSignin.configure({
 
 export default function Login() {
     const router = useRouter();
-    // console.log('index started');
-    // Set an initializing state whilst Firebase connects
-    const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
     const onGoogleButtonPress = async () => {
         console.log('onGoogleButtonPress started');
 
         try {
-            // Check if your device supports Google Play
+            // Check if device supports Google Play
             await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-            console.log('Google Play Services are available');
             // Get the users ID token
             console.log('Attempting Google sign in...');
             const response = await GoogleSignin.signIn();
             let idToken = response.data?.idToken;
             if (!idToken) {
-                // if you are using older versions of google-signin, try old style result
+                // For older versions of google-signin
                 idToken = response.idToken;
             }
             if (!idToken) {
@@ -55,14 +51,6 @@ export default function Login() {
             // Sign-in the user with the credential
             const firebaseUserCredential = await signInWithCredential(getAuth(), googleCredential);
             const firebaseUser = firebaseUserCredential.user;
-
-            //Retrieve profile picture from google and store it in firebase
-            const photoURL = response.data?.user.photo;
-            if (photoURL) {
-                await firebaseUser.updateProfile({ photoURL });
-            } else {
-                console.warn('No photo URL found in Google user profile');
-            }
 
             return firebaseUser;
         } catch (error) {
@@ -91,15 +79,11 @@ export default function Login() {
 
     // Handle user state changes
     async function handleAuthStateChanged(user: FirebaseAuthTypes.User | null) {
-        // console.log('handleAuthStateChanged fired, user:', user?.displayName);
-        // console.log(BASE_URL);
         setUser(user);
         if (user) {
             const idToken = await user.getIdToken(true);
-            // console.log('Sending ID token to server', idToken);
             console.log(BASE_URL);
             try {
-                console.log('Attempting firebase post request with user:', user.email);
                 const response = await fetch(`${BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -109,7 +93,6 @@ export default function Login() {
                 });
 
                 const data = await response.json();
-                console.log('Response data:', data);
 
                 if (response.ok) {
                     console.log('Backend login success:', data);
@@ -122,22 +105,12 @@ export default function Login() {
                 console.error('Error sending ID token to server:', error);
             }
         }
-
-        if (initializing) setInitializing(false);
     }
 
     useEffect(() => {
         const subscriber = onAuthStateChanged(getAuth(), handleAuthStateChanged);
         return subscriber; // unsubscribe on unmount
     }, []);
-
-    if (initializing) {
-        return (
-            <SafeAreaView style={styles.container}>
-            <Text>Loading...</Text>
-            </SafeAreaView>
-        );
-    }
 
     return (
         <SafeAreaView style={styles.container}>

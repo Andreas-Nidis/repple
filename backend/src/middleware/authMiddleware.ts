@@ -30,6 +30,18 @@ export async function authenticateFirebase(req: AuthenticatedRequest, res: Respo
                 RETURNING id
             `;
             result = insertResult;
+        } else {
+            // User exists — check if name or picture changed, update if needed
+            const user = result[0];
+            if (user.name !== decodedToken.name || user.picture !== decodedToken.picture) {
+                const updateResult = await sql`
+                    UPDATE users
+                    SET name = ${decodedToken.name}, picture = ${decodedToken.picture}
+                    WHERE uid = ${decodedToken.uid}
+                    RETURNING id
+                `;
+                result = updateResult;
+            }
         }
 
         req.user = {

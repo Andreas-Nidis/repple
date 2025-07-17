@@ -102,7 +102,7 @@ router.post('/reject/:friendId', authenticateFirebase, async (req: Request, res:
 });
 
 // Get friends list
-router.get('/friends', authenticateFirebase, async (req: Request, res: Response) => {
+router.get('/', authenticateFirebase, async (req: Request, res: Response) => {
     const { user } = req;
     if (!user) {
         res.status(401).json({ error: 'User not authenticated' });
@@ -110,7 +110,7 @@ router.get('/friends', authenticateFirebase, async (req: Request, res: Response)
     }
 
     try {
-        const friends = await getFriends(user.uid);
+        const friends = await getFriends(user.id);
         res.status(200).json(friends);
     } catch (error) {
         console.error('Error fetching friends list:', error);

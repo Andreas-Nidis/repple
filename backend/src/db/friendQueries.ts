@@ -42,7 +42,7 @@ export async function rejectFriendRequest(userId: string, friendId: string) {
 
 export async function getFriends(userId: string) {
     return await sql`
-        SELECT f.friend_id, u.username, u.profile_picture
+        SELECT f.friend_id, u.name, u.picture
         FROM friendships f
         JOIN users u ON f.friend_id = u.id
         WHERE f.user_id = ${userId} AND f.status = 'accepted'

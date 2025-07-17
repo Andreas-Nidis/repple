@@ -99,10 +99,6 @@ const WeightChart = () => {
         getWeightEntries();
     }, []);
 
-    // useEffect(() => {
-    //     console.log('Current weightData dates:', weightData.map(e => e.entry_date));
-    // }, [weightData]);
-
     const weights = weightData
         .map(data => typeof data.weight === 'number' ? data.weight : parseFloat(data.weight as string))
         .filter(weight => typeof weight === 'number' && !isNaN(weight));
@@ -147,7 +143,7 @@ const WeightChart = () => {
                         borderRadius: 16
                     }}
                 />) : (
-                    <Text>Not enough data available.</Text>
+                    <Text>Tap to add data to Weight Chart!</Text>
                 )}
                 <Modal
                     visible={modalVisible}

@@ -5,6 +5,7 @@ import HomeHeader from '@/components/screenComponents/home/HomeHeader';
 import HomeWeekCarousel from '@/components/screenComponents/home/HomeWeekCarousel';
 import WeightChart from '@/components/screenComponents/home/WeightChart';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import Friends from '@/components/screenComponents/home/Friends';
 
 export default function HomePage() {
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function HomePage() {
           </View>
         </TouchableOpacity>
       </View>
+      <Friends />
     </SafeAreaView>
   );
 }
@@ -59,8 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   planningContainer: {
-    // marginTop: 5,
-    // borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
@@ -77,5 +77,5 @@ const styles = StyleSheet.create({
   },
   planningText: {
     textAlign: 'center',
-  }
+  },
 });
