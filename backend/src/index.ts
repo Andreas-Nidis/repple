@@ -16,6 +16,7 @@ import calendarRoutes from './routes/calenderRoutes';
 import weightRoutes from './routes/weightRoutes';
 import mealIngredientsRoutes from './routes/mealIngredientsRoutes';
 import { setupSocketIO } from './socket';
+import { errorHandler } from './middleware/errorMiddleware';
 
 dotenv.config();
 
@@ -42,7 +43,6 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-// app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/friends', friendRoutes);
@@ -53,6 +53,8 @@ app.use('/api/workouts', workoutRoutes);
 app.use('/api/workout-exercises', workoutExerciseRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/weights', weightRoutes);
+
+app.use(errorHandler)
 
 // Health check route
 app.get('/', (req, res) => {

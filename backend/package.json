@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --config jest.config.ts",
     "dev": "ts-node-dev src/index.ts"
   },
   "repository": {
@@ -27,13 +27,17 @@
     "firebase-admin": "^13.4.0",
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
+    "node": "^20.19.4",
     "pg": "^8.16.0",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.2",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.15",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
