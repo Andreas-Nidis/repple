@@ -1,13 +1,30 @@
 import { sql } from './db';
 
-export async function findUser(uid: string, email: string, picture: string, name: string) {
+export type User = {
+  id: string;
+  uid: string;
+  email: string;
+  name: string;
+  picture: string;
+  // Add more fields if needed
+};
+
+export async function findUser(uid: string): Promise<User | undefined>  {
   // Check if user exists
   const existingUser = await sql`
     SELECT * FROM users WHERE uid = ${uid}
   `;
 
   if (existingUser.length > 0) {
-    return existingUser[0]; // Return the first matching user
+    const row = existingUser[0];
+    const user: User = {
+      id: row.id,
+      uid: row.uid,
+      email: row.email,
+      name: row.name,
+      picture: row.picture,
+    };
+    return user;
   } else {
     console.log('User missing in userQueries');
   }

@@ -30,9 +30,6 @@ export async function loginController(req: Request, res: Response, next: NextFun
 
     const user = await findUser(
       uid as string,
-      email as string,
-      name as string,
-      picture as string,
     );
 
     res.json({ user });

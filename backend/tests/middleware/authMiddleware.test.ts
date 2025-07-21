@@ -1,9 +1,6 @@
 import { authenticateFirebase, AuthenticatedRequest } from '../../src/middleware/authMiddleware';
 import admin from '../../src/utils/firebaseAdmin';
-import { sql } from '../../src/db/db';
-
-// Import Jest types for TypeScript
-import '@jest/globals';
+// import { sql } from '../../src/db/db';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('../../src/utils/firebaseAdmin', () => ({
