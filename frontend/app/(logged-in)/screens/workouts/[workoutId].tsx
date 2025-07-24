@@ -584,6 +584,7 @@ const styles = StyleSheet.create({
         margin: 5,
         flexDirection: 'row',
         alignItems: 'center',
+        alignSelf: 'center',
     }, 
     addButtonText: {
         margin: 5,

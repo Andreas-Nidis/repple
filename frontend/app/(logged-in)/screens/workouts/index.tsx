@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
     margin: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center',
   }, 
   addButtonText: {
     margin: 5,
