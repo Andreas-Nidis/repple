@@ -7,8 +7,8 @@ import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 
 type MealData = {
-  name: string;
   id: string;
+  name: string;
 }
 
 const MealList = () => {
@@ -71,15 +71,15 @@ const MealList = () => {
 
     useFocusEffect(
         useCallback(() => {
-        getMealEntries();
+          getMealEntries();
         }, [])
     )
 
-    const Item = ({ name, id }: {name: string, id: string}) => (
+    const Item = ({ id, name }: {name: string, id: string}) => (
         <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/meals/${id}`)}>
-        <View style={styles.workoutBox}>
-            <Text style={styles.boxText}>{name}</Text>
-        </View>
+          <View style={styles.workoutBox}>
+              <Text style={styles.boxText}>{name}</Text>
+          </View>
         </TouchableOpacity>
     )
 
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     margin: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center',
   }, 
   addButtonText: {
     margin: 5,

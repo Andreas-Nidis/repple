@@ -65,7 +65,6 @@ const MealScreen = () => {
             };
 
             const data = await response.json();
-            // console.log('Meal data:', data);
             setMeal(data);
         } catch (error) {
             console.log('Error fetching meal by ID:', error);
@@ -135,14 +134,9 @@ const MealScreen = () => {
             totalFat += ingredient.fat * quantityMultiplier;
         });
 
-        const proteinPct = Math.round((totalProtein * 4 / totalCalories) * 100);
-        const carbsPct = Math.round((totalCarbs * 4 / totalCalories) * 100);
-        const fatPct = 100 - proteinPct - carbsPct;
-
-        console.log('Total Calories:', totalCalories);
-        console.log('Total Protein in Grams:', totalProtein);
-        console.log('Total Carbs in Grams:', totalCarbs);
-        console.log('Total Fat in Grams:', totalFat);
+        const proteinPct = totalCalories === 0 ? 0 : Math.round((totalProtein * 4 / totalCalories) * 100);
+        const carbsPct = totalCalories === 0 ? 0 : Math.round((totalCarbs * 4 / totalCalories) * 100);
+        const fatPct = totalCalories === 0 ? 0 : 100 - proteinPct - carbsPct;
 
         setTotalCalories(totalCalories);
         setTotalProtein(totalProtein);
@@ -180,6 +174,7 @@ const MealScreen = () => {
                 return;
             };
 
+            await updateMeal();
             setAddModalVisible(false);
             setNewQuantity(0);
             setSelectedIngredientId('');
@@ -244,6 +239,7 @@ const MealScreen = () => {
                 return;
             };
 
+            await updateMeal();
             setRemoveModalVisible(false);
             setNewQuantity(0);
             setSelectedIngredientId('');
@@ -276,6 +272,33 @@ const MealScreen = () => {
         }
     }
 
+    const updateMeal = async () => {
+        try {
+            const user = getAuth().currentUser;
+            const idToken = await user?.getIdToken();
+            const response = await fetch(`${BASE_URL}/api/meals/${mealId}`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    total_protein: totalProtein,
+                    total_carbs: totalCarbs,
+                    total_fat: totalFat,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API returned error:', errorText);
+                return;
+            };
+        } catch (error) {
+            console.log('Error updating ingredient quantity:', error);
+        }
+    }
+
     useEffect(() => {
         getMealById();
         getMealIngredients();
@@ -283,9 +306,7 @@ const MealScreen = () => {
     }, []);
 
     useEffect(() => {
-        if (mealIngredients.length > 0) {
-            calculateTotals(mealIngredients);
-        }
+        calculateTotals(mealIngredients);
     }, [mealIngredients]);
 
     const Item = ({ ingredient_name, quantity, ingredient_id }: MealIngredientData) => (
@@ -315,7 +336,10 @@ const MealScreen = () => {
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
-                    onPress={() => {router.back()}}
+                    onPress={() => {
+                        updateMeal();
+                        router.back()
+                    }}
                 >
                     <Ionicons name='chevron-back' size={24} color='black' />
                 </TouchableOpacity>
@@ -337,70 +361,6 @@ const MealScreen = () => {
                             renderItem={({ item }) => <Item {...item} />}
                             contentContainerStyle={{ padding: 10, alignItems: 'center', width: '100%' }}
                         />
-                        <Modal
-                            visible={addModalVisible}
-                            transparent={true}
-                            animationType='slide'
-                            onRequestClose={() => setAddModalVisible(false)}
-                        >
-                            <View style={styles.modalBackground}>
-                                <View style={styles.modalContent}>
-                                    <Text style={styles.modalTitle}>Select Ingredient:</Text>
-                                    <FlatList
-                                        horizontal
-                                        data={userIngredients}
-                                        keyExtractor={item => item.id}
-                                        contentContainerStyle={{ paddingBottom: 10 }}
-                                        renderItem={({ item }) => { 
-                                            const isSelected = item.id === selectedIngredientId;
-            
-                                            return (
-                                                <TouchableOpacity 
-                                                    style={{
-                                                        backgroundColor: isSelected ? '#222222' : '#eee',
-                                                        padding: 16,
-                                                        marginRight: 10,
-                                                        borderRadius: 10,
-                                                        borderWidth: isSelected ? 2 : 1,
-                                                        borderColor: isSelected ? '#222222' : '#bababa',
-                                                        shadowColor: isSelected ? '#222222' : undefined,
-                                                        shadowOpacity: isSelected ? 0.3 : 0,
-                                                        shadowOffset: { width: 0, height: 2 },
-                                                        shadowRadius: isSelected ? 4 : 0,
-                                                        elevation: isSelected ? 4 : 0,
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                    }}     
-                                                    onPress={() => setSelectedIngredientId(item.id)}
-                                                >
-                                                    <Text
-                                                        style={{
-                                                            color: isSelected ? 'white' : 'black',
-                                                            fontWeight: isSelected ? 'bold' : 'normal',
-                                                            fontSize: 16,
-                                                        }}
-                                                    >{item.name}</Text>
-                                                </TouchableOpacity>
-                                            )}
-                                        }
-                                    />
-                                    <Text style={styles.modalTitle}>Quantity:</Text>
-                                    <TextInput
-                                        placeholder="Quantity in grams/ml"
-                                        keyboardType="numeric"
-                                        value={newQuantity.toString()}
-                                        onChangeText={text => setNewQuantity(Number(text))}
-                                        style={styles.input}
-                                    />
-
-                                    <Button title="Add Ingredient" onPress={() => {
-                                        addIngredient();
-                                        setAddModalVisible(false);
-                                    }} />
-                                    <Button title="Close" onPress={() => setAddModalVisible(false)} />
-                                </View>
-                            </View>
-                        </Modal>
                         <Modal
                             visible={removeModalVisible}
                             transparent={true}
@@ -438,30 +398,100 @@ const MealScreen = () => {
                     <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Add Ingredient</Text>
                 </TouchableOpacity>
+                <Modal
+                    visible={addModalVisible}
+                    transparent={true}
+                    animationType='slide'
+                    onRequestClose={() => setAddModalVisible(false)}
+                >
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Select Ingredient:</Text>
+                            <View style={{alignItems: 'center'}}>
+                                <FlatList
+                                    horizontal
+                                    data={userIngredients}
+                                    keyExtractor={item => item.id}
+                                    contentContainerStyle={{ paddingBottom: 10 }}
+                                    renderItem={({ item }) => { 
+                                        const isSelected = item.id === selectedIngredientId;
+        
+                                        return (
+                                            <TouchableOpacity 
+                                                style={{
+                                                    backgroundColor: isSelected ? '#222222' : '#eee',
+                                                    padding: 16,
+                                                    marginRight: 10,
+                                                    borderRadius: 10,
+                                                    borderWidth: isSelected ? 2 : 1,
+                                                    borderColor: isSelected ? '#222222' : '#bababa',
+                                                    shadowColor: isSelected ? '#222222' : undefined,
+                                                    shadowOpacity: isSelected ? 0.3 : 0,
+                                                    shadowOffset: { width: 0, height: 2 },
+                                                    shadowRadius: isSelected ? 4 : 0,
+                                                    elevation: isSelected ? 4 : 0,
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                }}     
+                                                onPress={() => setSelectedIngredientId(item.id)}
+                                            >
+                                                <Text
+                                                    style={{
+                                                        color: isSelected ? 'white' : 'black',
+                                                        fontWeight: isSelected ? 'bold' : 'normal',
+                                                        fontSize: 16,
+                                                    }}
+                                                >{item.name}</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    }
+                                />
+                            </View>
+                            <Text style={styles.modalTitle}>Quantity:</Text>
+                            <TextInput
+                                placeholder="Quantity in grams/ml"
+                                keyboardType="numeric"
+                                value={newQuantity.toString()}
+                                onChangeText={text => setNewQuantity(Number(text))}
+                                style={styles.input}
+                            />
+
+                            <Button title="Add Ingredient" onPress={() => {
+                                addIngredient();
+                                setAddModalVisible(false);
+                            }} />
+                            <Button title="Close" onPress={() => setAddModalVisible(false)} />
+                        </View>
+                    </View>
+                </Modal>
             </View>
             <View style={styles.footer}>
                 <View style={styles.donutAndInfoContainer}>
                     <View style={styles.infoContainer}>
                         <Text style={styles.infoHeader}>Meal Breakdown</Text>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
-                            <Text style={{ color: '#73008d' }}>Protein {proteinPercentage}</Text>
-                            <Text style={{ color: '#b36cd3' }}>Carbs {carbsPercentage}</Text>
-                            <Text style={{ color: '#efcaff' }}>Fat {fatPercentage}</Text>
+                            <Text style={{ color: '#73008d' }}>Protein: {proteinPercentage}%</Text>
+                            <Text style={{ color: '#b36cd3' }}>Carbs: {carbsPercentage}%</Text>
+                            <Text style={{ color: '#efcaff' }}>Fat: {fatPercentage}%</Text>
                         </View>
                     </View>
 
-                    <View style={{ margin: 10, borderWidth: 0.5 , height: '100%'}} />
+                    <View style={{borderWidth: 0.5 , height: '100%'}} />
                     
                     <View style={styles.donutContainer}>
-                        <PieChart
-                            data={donutData}
-                            donut
-                            radius={65}
-                            innerRadius={50}
-                            centerLabelComponent={() => {
-                                return <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>Total Calories {totalCalories}</Text>;
-                            }}
-                        />
+                        {(totalCalories === 0) ? 
+                            <Text>Piechart waiting for data</Text> 
+                            : 
+                            <PieChart
+                                data={donutData}
+                                donut
+                                radius={65}
+                                innerRadius={50}
+                                centerLabelComponent={() => {
+                                    return <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>Total Calories {totalCalories}</Text>;
+                                }}
+                            />
+                        }
                     </View>
                 </View>
                 
@@ -513,6 +543,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         width: '60%',
         textAlign: 'center',
+        alignSelf: 'center',
     },
     inputHeader: {
         fontSize: 16,
@@ -553,6 +584,7 @@ const styles = StyleSheet.create({
         margin: 10,
         flexDirection: 'row',
         alignItems: 'center',
+        alignSelf: 'center',
     }, 
     addButtonText: {
         margin: 5,
