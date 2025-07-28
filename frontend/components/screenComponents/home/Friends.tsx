@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type Friend = {
     name: string;
@@ -54,7 +55,10 @@ const Friends = () => {
     return (
         <View style={styles.friendsContainer}>
             <TouchableOpacity style={styles.friendsTitle} onPress={() => {router.push('/(logged-in)/screens/friends')}}>
-                <Text style={styles.friendsTitleText}>Friends</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Text style={styles.friendsTitleText}>Friends</Text>
+                    <Ionicons name='chevron-forward' size={18} color='black' />
+                </View>
                 <View style={styles.underline} />
             </TouchableOpacity>
 

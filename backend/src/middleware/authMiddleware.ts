@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import admin from '../utils/firebaseAdmin';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { sql } from '../db/db';
+import { generateFriendCode } from '../utils/friendCode';
 
 export interface AuthenticatedRequest extends Request {
     user?: DecodedIdToken; // Extend Request to include user information
@@ -24,12 +25,27 @@ export async function authenticateFirebase(req: AuthenticatedRequest, res: Respo
 
         if (result.length === 0) {
             // User doesn't exist in DB — create them
-            const insertResult = await sql`
-                INSERT INTO users (uid, email, name, picture)
-                VALUES (${decodedToken.uid}, ${decodedToken.email}, ${decodedToken.name}, ${decodedToken.picture})
-                RETURNING id
-            `;
-            result = insertResult;
+            let friendCode: string;
+            let inserted = false;
+            while (!inserted) {
+                friendCode = generateFriendCode();
+                try {
+                    const insertResult = await sql`
+                        INSERT INTO users (uid, email, name, picture, friend_code)
+                        VALUES (${decodedToken.uid}, ${decodedToken.email}, ${decodedToken.name}, ${decodedToken.picture}, ${friendCode})
+                        RETURNING id
+                    `;
+                    result = insertResult;
+                    inserted = true;
+                } catch (error: any) {
+                    // Postgres unique violation = 23505
+                    if (error.code === '23505') {
+                        // Try again with a new friendCode
+                        continue;
+                    }
+                    throw error;
+                }
+            }
         } else {
             // User exists — check if name or picture changed, update if needed
             const user = result[0];

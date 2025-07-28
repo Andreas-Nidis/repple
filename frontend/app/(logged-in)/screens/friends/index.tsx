@@ -3,7 +3,7 @@ import React from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
-const index = () => {
+const Index = () => {
   const router = useRouter();
 
   return (
@@ -26,7 +26,7 @@ const index = () => {
   )
 }
 
-export default index
+export default Index
 
 const styles = StyleSheet.create({
   container: {
