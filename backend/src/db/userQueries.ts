@@ -6,8 +6,15 @@ export type User = {
   email: string;
   name: string;
   picture: string;
-  // Add more fields if needed
+  friend_code: string;
 };
+
+export async function getUsers(userId: string) {
+  const users = await sql`
+    SELECT * FROM users WHERE id != ${userId}
+  `;
+  return users;
+}
 
 export async function findUser(uid: string): Promise<User | undefined>  {
   // Check if user exists
@@ -23,6 +30,7 @@ export async function findUser(uid: string): Promise<User | undefined>  {
       email: row.email,
       name: row.name,
       picture: row.picture,
+      friend_code: row.friend_code,
     };
     return user;
   } else {

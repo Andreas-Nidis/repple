@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-// import userRoutes from './routes/userRoutes'; 
+import userRoutes from './routes/userRoutes'; 
 import authRoutes from './routes/authRoutes';
 import exerciseRoutes from './routes/exerciseRoutes';
 import friendRoutes from './routes/friendsRoutes';
@@ -43,6 +43,7 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/friends', friendRoutes);
