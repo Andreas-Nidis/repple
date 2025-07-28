@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'expo-router'
+import React, { useCallback, useState } from 'react'
+import { useFocusEffect, useRouter } from 'expo-router'
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -37,9 +37,11 @@ const Friends = () => {
         }
     }
 
-    useEffect(() => {
-        getFriends();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            getFriends();
+        }, [])
+    );
 
 
     const Item = ({name, picture}: {name: string, picture: string}) => {

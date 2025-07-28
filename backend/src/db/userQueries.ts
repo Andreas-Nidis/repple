@@ -11,7 +11,21 @@ export type User = {
 
 export async function getUsers(userId: string) {
   const users = await sql`
-    SELECT * FROM users WHERE id != ${userId}
+    SELECT DISTINCT ON (u.id)
+      u.id,
+      u.name,
+      u.picture,
+      u.friend_code,
+      f.status,
+      f.user_id AS request_sender_id
+    FROM users u
+    LEFT JOIN friendships f
+      ON (
+        (f.user_id = ${userId} AND f.friend_id = u.id)
+        OR
+        (f.friend_id = ${userId} AND f.user_id = u.id)
+      )
+    WHERE u.id != ${userId};
   `;
   return users;
 }

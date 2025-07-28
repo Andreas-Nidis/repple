@@ -16,6 +16,6 @@ router.get('/pending', authenticateFirebase, getPendingRequestsController);
 router.post('/accept/:friendId', authenticateFirebase, acceptFriendRequestController);
 router.post('/reject/:friendId', authenticateFirebase, rejectFriendRequestController);
 router.get('/', authenticateFirebase, getFriendsController);
-router.delete('/friends/:friendId', authenticateFirebase, removeFriendController);
+router.delete('/remove/:friendId', authenticateFirebase, removeFriendController);
 
 export default router;

@@ -1,30 +1,31 @@
 import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 
 type User = {
+  id: string;
   name: string;
   picture: string;
   friend_code: string;
+  status: string;
+  request_sender_id: string;
 }
 
-const Item = ({name, picture}: {name: string, picture: string}) => {
-  return (
-    <View style={styles.profileContainer}>
-      <Image style={styles.profilePhoto} src={picture}/>
-      <Text style={styles.displayName}>{name}</Text>
-    </View>
-  )
-}
+type FriendButtonProps = {
+  status: string;
+  sender: string;
+  profileUser: string;
+};
 
 const Index = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [userId, setUserId] = useState('');
 
   const getUsers = async () => {
     try {
@@ -50,6 +51,121 @@ const Index = () => {
     }
   }
 
+  const getUserId = async () => {
+    try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      })
+
+      if(!response.ok) {
+        const errorText = await response.text();
+        console.log('API returned error:', errorText);
+        return;
+      }
+
+      const data = await response.json();
+      setUserId(data.user.id);
+    } catch (error) {
+      console.log('Error fetching userId data', error);
+    }
+  }
+
+  const removeFriend = async (friendId: string) => {
+    try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/friends/remove/${friendId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      })
+
+      if(!response.ok) {
+        const errorText = await response.text();
+        console.log('API returned error:', errorText);
+        return;
+      }
+
+      await getUsers();
+    } catch (error) {
+      console.log('Error removing friend', error);
+    }
+  }
+
+  const addFriend = async (friendId: string) => {
+    try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/friends/${friendId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      })
+
+      if(!response.ok) {
+        const errorText = await response.text();
+        console.log('API returned error:', errorText);
+        return;
+      }
+
+      await getUsers();
+    } catch (error) {
+      console.log('Error removing friend', error);
+    }
+  }
+
+  const acceptFriendRequest = async (friendId: string) => {
+    try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/friends/accept/${friendId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      })
+
+      if(!response.ok) {
+        const errorText = await response.text();
+        console.log('API returned error:', errorText);
+        return;
+      }
+
+      await getUsers();
+    } catch (error) {
+      console.log('Error removing friend', error);
+    }
+  }
+
+  const rejectFriendRequest = async (friendId: string) => {
+    try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/friends/reject/${friendId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      })
+
+      if(!response.ok) {
+        const errorText = await response.text();
+        console.log('API returned error:', errorText);
+        return;
+      }
+
+      await getUsers();
+    } catch (error) {
+      console.log('Error removing friend', error);
+    }
+  }
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     const formattedQuery = query.toLowerCase();
@@ -64,9 +180,67 @@ const Index = () => {
     }
   }
 
-  useEffect(() => {
-    getUsers();
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      getUsers();
+      getUserId();
+    }, [])
+  );
+
+  const FriendButton: React.FC<FriendButtonProps> = ({ status, sender, profileUser }) => {
+    if(status === 'accepted') {
+      return (
+        <View>
+          <TouchableOpacity style={styles.friendButton} onPress={() => removeFriend(profileUser)}>
+            <Text style={styles.friendButtonText}>Remove Friend</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+    if(status === 'pending' && sender === userId) {
+      return (
+        <View>
+          <TouchableOpacity style={styles.friendButton}>
+            <Text style={styles.friendButtonText}>Request Sent</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+    if(status === 'pending' && sender !== userId) {
+      return (
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity style={styles.friendButton} onPress={() => acceptFriendRequest(profileUser)}>
+            <Text style={styles.friendButtonText}>Accept Request</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.friendButton} onPress={() => rejectFriendRequest(profileUser)}>
+            <Text style={styles.friendButtonText}>Reject Request</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+    if(!status) {
+      return (
+        <View>
+          <TouchableOpacity style={styles.friendButton} onPress={() => addFriend(profileUser)}>
+            <Text style={styles.friendButtonText}>Add Friend</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    } 
+  }
+
+  const Item = ({name, picture, status, sender, profileUser}: {name: string, picture: string, status: string, sender: string, profileUser: string}) => {
+    return (
+      <View style={styles.profileContainer}>
+        <Image style={styles.profilePhoto} src={picture}/>
+        <View style={styles.friendButtonContainer}>
+          <Text style={styles.displayName}>{name}</Text>
+          <FriendButton status={status} sender={sender} profileUser={profileUser} />
+        </View>
+      </View>
+    )
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -94,8 +268,8 @@ const Index = () => {
           <FlatList 
             data={users}
             contentContainerStyle={{ paddingTop: 20 }}
-            keyExtractor={(item) => item.friend_code}
-            renderItem={({ item }) =>  <Item name={item.name} picture={item.picture} />}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) =>  <Item name={item.name} picture={item.picture} status={item.status} sender={item.request_sender_id} profileUser={item.id} />}
           />
         </View>
       </View>
@@ -156,5 +330,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  friendButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  friendButton: {
+    backgroundColor: '#ddd',
+    borderWidth: 0.5,
+    borderRadius: 15,
+  },
+  friendButtonText: {
+    padding: 5,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#444',
   }
 })
