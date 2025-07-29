@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { getFriends } from './db/friendQueries';
-import { getUserIdByFirebaseId } from './db/userQueries';
+import { getUserIdByFirebaseId, getUser } from './db/userQueries';
 
 const onlineUsers = new Map<string, string>();
 const userSocketMap = new Map<string, string>();
@@ -43,7 +43,6 @@ export const setupSocketIO = (io: Server) => {
         });
 
         socket.on('friendsActivity', async (payload) => {
-            console.log('SOCKET: friencActivity activated.')
             const {firebaseId, workoutId, action} = payload;
 
             const userId = await getUserIdByFirebaseId(firebaseId);
@@ -51,20 +50,41 @@ export const setupSocketIO = (io: Server) => {
                 console.log('No user found for Firebase ID:', firebaseId);
                 return;
             }
-
+            const user = await getUser(userId);
             const friends = await getFriends(userId);
-            console.log(friends);
             friends.forEach(friend => {
                 const friendSocketId = userSocketMap.get(friend.friend_id);
                 console.log(friendSocketId);
                 if (friendSocketId) {
                     io.to(friendSocketId).emit('friendActivity', {
-                        userId,
+                        user,
                         workoutId,
                         action,
                     })
                 }
             });
+        })
+
+        socket.on('friendRequest', async (payload) => {
+            const {userId, friendId} = payload;
+            const user = await getUser(userId);
+            const friendSocketId = userSocketMap.get(friendId);
+            if (friendSocketId) {
+                io.to(friendSocketId).emit('friendRequest', {
+                    user,
+                })
+            }
+        })
+
+        socket.on('acceptFriendRequest', async (payload) => {
+            const {userId, friendId} = payload;
+            const user = await getUser(userId);
+            const friendSocketId = userSocketMap.get(friendId);
+            if (friendSocketId) {
+                io.to(friendSocketId).emit('acceptFriendRequest', {
+                    user,
+                })
+            }
         })
     });
     console.log('Socket.IO setup complete');

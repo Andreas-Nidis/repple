@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import Toast from 'react-native-toast-message';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -23,6 +24,9 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="+not-found" />
       </Stack>
+
+      <Toast />
+
       <StatusBar style="inverted" />
     </ThemeProvider>
   );

@@ -4,6 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
+import socket from '@/utils/socket';
 
 type User = {
   id: string;
@@ -26,6 +27,24 @@ const Index = () => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [userId, setUserId] = useState('');
+
+  const socketEmitFriendRequest = (friendId: string) => {
+    if(!socket.connected) return;
+    
+    socket.emit('friendRequest', {
+      userId: userId,
+      friendId: friendId,
+    })
+  }
+
+  const socketEmitAcceptRequest = (friendId: string) => {
+    if(!socket.connected) return;
+    
+    socket.emit('acceptFriendRequest', {
+      userId: userId,
+      friendId: friendId,
+    })
+  }
 
   const getUsers = async () => {
     try {
@@ -114,6 +133,7 @@ const Index = () => {
         return;
       }
 
+      socketEmitFriendRequest(friendId);
       await getUsers();
     } catch (error) {
       console.log('Error removing friend', error);
@@ -137,6 +157,7 @@ const Index = () => {
         return;
       }
 
+      socketEmitAcceptRequest(friendId);
       await getUsers();
     } catch (error) {
       console.log('Error removing friend', error);

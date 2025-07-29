@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { 
-    getUsers
+    getUsers,
 } from '../db/userQueries';
 
 export async function getUsersHandler(req: Request, res: Response, next: NextFunction) {

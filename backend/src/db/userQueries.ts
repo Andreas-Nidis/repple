@@ -30,6 +30,27 @@ export async function getUsers(userId: string) {
   return users;
 }
 
+export async function getUser(userId: string) {
+  const existingUser = await sql`
+    SELECT * FROM users WHERE id = ${userId}
+  `;
+
+  if (existingUser.length > 0) {
+    const row = existingUser[0];
+    const user: User = {
+      id: row.id,
+      uid: row.uid,
+      email: row.email,
+      name: row.name,
+      picture: row.picture,
+      friend_code: row.friend_code,
+    };
+    return user;
+  } else {
+    console.log('User missing in userQueries');
+  }
+}
+
 export async function findUser(uid: string): Promise<User | undefined>  {
   // Check if user exists
   const existingUser = await sql`
