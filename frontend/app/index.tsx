@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native'
+import { Platform, StatusBar, StyleSheet, Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react'
 import { FirebaseAuthTypes, GoogleAuthProvider, getAuth, signInWithCredential, onAuthStateChanged } from '@react-native-firebase/auth';
@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   titleText: {
     fontSize: 26,

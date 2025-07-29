@@ -1,4 +1,4 @@
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Button } from 'react-native'
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Button, Platform, StatusBar } from 'react-native'
 import React, { useState, useCallback } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',

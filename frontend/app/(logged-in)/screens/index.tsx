@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import { SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Platform, StatusBar} from 'react-native';
 import { getAuth } from '@react-native-firebase/auth';
 import { useRouter } from 'expo-router';
 import HomeHeader from '@/components/screenComponents/home/HomeHeader';
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     flex: 1,
     alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   planningContainer: {
     flexDirection: 'row',

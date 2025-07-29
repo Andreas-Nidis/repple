@@ -1,4 +1,4 @@
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image } from 'react-native'
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image, Platform, StatusBar } from 'react-native'
 import React, { useCallback, useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -259,6 +259,7 @@ const Index = () => {
           <Ionicons style={styles.searchIcon} name='search-outline' size={18} color='black' />
           <TextInput 
             placeholder='Search...'
+            style={{textAlign: 'center', textAlignVertical: 'center', fontSize: 12, paddingVertical: 0}}
             value={searchQuery}
             onChangeText={(query) => handleSearch(query)}
           />
@@ -284,6 +285,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',
@@ -305,7 +307,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 20,
     width: '80%',
-    height: 25,
+    height: 35,
     alignItems: 'center',
     alignSelf: 'center',
   },

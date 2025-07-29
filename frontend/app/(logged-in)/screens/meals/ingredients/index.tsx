@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, Modal, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, Modal, TextInput, Button, Platform, StatusBar } from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',

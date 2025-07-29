@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, Modal, Button } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, FlatList, Modal, Button, Platform, StatusBar } from 'react-native'
 import React, {useEffect, useState} from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -514,6 +514,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         flex: 1,
         alignItems: 'center',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
         flexDirection: 'row',

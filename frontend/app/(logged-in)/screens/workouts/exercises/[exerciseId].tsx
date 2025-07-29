@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Button } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Button, Platform, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         flex: 1,
         alignItems: 'center',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
         flexDirection: 'row',
