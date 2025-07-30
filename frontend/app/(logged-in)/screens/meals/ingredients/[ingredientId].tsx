@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Button, Platform, StatusBar } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Platform, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BASE_URL } from '@/utils/api';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+
 
 const IngredientScreen = () => {
     const router = useRouter();
@@ -87,6 +89,7 @@ const IngredientScreen = () => {
                 return;
             }
 
+            router.back()
         } catch (error) {
             console.log('Error deleting exercise:', error);
         }
@@ -134,11 +137,19 @@ const IngredientScreen = () => {
                 />
 
                 <Text style={styles.inputHeader}>***per 100g/ml</Text>
-                <Button title="Save" onPress={() => updateIngredient()} />
-                <Button title="Delete" onPress={ async () => {
+                <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                    await updateIngredient()
+                }}>
+                    <Ionicons name='save-outline' size={24} color='black' />
+                    <Text style={styles.addButtonText}>Save Ingredient</Text>
+                </TouchableOpacity>
+                    
+                <TouchableOpacity style={styles.addButton} onPress={ async () => {
                     await deleteIngredient()
-                    router.back()
-                }} />
+                }}>
+                    <MaterialDesignIcons name='delete-outline' size={26} color='black' />
+                    <Text style={styles.addButtonText}>Delete Ingredient</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     )
@@ -187,5 +198,14 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginBottom: 10,
         textAlign: 'center',
+  },
+  addButton: {
+    margin: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+  }, 
+  addButtonText: {
+    margin: 5,
   },
 })

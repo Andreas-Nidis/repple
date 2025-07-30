@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 import socket from '@/utils/socket';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+
 
 
 type CalendarEntry = {
@@ -272,12 +274,19 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                 <Text style={styles.toggleText}>{workoutToggle ? 'Finish Workout' : 'Start Workout'}</Text>
               </TouchableOpacity>
             </View>
-            <Button title="Remove Workout" onPress={removeEntry} />
+            <TouchableOpacity style={styles.addButton} onPress={removeEntry}>
+                <MaterialDesignIcons name='delete-outline' size={26} color='black' />
+                <Text style={styles.addButtonText}>Remove Workout</Text>
+            </TouchableOpacity>
+            
           </View>
         ) : (
           <View style={styles.entry}>
             <Text>No workout scheduled for this day.</Text>
-            <Button title="Add Workout" onPress={() => setModalVisible(true)} />
+            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+              <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
+              <Text style={styles.addButtonText}>Add Workout</Text>
+            </TouchableOpacity>
 
             <Modal
               visible={modalVisible}
@@ -432,5 +441,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '400',
     textAlign: 'center',
-  }
+  },
+  addButton: {
+    margin: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+  }, 
+  addButtonText: {
+    margin: 5,
+  },
 });

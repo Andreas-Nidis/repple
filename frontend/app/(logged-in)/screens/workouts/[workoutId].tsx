@@ -406,9 +406,18 @@ const WorkoutScreen = () => {
                                             style={styles.input}
                                         />
 
-                                        
-                                        <Button title="Save" onPress={() => {updateWorkoutExercise()}} />
-                                        <Button title="Remove" color="red" onPress={() => deleteWorkoutExercise()} />
+                                        <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                                            await updateWorkoutExercise();
+                                        }}>
+                                            <Ionicons name='save-outline' size={24} color='black' />
+                                            <Text style={styles.addButtonText}>Save Changes</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                                            await deleteWorkoutExercise();
+                                        }}>
+                                            <MaterialDesignIcons name='delete-outline' size={26} color='black' />
+                                            <Text style={styles.addButtonText}>Remove Exercise</Text>
+                                        </TouchableOpacity>
                                         <Button title="Close" onPress={() => {
                                             setSelectedExerciseId('');
                                             setExerciseModalVisible(false)
@@ -425,6 +434,20 @@ const WorkoutScreen = () => {
                 <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
                     <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Add Exercise</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                    await updateWorkout();
+                    router.back();
+                }}>
+                    <Ionicons name='save-outline' size={24} color='black' />
+                    <Text style={styles.addButtonText}>Save Workout</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                    await deleteWorkout();
+                    router.back();
+                }}>
+                    <MaterialDesignIcons name='delete-outline' size={26} color='black' />
+                    <Text style={styles.addButtonText}>Delete Workout</Text>
                 </TouchableOpacity>
             </View>
 
@@ -513,12 +536,6 @@ const WorkoutScreen = () => {
                     </View>
                 </View>
             </Modal>
-
-            <Button title="Save" onPress={() => updateWorkout()} />
-            <Button title="Delete" onPress={ async () => {
-                await deleteWorkout()
-                router.back()
-            }} />
         </SafeAreaView>
     )
 }

@@ -376,14 +376,21 @@ const MealScreen = () => {
                                         onChangeText={(text) => setNewQuantity(Number(text))}
                                         placeholder='Quantity...'
                                     />
-                                    <Button title="Update Quantity" onPress={() => {
-                                        updateIngredientQuantity();
+
+                                    <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                                        await updateIngredientQuantity();
                                         setRemoveModalVisible(false);
-                                    }} />
-                                    <Button title="Remove Ingredient" color="red" onPress={() => {
-                                        removeIngredientFromMeal();
+                                    }}>
+                                        <Ionicons name='save-outline' size={24} color='black' />
+                                        <Text style={styles.addButtonText}>Update Quantity</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                                        await removeIngredientFromMeal();
                                         setRemoveModalVisible(false);
-                                    }} />
+                                    }}>
+                                        <MaterialDesignIcons name='delete-outline' size={26} color='black' />
+                                        <Text style={styles.addButtonText}>Remove Ingredient</Text>
+                                    </TouchableOpacity>
                                     <Button title="Close" onPress={() => setRemoveModalVisible(false)} />
                                 </View>
                             </View>

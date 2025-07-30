@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Button, Platform, StatusBar } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, Platform, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { getAuth } from '@react-native-firebase/auth'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BASE_URL } from '@/utils/api';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+
 
 const ExerciseScreen = () => {
     const router = useRouter();
@@ -145,11 +147,21 @@ const ExerciseScreen = () => {
                     onChangeText={setTutorialLink}
                     style={styles.input}
                 />
-                <Button title="Save" onPress={() => updateExercise()} />
-                <Button title="Delete" onPress={ async () => {
+
+                <TouchableOpacity style={styles.addButton} onPress={ async () => {
+                    await updateExercise();
+                    router.back();
+                }}>
+                    <Ionicons name='save-outline' size={24} color='black' />
+                    <Text style={styles.addButtonText}>Save Workout</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.addButton} onPress={ async () => {
                     await deleteExercise()
                     router.back()
-                }} />
+                }}>
+                    <MaterialDesignIcons name='delete-outline' size={26} color='black' />
+                    <Text style={styles.addButtonText}>Delete Workout</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     )
@@ -188,5 +200,14 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
         marginBottom: 12,
-  },
+    },
+    addButton: {
+        margin: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'center',
+    }, 
+    addButtonText: {
+        margin: 5,
+    },
 })
