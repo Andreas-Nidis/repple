@@ -97,7 +97,7 @@ export default function Login() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    console.log('Backend login success:', data);
+                    console.log('Backend login success:');
                     console.log('Signed in with Google!')
                     router.replace('/(logged-in)/screens')
                 } else {

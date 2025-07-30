@@ -1,11 +1,13 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image, FlatList } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import socket from '@/utils/socket';
 
 type Friend = {
+    friend_id: string;
     name: string;
     picture: string;
 };
@@ -13,6 +15,7 @@ type Friend = {
 const Friends = () => {
     const router = useRouter();
     const [friends, setFriends] = useState<Friend[]>([]);
+    const [onlineFriends, setOnlineFriends] = useState<string[]>([]);
 
     const getFriends = async () => {
         try {
@@ -43,11 +46,46 @@ const Friends = () => {
         }, [])
     );
 
+    useEffect(() => {
+        // Initial list of currently online users
+        socket.on('onlineUsers', (userIds: string[]) => {
+            setOnlineFriends(userIds);
+        });
 
-    const Item = ({name, picture}: {name: string, picture: string}) => {
+        // Listen to unified status updates
+        socket.on('updateUserStatus', ({ userId, status }) => {
+            setOnlineFriends(prev => {
+                if (status === 'online') {
+                    // Add to list if not present
+                    return prev.includes(userId) ? prev : [...prev, userId];
+                } else {
+                    // Remove from list
+                    return prev.filter(id => id !== userId);
+                }
+            });
+        });
+
+        return () => {
+            socket.off('onlineUsers');
+            socket.off('updateUserStatus');
+        };
+    }, []);
+
+
+    const Item = ({id, name, picture}: {id: string, name: string, picture: string}) => {
+        const isOnline = onlineFriends.includes(id);
+
         return (
             <View style={styles.profileContainer}>
-                <Image style={styles.profilePhoto} src={picture}/>
+                <View>
+                    <Image style={styles.profilePhoto} src={picture}/>
+                    <View 
+                        style={[
+                            styles.statusIndicator, 
+                            { backgroundColor: isOnline ? 'green' : 'red' }
+                        ]}
+                    />
+                </View>
                 <Text style={styles.displayName}>{name}</Text>
             </View>
         )
@@ -69,7 +107,7 @@ const Friends = () => {
                     data={friends}
                     horizontal
                     contentContainerStyle={{ paddingTop: 20 }}
-                    renderItem={({ item }) =>  <Item name={item.name} picture={item.picture} />}
+                    renderItem={({ item }) =>  <Item id= {item.friend_id} name={item.name} picture={item.picture} />}
                 />
             </View>
         </View>
@@ -116,5 +154,15 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: 'bold',
         textAlign: 'center',
-    }
+    },
+    statusIndicator: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        width: 15,
+        height: 15,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: 'white',
+    },
 })

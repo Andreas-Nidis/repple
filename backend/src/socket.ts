@@ -7,8 +7,17 @@ const userSocketMap = new Map<string, string>();
 
 let ioInstance: Server;
 
+export const getUserSocketId = (userId: string) =>{
+    return userSocketMap.get(userId);
+}
+
 export const setupSocketIO = (io: Server) => {
     ioInstance = io;
+
+    const notifyUserStatus = (userId: string, status: 'online' | 'offline') => {
+        io.emit("updateUserStatus", { userId, status });
+        console.log(`User ${userId} is now ${status}`);
+    };
 
     io.on('connection', (socket: Socket) => {
         console.log('Socket connected:', socket.id);
@@ -24,22 +33,26 @@ export const setupSocketIO = (io: Server) => {
                 console.log('No user found for Firebase ID:', firebaseId);
                 return;
             }
+
             onlineUsers.set(socket.id, userId);
             userSocketMap.set(userId, socket.id);
-            console.log(`User ${userId} is online!`);
-            io.emit('userOnline', userId);
+
+             // Send the list of currently online users to THIS socket only
+            socket.emit('onlineUsers', Array.from(userSocketMap.keys()));
+
+            notifyUserStatus(userId, 'online');
         });
 
         // Handle disconnect event
         socket.on('disconnect', (reason) => {
             console.log('Client disconnected:', socket.id, 'Reason:', reason);
             const userId = onlineUsers.get(socket.id);
-            if(userId) {
-                onlineUsers.delete(socket.id);
-                userSocketMap.delete(userId);
-                console.log(`User ${userId} has gone offline!`);
-                io.emit('userOffline', userId);
-            }
+            if (!userId) return;
+
+            onlineUsers.delete(socket.id);
+            userSocketMap.delete(userId);
+
+            notifyUserStatus(userId, 'offline');
         });
 
         socket.on('friendsActivity', async (payload) => {
@@ -90,8 +103,6 @@ export const setupSocketIO = (io: Server) => {
     console.log('Socket.IO setup complete');
 };
     
-export const getUserSocketId = (userId: string) =>{
-    return userSocketMap.get(userId);
-}
+
 
 export const getIO = () => ioInstance;
