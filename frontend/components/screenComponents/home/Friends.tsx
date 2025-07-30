@@ -119,9 +119,7 @@ export default Friends
 const styles = StyleSheet.create({
     friendsContainer: {
         flexDirection: 'column',
-        flex: 1,
         width: '95%',
-        bottom: 10,
     },
     friendsTitle: {
         padding: 5,

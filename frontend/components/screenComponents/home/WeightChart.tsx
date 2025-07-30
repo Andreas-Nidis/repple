@@ -225,11 +225,13 @@ export default WeightChart
 
 const styles = StyleSheet.create({
     chartContainer: {
-        marginTop: 20,
+        marginTop: 10,
+        marginBottom: 10,
         backgroundColor: '#f0f0f0',
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        alignSelf: 'center',
         height: 200,
         width: '95%',
     },

@@ -48,10 +48,11 @@ export default function HomePage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <HomeHeader />
-      <HomeWeekCarousel />
-      <WeightChart />
-      <View style={styles.planningContainer}>
+      <View style={styles.flexSection}><HomeHeader /></View>
+    <View style={styles.flexSection}><HomeWeekCarousel /></View>
+    <View style={styles.flexSection}><WeightChart /></View>
+
+      <View style={[styles.flexSection, styles.planningContainer]}>
         <TouchableOpacity onPress={() => {router.push('/(logged-in)/screens/workouts')}}>
           <View style={styles.planningButton}>
             <Text style={styles.planningText}>
@@ -66,7 +67,7 @@ export default function HomePage() {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => {router.push('/(logged-in)/screens/meals')}}>
+        <TouchableOpacity style={{margin: 0, padding: 0}} onPress={() => {router.push('/(logged-in)/screens/meals')}}>
           <View style={styles.planningButton}>
             <Text style={styles.planningText}>
               Meal {'\n'}
@@ -81,7 +82,9 @@ export default function HomePage() {
           </View>
         </TouchableOpacity>
       </View>
-      <Friends />
+
+      <View style={styles.flexSection}><Friends /></View>
+      
     </SafeAreaView>
   );
 }
@@ -90,15 +93,15 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     flex: 1,
+    flexDirection: 'column',
     alignItems: 'center',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    justifyContent: 'space-evenly',
   },
   planningContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    height: 200,
-    width: '95%',
   },
   planningButton: {
     borderWidth: 1,
@@ -110,5 +113,9 @@ const styles = StyleSheet.create({
   },
   planningText: {
     textAlign: 'center',
+  },
+  flexSection: {
+    justifyContent: 'center',  // center content vertically in each section
+    width: '95%',      // make them full width for alignment
   },
 });

@@ -88,13 +88,15 @@ const HomeWeekCarousel = () => {
         }}>
           <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
-        <FlatList 
-          horizontal
-          data={weekDays}
-          keyExtractor={(item) => item.date}
-          contentContainerStyle={{ alignItems: 'center' }}
-          renderItem={({ item }) => <Item day={item.day} date={item.date} />} 
-        />
+        <View>
+          <FlatList 
+            horizontal
+            data={weekDays}
+            keyExtractor={(item) => item.date}
+            contentContainerStyle={{ alignItems: 'center' }}
+            renderItem={({ item }) => <Item day={item.day} date={item.date} />} 
+          />
+        </View>
 
         <CalendarModal
           visible={modalVisible}
@@ -120,7 +122,7 @@ export default HomeWeekCarousel
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    // marginTop: 20,
     flexDirection: 'row',
     backgroundColor: '#f0f0f0',
     borderRadius: 20,
