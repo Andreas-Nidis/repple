@@ -65,6 +65,6 @@ Potential Future Features:
   - Streaks
 - Buddy Workout Rooms
 
-Gif Demos
+## Gif Demos
 
 
