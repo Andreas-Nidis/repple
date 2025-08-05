@@ -14,7 +14,7 @@ A social fitness app where users can create and customise exercises, workouts, a
 
 **Target Users:** Fitness enthusiasts, gym-goers, and friends who want to work out together.
 
-**Tech Stack:** React Native, Firebase Auth, Typescript, Express, Node.js, PostgreSQL, Socket.IO
+### **Tech Stack:** React Native, Firebase Auth, Typescript, Express, Node.js, PostgreSQL, Socket.IO
 
 
 ## Core Features
@@ -51,7 +51,7 @@ A social fitness app where users can create and customise exercises, workouts, a
   - Auto-calculates macronutrients ratio
 10. Weight Graph
 
-Potential Future Features:
+### Potential Future Features:
 - How to Use Screen [ (i) Icon - Upper Right Hand Corner ]
 - Ready-made Exercise List
 - Gamification
