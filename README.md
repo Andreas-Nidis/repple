@@ -8,18 +8,6 @@ A social fitness app where users can create and customise exercises, workouts, a
 
 **Tech Stack:** React Native, Firebase Auth, Typescript, Express, Node.js, PostgreSQL, Socket.IO
 
-## Installation
-
-The project uses Expo and npm, so install packages using npx install and npm install.
-
-Then you can test the app using an iOS simulator/real device or android emulator/real device
-```bash
-npx expo run ios
-```
-OR
-```bash
-npx expo run android
-```
 
 ## Core Features
 
