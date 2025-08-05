@@ -17,6 +17,7 @@ const HomeWeekCarousel = () => {
   const [loading, setLoading] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
 
+  // Function to generate the week days based on the offset
   const generateWeek = (offset: number) => {
     const startOfWeek = dayjs().add(offset, 'week').startOf('isoWeek');
     const days = [];
@@ -34,6 +35,7 @@ const HomeWeekCarousel = () => {
     generateWeek(weekOffset);
   }, [weekOffset])
 
+  // Function to handle day press, fetch data and set state
   const handleDayPress = async (date:string) => {
     setSelectedDay(date);
     setModalVisible(true);
@@ -68,6 +70,7 @@ const HomeWeekCarousel = () => {
     }
   }
   
+  // Item component for each day in the week
   const Item = ({day, date}: {day: string, date: string}) => (
     <TouchableOpacity onPress={() => handleDayPress(date)}>
       <View style={styles.dayBox}>
@@ -77,10 +80,11 @@ const HomeWeekCarousel = () => {
     </TouchableOpacity>
   )
  
-
   return (
     <View>
       <View style={styles.container}>
+
+        {/* Navigate to Previous Week Button */}
         <TouchableOpacity onPress={() => {
           const newOffset = weekOffset + -1;
           setWeekOffset(newOffset);
@@ -88,6 +92,8 @@ const HomeWeekCarousel = () => {
         }}>
           <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
+
+        {/* Individual Day FlatList */}
         <View>
           <FlatList 
             horizontal
@@ -98,6 +104,7 @@ const HomeWeekCarousel = () => {
           />
         </View>
 
+        {/* Individual Day Calendare Modal */}
         <CalendarModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
@@ -106,6 +113,7 @@ const HomeWeekCarousel = () => {
           entries={entries}
         />
 
+        {/* Navigate to Next Week Button */}
         <TouchableOpacity onPress={() => {
           const newOffset = weekOffset + 1;
           setWeekOffset(newOffset);
@@ -113,6 +121,7 @@ const HomeWeekCarousel = () => {
         }}>
           <Ionicons name='chevron-forward' size={24} color='black' />
         </TouchableOpacity>
+
       </View>
     </View>
   )
@@ -120,9 +129,9 @@ const HomeWeekCarousel = () => {
 
 export default HomeWeekCarousel
 
+// Styles for component
 const styles = StyleSheet.create({
   container: {
-    // marginTop: 20,
     flexDirection: 'row',
     backgroundColor: '#f0f0f0',
     borderRadius: 20,

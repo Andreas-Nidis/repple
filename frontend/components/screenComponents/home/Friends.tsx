@@ -17,6 +17,7 @@ const Friends = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [onlineFriends, setOnlineFriends] = useState<string[]>([]);
 
+    // API call - Get all friends of user
     const getFriends = async () => {
         try {
             const user = getAuth().currentUser;
@@ -71,29 +72,37 @@ const Friends = () => {
         };
     }, []);
 
-
+    // For rendering individual friends in the Flatlist below
     const Item = ({id, name, picture}: {id: string, name: string, picture: string}) => {
         const isOnline = onlineFriends.includes(id);
 
         return (
             <View style={styles.profileContainer}>
                 <View>
+
+                    {/* Profile Picture */}
                     <Image style={styles.profilePhoto} src={picture}/>
+
+                    {/* Online Status */}
                     <View 
                         style={[
                             styles.statusIndicator, 
                             { backgroundColor: isOnline ? 'green' : 'red' }
                         ]}
                     />
+
                 </View>
+
+                {/* Name */}
                 <Text style={styles.displayName}>{name}</Text>
             </View>
         )
     }
 
-
     return (
         <View style={styles.friendsContainer}>
+            
+            {/* Navigation Header */}
             <TouchableOpacity style={styles.friendsTitle} onPress={() => {router.push('/(logged-in)/screens/friends')}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={styles.friendsTitleText}>Friends</Text>
@@ -102,6 +111,7 @@ const Friends = () => {
                 <View style={styles.underline} />
             </TouchableOpacity>
 
+            {/* Friends FlatList */}
             <View>
                 <FlatList 
                     data={friends}
@@ -110,12 +120,14 @@ const Friends = () => {
                     renderItem={({ item }) =>  <Item id= {item.friend_id} name={item.name} picture={item.picture} />}
                 />
             </View>
+
         </View>
     )
 }
 
 export default Friends
 
+// Styles for component
 const styles = StyleSheet.create({
     friendsContainer: {
         flexDirection: 'column',

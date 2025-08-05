@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { BASE_URL } from '@/utils/api';
 
+// Define types for workout and exercise data
 type WorkoutData = {
     id: string;
     workout_id: string;
@@ -35,12 +36,15 @@ const WorkoutScreen = () => {
     const [reps, setReps] = useState(0);
     const [rest, setRest] = useState(0);
 
+    // Function for formatting time in MM:SS (minutes:seconds))
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
+    // Rest Timer component that counts down set rest interval
+    // Resets when pressed again
     const RestTimer = ({ initialSeconds }: { initialSeconds: number }) => {
         const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
         const [isRunning, setIsRunning] = useState(false);
@@ -85,6 +89,7 @@ const WorkoutScreen = () => {
         );
     };
 
+    // API call - Get workout name
     const getWorkoutName = async () => {
         try {
             const user = getAuth().currentUser;
@@ -108,6 +113,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Get workout exercises by workout ID
     const getWorkoutExercisesById = async () => {
         try {
             const user = getAuth().currentUser;
@@ -133,6 +139,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Get all user exercises for exercise selection modal
     const getUserExercises = async () => {
         try {
             const user = getAuth().currentUser;
@@ -158,6 +165,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Add exercise to workout
     const addExercisetoWorkout = async () => {
         try {
             const user = getAuth().currentUser;
@@ -193,6 +201,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Update specific exercise details (reps, sets, rest)
     const updateWorkoutExercise = async () => {
         try {
             const user = getAuth().currentUser;
@@ -233,6 +242,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Delete exercise from workout
     const deleteWorkoutExercise = async () => {
         try {
             const user = getAuth().currentUser;
@@ -262,6 +272,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Update workout (name)
     const updateWorkout = async () => {
         try {
             const user = getAuth().currentUser;
@@ -289,6 +300,7 @@ const WorkoutScreen = () => {
         }
     }
 
+    // API call - Delete workout
     const deleteWorkout = async () => {
         try {
             const user = getAuth().currentUser;
@@ -318,6 +330,7 @@ const WorkoutScreen = () => {
         getWorkoutName();
     }, []);
 
+    // For rendering selected exercises and their sets, reps, and rest intervals in the FlatList below
     const Item = ({name, sets, reps, rest, exerciseId }: {name: string, sets: number, reps: number, rest: number, exerciseId: string}) => (
         <TouchableOpacity style={styles.exerciseButton} onPress={() => {
             setExerciseModalVisible(true)
@@ -336,6 +349,8 @@ const WorkoutScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+
+            {/* Navigation Header */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -345,7 +360,10 @@ const WorkoutScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
+
             <View style={styles.container}>
+
+                {/* Workout Name (Input) */}
                 <View style={{ alignItems: 'center', marginTop: 10}}>
                     <Text style={{ fontSize: 18, fontWeight: '500', margin: 10 }}>Workout Name:</Text>
                     <TextInput
@@ -356,6 +374,7 @@ const WorkoutScreen = () => {
                         style={{ fontWeight: '600', padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, margin: 10 }}
                     />
                 </View>
+
                 {workout[0]?.workout_id ? 
                     (
                         <View style={{ marginTop: 10, padding: 5 }}>
@@ -367,12 +386,15 @@ const WorkoutScreen = () => {
                                     <Text style={styles.exerciseHeaderText}>Rest</Text>
                                 </View>
                             </View>
+
+                            {/* Exercise Details in Workout FlatList */}
                             <FlatList  
                                 data={workout}
                                 contentContainerStyle={{ paddingTop: 20 }}
                                 renderItem={({ item }) =>  <Item name={item.name} sets={item.sets ?? 0} reps={item.reps ?? 0} rest={item.rest_seconds ?? 0} exerciseId={item.exercise_id} />}
                             />
 
+                            {/* Specific Exercise Modal for changing Sets, Reps, and Rest */}
                             <Modal
                                 visible={exerciseModalVisible}
                                 animationType="slide"
@@ -381,6 +403,8 @@ const WorkoutScreen = () => {
                             >
                                 <View style={styles.modalBackground}>
                                     <View style={styles.modalContent}>
+
+                                        {/* Sets Input */}
                                         <Text style={styles.modalTitle}>Sets:</Text>
                                         <TextInput
                                             placeholder="Sets"
@@ -389,6 +413,8 @@ const WorkoutScreen = () => {
                                             onChangeText={text => setSets(Number(text))}
                                             style={styles.input}
                                         />
+
+                                        {/* Reps Input */}
                                         <Text style={styles.modalTitle}>Reps:</Text>
                                         <TextInput
                                             placeholder="Reps"
@@ -397,6 +423,8 @@ const WorkoutScreen = () => {
                                             onChangeText={text => setReps(Number(text))}
                                             style={styles.input}
                                         />
+
+                                        {/* Rest Input */}
                                         <Text style={styles.modalTitle}>Rest (seconds):</Text>
                                         <TextInput
                                             placeholder="Rest Interval (seconds)"
@@ -406,35 +434,48 @@ const WorkoutScreen = () => {
                                             style={styles.input}
                                         />
 
+                                        {/* Update Specific Exercise Button */}
                                         <TouchableOpacity style={styles.addButton} onPress={ async () => {
                                             await updateWorkoutExercise();
                                         }}>
                                             <Ionicons name='save-outline' size={24} color='black' />
                                             <Text style={styles.addButtonText}>Save Changes</Text>
                                         </TouchableOpacity>
+
+                                        {/* Remove Specific Exercise Button */}
                                         <TouchableOpacity style={styles.addButton} onPress={ async () => {
                                             await deleteWorkoutExercise();
                                         }}>
                                             <MaterialDesignIcons name='delete-outline' size={26} color='black' />
                                             <Text style={styles.addButtonText}>Remove Exercise</Text>
                                         </TouchableOpacity>
+
+                                        {/* Close Exercise Details Modal Button */}
                                         <Button title="Close" onPress={() => {
                                             setSelectedExerciseId('');
                                             setExerciseModalVisible(false)
                                         }} />
+
                                     </View>
                                 </View>
                             </Modal>
                             
                         </View> 
                     ) : (
+
+                        // Display message when there are no exercises
                         <Text>Add an exercise!</Text>
+
                     )
                 }
+
+                {/* Add Exercise Modal Button */}
                 <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
                     <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Add Exercise</Text>
                 </TouchableOpacity>
+
+                {/* Save Entire Workout Button */}
                 <TouchableOpacity style={styles.addButton} onPress={ async () => {
                     await updateWorkout();
                     router.back();
@@ -442,6 +483,8 @@ const WorkoutScreen = () => {
                     <Ionicons name='save-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Save Workout</Text>
                 </TouchableOpacity>
+
+                {/* Delete Workout Button */}
                 <TouchableOpacity style={styles.addButton} onPress={ async () => {
                     await deleteWorkout();
                     router.back();
@@ -449,8 +492,10 @@ const WorkoutScreen = () => {
                     <MaterialDesignIcons name='delete-outline' size={26} color='black' />
                     <Text style={styles.addButtonText}>Delete Workout</Text>
                 </TouchableOpacity>
+
             </View>
 
+            {/* Add Exercise to Workout Modal */}
             <Modal
                 visible={addModalVisible}
                 animationType='slide'
@@ -459,6 +504,8 @@ const WorkoutScreen = () => {
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContent}>
+
+                        {/* New Workout Exercise Selection FlatList */}
                         <Text style={styles.modalTitle}>Select Exercise:</Text>
                         <FlatList
                             horizontal
@@ -498,6 +545,8 @@ const WorkoutScreen = () => {
                                 )}
                             }
                         />
+
+                        {/* New Exercise Sets Input */}
                         <Text style={styles.modalTitle}>Sets:</Text>
                         <TextInput
                             placeholder="Sets"
@@ -506,6 +555,8 @@ const WorkoutScreen = () => {
                             onChangeText={text => setSets(Number(text))}
                             style={styles.input}
                         />
+
+                        {/* New Exercise Reps Input */}
                         <Text style={styles.modalTitle}>Reps:</Text>
                         <TextInput
                             placeholder="Reps"
@@ -514,6 +565,8 @@ const WorkoutScreen = () => {
                             onChangeText={text => setReps(Number(text))}
                             style={styles.input}
                         />
+
+                        {/* New Exercise Rest Input */}
                         <Text style={styles.modalTitle}>Rest (seconds):</Text>
                         <TextInput
                             placeholder="Rest Interval (seconds)"
@@ -522,6 +575,8 @@ const WorkoutScreen = () => {
                             onChangeText={text => setRest(Number(text))}
                             style={styles.input}
                         />
+
+                        {/* Add New Exercise to Workout Button */}
                         <Button title="Save" onPress={() => {
                                 if (!selectedExerciseId || !sets || !reps || !rest) {
                                     alert('Please fill in all fields');
@@ -532,7 +587,10 @@ const WorkoutScreen = () => {
                                 setAddModalVisible(false);
                             }
                         } />
+
+                        {/* Close New Exercise Modal Button */}
                         <Button title="Cancel" color="gray" onPress={() => setAddModalVisible(false)} />
+                        
                     </View>
                 </View>
             </Modal>
@@ -542,6 +600,7 @@ const WorkoutScreen = () => {
 
 export default WorkoutScreen
 
+// Styles for component
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',

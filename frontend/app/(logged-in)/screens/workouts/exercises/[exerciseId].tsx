@@ -16,6 +16,7 @@ const ExerciseScreen = () => {
     const [description, setDescription] = useState('');
     const [tutorialLink, setTutorialLink] = useState('');
 
+    // API call - Get specific exercise by ID
     const getExerciseById = async () => {
         try {
             const user = getAuth().currentUser;
@@ -43,6 +44,7 @@ const ExerciseScreen = () => {
         }
     }
 
+    // API call - Update exercise
     const updateExercise = async () => {
         try {
             const user = getAuth().currentUser;
@@ -74,6 +76,7 @@ const ExerciseScreen = () => {
         }
     }
 
+    // API call - Delete exercise
     const deleteExercise = async () => {
         try {
             const user = getAuth().currentUser;
@@ -102,6 +105,8 @@ const ExerciseScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+
+            {/* Navigation Header */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -111,6 +116,8 @@ const ExerciseScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.headerText}>Workout Planning</Text>
             </View>
+
+            {/* Exercise Information - see specific placeholders */}
             <View style={styles.inputsContainer}>
                 <TextInput
                     placeholder={exerciseName || "Exercise Name"}
@@ -148,6 +155,7 @@ const ExerciseScreen = () => {
                     style={styles.input}
                 />
 
+                {/* Update Exercise Information Button */}
                 <TouchableOpacity style={styles.addButton} onPress={ async () => {
                     await updateExercise();
                     router.back();
@@ -155,6 +163,8 @@ const ExerciseScreen = () => {
                     <Ionicons name='save-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Save Workout</Text>
                 </TouchableOpacity>
+
+                {/* Delete Exercise Button */}
                 <TouchableOpacity style={styles.addButton} onPress={ async () => {
                     await deleteExercise()
                     router.back()
@@ -162,6 +172,7 @@ const ExerciseScreen = () => {
                     <MaterialDesignIcons name='delete-outline' size={26} color='black' />
                     <Text style={styles.addButtonText}>Delete Workout</Text>
                 </TouchableOpacity>
+
             </View>
         </SafeAreaView>
     )
@@ -169,6 +180,7 @@ const ExerciseScreen = () => {
 
 export default ExerciseScreen
 
+// Styles for component
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',

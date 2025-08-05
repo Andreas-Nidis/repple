@@ -13,17 +13,21 @@ import { useEffect } from 'react';
 export default function HomePage() {
   const router = useRouter();
   const user = getAuth().currentUser;
+
+  // Redirect if user is not logged in
   useEffect(() => {
     if(!user) {
       router.replace('/');
       return;
     }
 
+    // Socket connection setup
     const handleConnect = () => {
       console.log('Socket connected! ID:', socket.id);
       socket.emit('identify', user.uid);
     };
 
+     // Socket disconnection error logging setup
     const handleDisconnect = (reason: any, details: any) => {
       console.log(reason);
       console.log(details?.message);
@@ -48,11 +52,20 @@ export default function HomePage() {
 
   return (
     <SafeAreaView style={styles.container}>
+      
+      {/* Logout Button, Profile Picture, and First Name Component */}
       <View style={styles.flexSection}><HomeHeader /></View>
-    <View style={styles.flexSection}><HomeWeekCarousel /></View>
-    <View style={styles.flexSection}><WeightChart /></View>
 
+      {/* Weekly Calendar for Exercise Organization */}
+      <View style={styles.flexSection}><HomeWeekCarousel /></View>
+
+      {/* Weight Tracker Line Chart */}
+      <View style={styles.flexSection}><WeightChart /></View>
+
+      {/* Workout Planning and Meal Planning Buttons */}
       <View style={[styles.flexSection, styles.planningContainer]}>
+
+        {/* Workout Planning Button */}
         <TouchableOpacity onPress={() => {router.push('/(logged-in)/screens/workouts')}}>
           <View style={styles.planningButton}>
             <Text style={styles.planningText}>
@@ -67,6 +80,8 @@ export default function HomePage() {
             />
           </View>
         </TouchableOpacity>
+
+        {/* Meal Planning Button */}
         <TouchableOpacity style={{margin: 0, padding: 0}} onPress={() => {router.push('/(logged-in)/screens/meals')}}>
           <View style={styles.planningButton}>
             <Text style={styles.planningText}>
@@ -81,14 +96,17 @@ export default function HomePage() {
             />
           </View>
         </TouchableOpacity>
+
       </View>
 
+      {/* Friends List Navigation Button & Online Friends FlatList Component */}
       <View style={styles.flexSection}><Friends /></View>
       
     </SafeAreaView>
   );
 }
 
+// Styles for component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

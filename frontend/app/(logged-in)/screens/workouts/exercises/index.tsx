@@ -17,6 +17,7 @@ const Index = () => {
   const [exercises, setExercises] = useState<ExerciseData[]>([]);
   const [exerciseName, setExerciseName] = useState('');
 
+  // API call - Get exercises
   const getExerciseEntries = async () => {
     try {
       const user = getAuth().currentUser;
@@ -40,6 +41,7 @@ const Index = () => {
     }
   }
 
+  // API call - Create new exercise
   const createNewExercise = async () => {
     try {
       const user = getAuth().currentUser;
@@ -75,7 +77,8 @@ const Index = () => {
     }, [])
   )
 
-  const Item = ({name, id }: {name: string, id: string}) => (
+  // For rendering each exercise in the FlatList below
+  const Item = ({ name, id }: {name: string, id: string}) => (
     <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/exercises/${id}`)}>
       <View style={styles.workoutBox}>
         <Text style={styles.boxText}>{name}</Text>
@@ -85,6 +88,8 @@ const Index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+
+      {/* Navigation Header */}
       <View style={styles.header}>
         <TouchableOpacity 
             style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -94,21 +99,35 @@ const Index = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Workout Planning</Text>
       </View>
+
       <View style={{flex: 1}}>
         <View style={styles.flatlist}>
-          {exercises.length < 1 ? ( <Text>Add an exercise!</Text> ) : (
+          {exercises.length < 1 ? ( 
+
+            // Display message if there are no exercises
+            <Text>Add an exercise!</Text> 
+
+          ) : (
+
+            // Exercise FlatList
             <FlatList 
               data={exercises}
               contentContainerStyle={{ width: '80%' }}
               renderItem={({ item }) =>  <Item name={item.name} id={item.id} />}
             />
+
           )}
         </View>
+
         <View>
+
+          {/* Add Exercise Button */}
           <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
             <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
             <Text style={styles.addButtonText}>Add Exercise</Text>
           </TouchableOpacity>
+
+          {/* Add Exercise Modal */}
           <Modal 
             visible={modalVisible}
             animationType='slide'
@@ -130,6 +149,7 @@ const Index = () => {
               </View>
             </View>
           </Modal>
+
         </View>
       </View>
     </SafeAreaView>
@@ -138,6 +158,7 @@ const Index = () => {
 
 export default Index
 
+// Styles for component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

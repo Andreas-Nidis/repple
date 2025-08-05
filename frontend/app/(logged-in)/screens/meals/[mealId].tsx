@@ -7,6 +7,7 @@ import { PieChart } from 'react-native-gifted-charts';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { BASE_URL } from '@/utils/api';
 
+// Define types for meal and ingredient data
 type MealData = {
     id: string;
     name: string;
@@ -47,7 +48,7 @@ const MealScreen = () => {
     const [removeModalVisible, setRemoveModalVisible] = useState<boolean>(false);
     const [addModalVisible, setAddModalVisible] = useState<boolean>(false);
    
-
+    // Fetch meal by ID API call
     const getMealById = async () => {
         try {
             const user = getAuth().currentUser;
@@ -71,6 +72,7 @@ const MealScreen = () => {
         }
     }
 
+    // Fetch meal ingredients API call
     const getMealIngredients = async () => {
         try {
             const user = getAuth().currentUser;
@@ -95,6 +97,7 @@ const MealScreen = () => {
         }
     }
 
+    // Fetch user ingredients API call
     const getUserIngredients = async () => {
         try {
             const user = getAuth().currentUser;
@@ -119,6 +122,7 @@ const MealScreen = () => {
         }
     }
 
+    // Calculate totals for calories, protein, carbs, and fat
     const calculateTotals = (ingredients: MealIngredientData[]) => {
         
         let totalCalories = 0;
@@ -148,6 +152,7 @@ const MealScreen = () => {
         setFatPercentage(fatPct);
     }
 
+    // Add ingredient to meal API call
     const addIngredient = async () => {
         if (!selectedIngredientId || newQuantity <= 0) {
             console.error('No ingredient selected or invalid quantity');
@@ -184,6 +189,7 @@ const MealScreen = () => {
         }
     }
 
+    // Remove ingredient from meal API call
     const removeIngredientFromMeal = async () => {
         if (!selectedIngredientId) {
             console.error('No ingredient selected for removal');
@@ -213,6 +219,7 @@ const MealScreen = () => {
         }
     }
 
+    // Update ingredient quantity API call
     const updateIngredientQuantity = async () => {
         if (!selectedIngredientId || newQuantity <= 0) {
             console.error('No ingredient selected or invalid quantity');
@@ -249,6 +256,7 @@ const MealScreen = () => {
         }
     }
 
+    // Delete meal API call
     const deleteMeal = async () => {
         try {
             const user = getAuth().currentUser;
@@ -272,6 +280,7 @@ const MealScreen = () => {
         }
     }
 
+    // Update meal API call
     const updateMeal = async () => {
         try {
             const user = getAuth().currentUser;
@@ -305,10 +314,12 @@ const MealScreen = () => {
         getUserIngredients();
     }, []);
 
+    // Calculate totals whenever mealIngredients change
     useEffect(() => {
         calculateTotals(mealIngredients);
     }, [mealIngredients]);
 
+    // For rendering each ingredient item in the FlatList
     const Item = ({ ingredient_name, quantity, ingredient_id }: MealIngredientData) => (
         <View style={{ flexDirection: 'row', width: '100%', paddingBottom: 5, paddingTop: 5 }}>
             <TouchableOpacity 
@@ -324,6 +335,7 @@ const MealScreen = () => {
         </View>
     );
 
+    // Macronutrient percentages for the donut chart
     const donutData = [
         { value: proteinPercentage, color: '#73008d', text: 'Protein' },
         { value: carbsPercentage, color: '#b36cd3', text: 'Carbs' },
@@ -333,6 +345,7 @@ const MealScreen = () => {
     return (
         <SafeAreaView style={styles.container}>
 
+             {/* Navigation Header */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -355,12 +368,16 @@ const MealScreen = () => {
                                 <Text style={styles.mealIngredientsHeaderText}>Quantity(g/ml)</Text>
                             </View>
                         </View>
+
+                         {/* Selected Ingredients FlatList */}
                         <FlatList 
                             data={mealIngredients}
                             keyExtractor={(item) => item.id}
                             renderItem={({ item }) => <Item {...item} />}
                             contentContainerStyle={{ padding: 10, alignItems: 'center', width: '100%' }}
                         />
+
+                         {/* Remove/Update Quantity Modal */}
                         <Modal
                             visible={removeModalVisible}
                             transparent={true}
@@ -369,6 +386,8 @@ const MealScreen = () => {
                         >
                             <View style={styles.modalBackground}>
                                 <View style={styles.modalContent}>
+
+                                     {/* Update Quantity Input */}
                                     <TextInput 
                                         style={styles.input} 
                                         value={newQuantity.toString()}
@@ -377,6 +396,7 @@ const MealScreen = () => {
                                         placeholder='Quantity...'
                                     />
 
+                                    {/* Update Quantity Button */}
                                     <TouchableOpacity style={styles.addButton} onPress={ async () => {
                                         await updateIngredientQuantity();
                                         setRemoveModalVisible(false);
@@ -384,6 +404,8 @@ const MealScreen = () => {
                                         <Ionicons name='save-outline' size={24} color='black' />
                                         <Text style={styles.addButtonText}>Update Quantity</Text>
                                     </TouchableOpacity>
+
+                                    {/* Remove Ingredient Button */}
                                     <TouchableOpacity style={styles.addButton} onPress={ async () => {
                                         await removeIngredientFromMeal();
                                         setRemoveModalVisible(false);
@@ -391,20 +413,27 @@ const MealScreen = () => {
                                         <MaterialDesignIcons name='delete-outline' size={26} color='black' />
                                         <Text style={styles.addButtonText}>Remove Ingredient</Text>
                                     </TouchableOpacity>
+
+                                    {/* Close Modal Button */}
                                     <Button title="Close" onPress={() => setRemoveModalVisible(false)} />
                                 </View>
                             </View>
                         </Modal>
                     </View>
                 ) : (
+                    {/* No Ingredients Text Display */}
                     <View style={styles.inputsContainer}>
                         <Text style={styles.inputHeader}>Add an ingredient!</Text>
                     </View>
                 )}
+
+                {/* Add Ingredient Button */}
                 <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
                     <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
                     <Text style={styles.addButtonText}>Add Ingredient</Text>
                 </TouchableOpacity>
+
+                {/* Add Ingredient Modal */}
                 <Modal
                     visible={addModalVisible}
                     transparent={true}
@@ -415,6 +444,8 @@ const MealScreen = () => {
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Select Ingredient:</Text>
                             <View style={{alignItems: 'center'}}>
+
+                                {/* New/Non-selected Ingredient FlatList */}
                                 <FlatList
                                     horizontal
                                     data={userIngredients}
@@ -454,6 +485,8 @@ const MealScreen = () => {
                                     }
                                 />
                             </View>
+
+                            {/* New Ingredient Quantity Button */}
                             <Text style={styles.modalTitle}>Quantity:</Text>
                             <TextInput
                                 placeholder="Quantity in grams/ml"
@@ -462,18 +495,23 @@ const MealScreen = () => {
                                 onChangeText={text => setNewQuantity(Number(text))}
                                 style={styles.input}
                             />
-
+                            
+                            {/* Add New Ingredient Confirmation Button */}
                             <Button title="Add Ingredient" onPress={() => {
                                 addIngredient();
                                 setAddModalVisible(false);
                             }} />
                             <Button title="Close" onPress={() => setAddModalVisible(false)} />
+
                         </View>
                     </View>
                 </Modal>
             </View>
+
             <View style={styles.footer}>
                 <View style={styles.donutAndInfoContainer}>
+
+                    {/* Macronutrient Percentages Breakdown */}
                     <View style={styles.infoContainer}>
                         <Text style={styles.infoHeader}>Meal Breakdown</Text>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
@@ -483,8 +521,10 @@ const MealScreen = () => {
                         </View>
                     </View>
 
+                    {/* Divider - Macronutrient | Donut Chart  */}
                     <View style={{borderWidth: 0.5 , height: '100%'}} />
                     
+                    {/* Donut Chart */}
                     <View style={styles.donutContainer}>
                         {(totalCalories === 0) ? 
                             <Text>Piechart waiting for data</Text> 
@@ -502,6 +542,7 @@ const MealScreen = () => {
                     </View>
                 </View>
                 
+                {/* Delete Meal Button*/}
                 <View>
                     <TouchableOpacity style={styles.addButton} onPress={() => deleteMeal()}>
                         <MaterialDesignIcons name='delete-outline' size={26} color='black' />
@@ -516,6 +557,7 @@ const MealScreen = () => {
 
 export default MealScreen
 
+// Styles for the MealScreen component
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',

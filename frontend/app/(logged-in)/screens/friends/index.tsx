@@ -6,6 +6,7 @@ import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 import socket from '@/utils/socket';
 
+// Type definitions for User and FriendButtonProps
 type User = {
   id: string;
   name: string;
@@ -28,6 +29,8 @@ const Index = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [userId, setUserId] = useState('');
 
+
+  // Emit socket events for friend requests and acceptances
   const socketEmitFriendRequest = (friendId: string) => {
     if(!socket.connected) return;
     
@@ -46,6 +49,7 @@ const Index = () => {
     })
   }
 
+  // Fetch users from API and set local state
   const getUsers = async () => {
     try {
       const user = getAuth().currentUser;
@@ -70,6 +74,7 @@ const Index = () => {
     }
   }
 
+  // Fetch user ID from API for friend requests
   const getUserId = async () => {
     try {
       const user = getAuth().currentUser;
@@ -93,6 +98,8 @@ const Index = () => {
     }
   }
 
+  // Functions to handle friend relationship actions
+  // Remove friend, add friend, accept request, reject request
   const removeFriend = async (friendId: string) => {
     try {
       const user = getAuth().currentUser;
@@ -187,6 +194,11 @@ const Index = () => {
     }
   }
 
+  // Handles search bar functionality
+  // Filters users based on search query
+  // If serach box is cleared, shows all users again
+  // If search query is not empty, filters users by FRIEND CODE
+  // Note: FRIEND CODE is used as a unique identifier for users (created when user signs up)
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     const formattedQuery = query.toLowerCase();
@@ -208,6 +220,8 @@ const Index = () => {
     }, [])
   );
 
+  // Friend Button component to handles different friend statuses
+  // Displays different buttons based on the status of the friend relationship
   const FriendButton: React.FC<FriendButtonProps> = ({ status, sender, profileUser }) => {
     if(status === 'accepted') {
       return (
@@ -250,6 +264,8 @@ const Index = () => {
     } 
   }
 
+  // Item component to render each user in the FlatList
+  // Displays user's name, picture, and the FriendButton component
   const Item = ({name, picture, status, sender, profileUser}: {name: string, picture: string, status: string, sender: string, profileUser: string}) => {
     return (
       <View style={styles.profileContainer}>
@@ -262,9 +278,10 @@ const Index = () => {
     )
   }
 
-
   return (
     <SafeAreaView style={styles.container}>
+
+      {/* Navigation Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -276,6 +293,8 @@ const Index = () => {
       </View>
 
       <View style={{flex: 1}}>
+
+        {/* Search Bar */}
         <View style={styles.searchBox}>
           <Ionicons style={styles.searchIcon} name='search-outline' size={18} color='black' />
           <TextInput 
@@ -286,6 +305,7 @@ const Index = () => {
           />
         </View>
         
+        {/* Friends FlatList */}
         <View>
           <FlatList 
             data={users}
@@ -294,6 +314,7 @@ const Index = () => {
             renderItem={({ item }) =>  <Item name={item.name} picture={item.picture} status={item.status} sender={item.request_sender_id} profileUser={item.id} />}
           />
         </View>
+        
       </View>
 
     </SafeAreaView>
@@ -302,6 +323,7 @@ const Index = () => {
 
 export default Index
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

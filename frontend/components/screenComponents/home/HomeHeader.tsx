@@ -6,24 +6,29 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const HomeHeader = () => {
     const router = useRouter();
     const user = getAuth().currentUser;
+
+    // Redirect user if not authenticated
     if(!user) {
     router.replace('/')
     }
 
+    // Seperates first name from full name for main landing page display
     const firstName = user?.displayName?.split(' ')[0];
 
     return (
         <View style={styles.headerContainer}>
+
+            {/* Logout Button */}
             <View style={styles.exitContainer}>
                 <TouchableOpacity
-                onPress={() => {
+                  onPress={() => {
                     getAuth().signOut().then(() => {
-                        console.log('User signed out!');
-                        router.replace('/')
+                      console.log('User signed out!');
+                      router.replace('/')
                     }).catch((error) => {
-                        console.error('Sign out error:', error);
+                      console.error('Sign out error:', error);
                     });
-                }}
+                  }}
                 >
                 <Ionicons
                     style={{ transform: [{ rotate: '180deg' }], marginRight: 10}} 
@@ -33,14 +38,20 @@ const HomeHeader = () => {
                 />
                 </TouchableOpacity>
             </View>
+
+            {/* User's Gmail Profile Photo */}
             <Image style={styles.profilePhoto} src={user?.photoURL || ''}/>
+
+            {/* User's First Name Greeting */}
             <Text style={styles.displayName}>{firstName || 'Nameless'}!</Text>
+
         </View>
     )
 }
 
 export default HomeHeader
 
+// Styles for component
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',

@@ -12,132 +12,148 @@ type MealData = {
 }
 
 const MealList = () => {
-    const router = useRouter();
-    const [modalVisible, setModalVisible] = useState(false);
-    const [meals, setMeals] = useState<MealData[]>([]);
-    const [mealName, setMealName] = useState('');
+  const router = useRouter();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [meals, setMeals] = useState<MealData[]>([]);
+  const [mealName, setMealName] = useState('');
 
-    const getMealEntries = async () => {
-        try {
-        const user = getAuth().currentUser;
-        const idToken = await user?.getIdToken();
-        const response = await fetch(`${BASE_URL}/api/meals`, {
-            headers: {
-            Authorization: `Bearer ${idToken}`,
-            }
-        })
+  // API call - Fetch meals data
+  const getMealEntries = async () => {
+      try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/meals`, {
+          headers: {
+          Authorization: `Bearer ${idToken}`,
+          }
+      })
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('API returned error:', errorText);
-            return;
-        };
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API returned error:', errorText);
+          return;
+      };
 
-        const data = await response.json();
-        setMeals(data);
-        } catch (error) {
-        console.log('Error fetching meals data:', error);
-        }
-    }
+      const data = await response.json();
+      setMeals(data);
+      } catch (error) {
+      console.log('Error fetching meals data:', error);
+      }
+  }
 
-    const createNewMeal = async () => {
-        try {
-        const user = getAuth().currentUser;
-        const idToken = await user?.getIdToken();
-        const response = await fetch(`${BASE_URL}/api/meals`, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${idToken}`,
-            },
-            body: JSON.stringify({
-            name: mealName
-            })
-        })
+  // API call - Create a new meal
+  const createNewMeal = async () => {
+      try {
+      const user = getAuth().currentUser;
+      const idToken = await user?.getIdToken();
+      const response = await fetch(`${BASE_URL}/api/meals`, {
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+          name: mealName
+          })
+      })
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('API returned error:', errorText);
-            return;
-        };
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API returned error:', errorText);
+          return;
+      };
 
-        await getMealEntries();
-        setModalVisible(false);
-        setMealName('');
-        } catch (error) {
-        console.log('Error creating new meal:', error);
-        }
-    }
+      await getMealEntries();
+      setModalVisible(false);
+      setMealName('');
+      } catch (error) {
+      console.log('Error creating new meal:', error);
+      }
+  }
 
-    useFocusEffect(
-        useCallback(() => {
-          getMealEntries();
-        }, [])
-    )
+  useFocusEffect(
+      useCallback(() => {
+        getMealEntries();
+      }, [])
+  )
 
-    const Item = ({ id, name }: {name: string, id: string}) => (
-        <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/meals/${id}`)}>
-          <View style={styles.workoutBox}>
-              <Text style={styles.boxText}>{name}</Text>
-          </View>
+  // For rendering each meal in the FlatList
+  const Item = ({ id, name }: {name: string, id: string}) => (
+      <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/meals/${id}`)}>
+        <View style={styles.workoutBox}>
+            <Text style={styles.boxText}>{name}</Text>
+        </View>
+      </TouchableOpacity>
+  )
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Navigation Header */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
+          onPress={() => {router.back()}}
+        >
+          <Ionicons name='chevron-back' size={24} color='black' />
         </TouchableOpacity>
-    )
+        <Text style={styles.headerText}>Meals List</Text>
+      </View>
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity 
-                    style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
-                    onPress={() => {router.back()}}
-                >
-                    <Ionicons name='chevron-back' size={24} color='black' />
-                </TouchableOpacity>
-                <Text style={styles.headerText}>Meals List</Text>
+      <View style={{flex: 1}}>
+
+        {/* Meals FlatList */}
+        <View style={styles.flatlist}>
+        {meals.length < 1 ? ( <Text>Add an meal!</Text> ) : (
+            <FlatList 
+            data={meals}
+            contentContainerStyle={{ width: '80%' }}
+            renderItem={({ item }) =>  <Item name={item.name} id={item.id} />}
+            />
+        )}
+        </View>
+
+        <View>
+          {/* Add Meal Button */}
+          <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+            <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
+            <Text style={styles.addButtonText}>Add Meal</Text>
+          </TouchableOpacity>
+
+          {/* Add Meal Modal */}
+          <Modal 
+            visible={modalVisible}
+            animationType='slide'
+            transparent={true}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalBackground}>
+              <View style={styles.modalContent}>
+
+                <Text style={styles.modalTitle}>Meal Name:</Text>
+                <TextInput
+                  placeholder="Enter new meal name"
+                  keyboardType="default"
+                  value={mealName}
+                  onChangeText={setMealName}
+                  style={styles.input}
+                />
+
+                <Button title="Cancel" color="gray" onPress={() => setModalVisible(false)} />
+                <Button title="Save" onPress={() => createNewMeal()} />
+
+              </View>
             </View>
-            <View style={{flex: 1}}>
-                <View style={styles.flatlist}>
-                {meals.length < 1 ? ( <Text>Add an meal!</Text> ) : (
-                    <FlatList 
-                    data={meals}
-                    contentContainerStyle={{ width: '80%' }}
-                    renderItem={({ item }) =>  <Item name={item.name} id={item.id} />}
-                    />
-                )}
-                </View>
-                <View>
-                    <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-                        <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
-                        <Text style={styles.addButtonText}>Add Meal</Text>
-                    </TouchableOpacity>
-                    <Modal 
-                        visible={modalVisible}
-                        animationType='slide'
-                        transparent={true}
-                        onRequestClose={() => setModalVisible(false)}
-                    >
-                        <View style={styles.modalBackground}>
-                            <View style={styles.modalContent}>
-                                <Text style={styles.modalTitle}>Meal Name:</Text>
-                                <TextInput
-                                placeholder="Enter new meal name"
-                                keyboardType="default"
-                                value={mealName}
-                                onChangeText={setMealName}
-                                style={styles.input}
-                                />
-                                <Button title="Cancel" color="gray" onPress={() => setModalVisible(false)} />
-                                <Button title="Save" onPress={() => createNewMeal()} />
-                            </View>
-                        </View>
-                    </Modal>
-                </View>
-            </View>
-        </SafeAreaView>
-    )
+          </Modal>
+
+        </View>
+      </View>
+    </SafeAreaView>
+  )
 }
 
 export default MealList
 
+// Styles for the MealList components
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

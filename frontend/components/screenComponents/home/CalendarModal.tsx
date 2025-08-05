@@ -6,8 +6,7 @@ import { BASE_URL } from '@/utils/api';
 import socket from '@/utils/socket';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
-
-
+// Type Definitions
 type CalendarEntry = {
   id: string;
   workout_id: string;
@@ -52,6 +51,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   const [userWorkouts, setUserWorkouts] = useState<UserWorkout[]>([]);
   const [workoutToggle, setWorkoutToggle] = useState<boolean>(false);
 
+  // API call - Get all user workout
   const getUserWorkouts = async () => {
       try {
           const user = getAuth().currentUser;
@@ -75,6 +75,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       }
   };
 
+  // API call - Get workout exercises from selected workout
   const getWorkoutExercisesById = async () => {
       try {
           const user = getAuth().currentUser;
@@ -99,6 +100,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       }
   }
 
+  // API call - Add workout to calendar day
   const addEntry = async () => {
       try {
           const user = getAuth().currentUser;
@@ -128,6 +130,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       }
   }
 
+  // API call - Remove workout from calendar dat
   const removeEntry = async () => {
       try {
           const user = getAuth().currentUser;
@@ -151,12 +154,15 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       }
   };
 
+  // Function for formatting time in MM:SS (minutes:seconds))
   const formatTime = (seconds: number) => {
       const m = Math.floor(seconds / 60);
       const s = seconds % 60;
       return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
   
+  // Rest Timer component that counts down set rest interval
+  // Resets when pressed again
   const RestTimer = ({ initialSeconds }: { initialSeconds: number }) => {
       const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
       const [isRunning, setIsRunning] = useState(false);
@@ -201,6 +207,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       );
   };
 
+  // For rendering selected exercises and their sets, reps, and rest intervals in the FlatList below
   const Item = ({name, sets, reps, rest}: {name: string, sets: number, reps: number, rest: number}) => (
     <View style={styles.exerciseContainer}>
       <View style={styles.exercise}>
@@ -214,6 +221,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     </View>
   )
 
+  // Socket Emission for Live In-App Workout Notification for Friends of User
   const socketEmitWorkoutActivity = () => {
     const user = getAuth().currentUser;
     if(!socket.connected) return;
@@ -236,6 +244,8 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.modalContainer}>
+
+        {/* Formatted Date Modal Header */}
         <Text style={styles.modalTitle}>
           {dayjs(selectedDay).format('dddd, MMM D')}
         </Text>
@@ -244,6 +254,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           <ActivityIndicator />
         ) : entries?.length > 0 ? (
           
+          {/* Selected Workout Details */}
           <View style={{ marginTop: 10, padding: 5 }}>
             <View style={{justifyContent: 'center', alignItems: 'center',}}>
               <Text style={styles.workoutTitle}>{workout[0]?.workout_name}</Text>
@@ -266,6 +277,8 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                 rest={item.rest_seconds ?? 0}
               />
             ))}
+
+            {/* Start/Finish Workout Live Notification Button */}
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity style={styles.toggleButton} onPress={() => {
                 setWorkoutToggle(!workoutToggle);
@@ -274,6 +287,8 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                 <Text style={styles.toggleText}>{workoutToggle ? 'Finish Workout' : 'Start Workout'}</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Remove Workout from Calendar Day Button */}
             <TouchableOpacity style={styles.addButton} onPress={removeEntry}>
                 <MaterialDesignIcons name='delete-outline' size={26} color='black' />
                 <Text style={styles.addButtonText}>Remove Workout</Text>
@@ -281,13 +296,18 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
             
           </View>
         ) : (
+
+          // Display message when no workout is selected
           <View style={styles.entry}>
             <Text>No workout scheduled for this day.</Text>
+
+            {/* Add Workout Modal Button */}
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
               <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
               <Text style={styles.addButtonText}>Add Workout</Text>
             </TouchableOpacity>
 
+            {/* Add Workout to Calendar Day Modal */}
             <Modal
               visible={modalVisible}
               animationType="slide"
@@ -295,6 +315,8 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
               onRequestClose={() => setModalVisible(false)}
             >
               <View style={styles.modalContainer}>
+
+                {/* Existing Workouts FlatList */}
                 <Text style={styles.modalTitle}>Select Workout</Text>
                 <FlatList
                   horizontal
@@ -334,7 +356,8 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                     );
                   }}
                 />
-
+                
+                {/* Add Workout to Calendar Day Button */}
                 <Button
                   title="Select Workout"
                   onPress={() => {
@@ -347,9 +370,11 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           </View>
         )}
 
+        {/* Close Modal Button */}
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <Text style={styles.closeText}>Close</Text>
         </TouchableOpacity>
+
       </View>
     </Modal>
   );
@@ -357,6 +382,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
 
 export default CalendarModal;
 
+// Styles for component
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,

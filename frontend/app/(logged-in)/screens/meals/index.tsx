@@ -32,6 +32,7 @@ const Index = () => {
   const [unselectedMeals, setUnselectedMeals] = useState<MealData[]>([]);
   const [selectedMealId, setSelectedMealId] = useState<string>('');
 
+  // Function to calculate total calories and percentages based on selected meals
   const calculateTotals = (selectedMeals: MealData[]) => {
     
     let totalCalories = 0;
@@ -63,6 +64,7 @@ const Index = () => {
     setFatPercentage(fatPct);
   }
 
+  // Fetch meals from API and set state
   const getMeals = async () => {
     try {
       const user = getAuth().currentUser;
@@ -86,6 +88,7 @@ const Index = () => {
     }
   }
 
+  // Update meal selection (add/remove) and update local state
   const updateMealSelection = async () => {
     let index = 0;
     for (let i = 0; i < meals.length; i++) {
@@ -127,6 +130,7 @@ const Index = () => {
     }, [])
   )
 
+  // Updates the selected and unselected meals based on the fetched meals
   useEffect(() => {
     const selected = meals.filter(meal => meal.selected);
     setSelectedMeals(selected);
@@ -135,12 +139,14 @@ const Index = () => {
     calculateTotals(selected);
   }, [meals]);
 
+  // Macronutrient percentages for the donut chart
   const donutData = [
     { value: proteinPercentage, color: '#73008d', text: 'Protein' },
     { value: carbsPercentage, color: '#b36cd3', text: 'Carbs' },
     { value: fatPercentage, color: '#efcaff', text: 'Fat' },
   ];
 
+  // Render for each meal item in the FlatList in the UI
   const Item = ({ id, name }: MealData) => (
     <View style={{ flexDirection: 'column', width: '100%', paddingBottom: 5, paddingTop: 5 }}>
       <TouchableOpacity 
@@ -159,6 +165,8 @@ const Index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+
+      {/* Navigation Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -169,8 +177,11 @@ const Index = () => {
         <Text style={styles.headerText}>Meal Planning</Text>
       </View>
 
+      
       <View style={styles.breakdownSection}>
         <View style={styles.donutAndInfoContainer}>
+
+            {/* Macronutrient Percentages Breakdown */}
             <View style={styles.infoContainer}>
                 <Text style={styles.infoHeader}>Total Breakdown</Text>
                 <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
@@ -180,27 +191,32 @@ const Index = () => {
                 </View>
             </View>
 
+            {/* Divider - Macronutrient | Donut Chart  */}
             <View style={{borderWidth: 0.5 , height: '125%'}} />
             
+            {/* Donut Chart */}
             <View style={styles.donutContainer}>
-                {(totalCalories === 0) ? 
-                    <Text>Piechart waiting for data</Text> 
-                    : 
-                    <PieChart
-                        data={donutData}
-                        donut
-                        radius={65}
-                        innerRadius={50}
-                        centerLabelComponent={() => {
-                            return <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>Total Calories {totalCalories}</Text>;
-                        }}
-                    />
-                }
+              {(totalCalories === 0) ? 
+                <Text>Piechart waiting for data</Text> 
+                : 
+                <PieChart
+                  data={donutData}
+                  donut
+                  radius={65}
+                  innerRadius={50}
+                  centerLabelComponent={() => {
+                      return <Text style={{ fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>Total Calories {totalCalories}</Text>;
+                  }}
+                />
+              }
             </View>
+
         </View>
       </View>
 
       <View style={{flex: 1}}>
+
+         {/* Selected Meals FlatList */}
         <View>
           <FlatList 
             data={selectedMeals}
@@ -209,68 +225,77 @@ const Index = () => {
             contentContainerStyle={{ padding: 10, alignItems: 'center', width: '100%' }}
           />
         </View>
+
+         {/* Add Selected Meal Button */}
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
           <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
           <Text style={styles.addButtonText}>Add Meal</Text>
         </TouchableOpacity>
+
+         {/* Add to Selected Meals Modal*/}
         <Modal
           visible={addModalVisible}
           transparent={true}
           animationType='slide'
           onRequestClose={() => setAddModalVisible(false)}
         >
-            <View style={styles.modalBackground}>
-                <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Select Meal:</Text>
-                    <View style={{alignItems: 'center'}}>
-                        <FlatList
-                            horizontal
-                            data={unselectedMeals}
-                            keyExtractor={item => item.id}
-                            contentContainerStyle={{ paddingBottom: 10 }}
-                            renderItem={({ item }) => { 
-                                const isSelected = item.id === selectedMealId;
+          <View style={styles.modalBackground}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Select Meal:</Text>
+                <View style={{alignItems: 'center'}}>
 
-                                return (
-                                  <TouchableOpacity 
-                                      style={{
-                                          backgroundColor: isSelected ? '#222222' : '#eee',
-                                          padding: 16,
-                                          marginRight: 10,
-                                          borderRadius: 10,
-                                          borderWidth: isSelected ? 2 : 1,
-                                          borderColor: isSelected ? '#222222' : '#bababa',
-                                          shadowColor: isSelected ? '#222222' : undefined,
-                                          shadowOpacity: isSelected ? 0.3 : 0,
-                                          shadowOffset: { width: 0, height: 2 },
-                                          shadowRadius: isSelected ? 4 : 0,
-                                          elevation: isSelected ? 4 : 0,
-                                          flexDirection: 'row',
-                                          alignItems: 'center',
-                                      }}     
-                                      onPress={() => setSelectedMealId(item.id)}
-                                  >
-                                      <Text
-                                          style={{
-                                              color: isSelected ? 'white' : 'black',
-                                              fontWeight: isSelected ? 'bold' : 'normal',
-                                              fontSize: 16,
-                                          }}
-                                      >{item.name}</Text>
-                                  </TouchableOpacity>
-                                )}
-                            }
-                        />
-                    </View>
+                   {/* Not Selected Meals FlatList */}
+                  <FlatList
+                    horizontal
+                    data={unselectedMeals}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={{ paddingBottom: 10 }}
+                    renderItem={({ item }) => { 
+                      const isSelected = item.id === selectedMealId;
 
-                    <Button title="Add Meal" onPress={() => {
-                        updateMealSelection();
-                        setAddModalVisible(false);
-                    }} />
-                    <Button title="Close" onPress={() => setAddModalVisible(false)} />
+                      return (
+                        <TouchableOpacity 
+                          style={{
+                            backgroundColor: isSelected ? '#222222' : '#eee',
+                            padding: 16,
+                            marginRight: 10,
+                            borderRadius: 10,
+                            borderWidth: isSelected ? 2 : 1,
+                            borderColor: isSelected ? '#222222' : '#bababa',
+                            shadowColor: isSelected ? '#222222' : undefined,
+                            shadowOpacity: isSelected ? 0.3 : 0,
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowRadius: isSelected ? 4 : 0,
+                            elevation: isSelected ? 4 : 0,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}     
+                          onPress={() => setSelectedMealId(item.id)}
+                        >
+                          <Text
+                            style={{
+                              color: isSelected ? 'white' : 'black',
+                              fontWeight: isSelected ? 'bold' : 'normal',
+                              fontSize: 16,
+                            }}
+                          >{item.name}</Text>
+                        </TouchableOpacity>
+                      )}
+                    }
+                  />
                 </View>
+
+                <Button title="Add Meal" onPress={() => {
+                    updateMealSelection();
+                    setAddModalVisible(false);
+                }} />
+                <Button title="Close" onPress={() => setAddModalVisible(false)} />
+
             </View>
+          </View>
         </Modal>
+
+         {/* Remove from Selected Meals Modal */}
         <Modal
           visible={removeModalVisible}
           transparent={true}
@@ -287,8 +312,10 @@ const Index = () => {
             </View>
           </View>
         </Modal>
-      </View>
 
+      </View>
+      
+       {/* Ingredients and Meals List Navigation Footer */}
       <View style={styles.footer}>
         <TouchableOpacity 
           style={styles.footerButton}
@@ -311,6 +338,7 @@ const Index = () => {
 
 export default Index
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

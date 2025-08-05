@@ -22,8 +22,6 @@ GoogleSignin.configure({
 });
 
 
-
-
 export default function Login() {
     const router = useRouter();
     const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
@@ -135,6 +133,7 @@ export default function Login() {
     )
 }
 
+// Styles for component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

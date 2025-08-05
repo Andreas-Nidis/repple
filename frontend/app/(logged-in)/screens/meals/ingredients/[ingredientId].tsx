@@ -15,6 +15,7 @@ const IngredientScreen = () => {
     const [fat, setFat] = useState(0);
     const [carbs, setCarbs] = useState(0);
 
+    // Function to fetch ingredient data by ID and set local states
     const getIngredientById = async () => {
         try {
             const user = getAuth().currentUser;
@@ -42,6 +43,7 @@ const IngredientScreen = () => {
         }
     }
 
+    // Update ingredient function to send PUT request with updated values
     const updateIngredient = async () => {
         try {
             const user = getAuth().currentUser;
@@ -72,6 +74,7 @@ const IngredientScreen = () => {
         }
     }
 
+    // Delete ingredient function to send DELETE request
     const deleteIngredient = async () => {
         try {
             const user = getAuth().currentUser;
@@ -157,6 +160,7 @@ const IngredientScreen = () => {
 
 export default IngredientScreen
 
+// Styles for the component
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',

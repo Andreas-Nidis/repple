@@ -6,9 +6,9 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { getAuth } from '@react-native-firebase/auth';
 import { BASE_URL } from '@/utils/api';
 
+// Workout type defintion
 type Workout = {
   name: string;
-  category: string;
   id: string;
 };
 
@@ -19,6 +19,7 @@ const Index = () => {
   const [newWorkoutCategory, setNewWorkoutCategory] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
+  // API call - Get all user workouts
   const getWorkoutEntries = async () => {
     try {
       const user = getAuth().currentUser;
@@ -42,6 +43,7 @@ const Index = () => {
     }
   }
 
+  // API call - Create new workout
   const addWorkoutEntry = async () => {
     try {
       const user = getAuth().currentUser;
@@ -79,17 +81,19 @@ const Index = () => {
     }, [])
   )
 
-  const Item = ({name, category, id }: {name: string, category: string, id: string}) => (
+  // For rendering each workout navigation button in the FLatList below
+  const Item = ({name, id }: {name: string, id: string}) => (
     <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/workouts/${id}`)}>
       <View style={styles.workoutBox}>
         <Text style={styles.boxText}>{name}</Text>
-        {/* <Text style={styles.boxText}>{category}</Text> */}
       </View>
     </TouchableOpacity>
   )
 
   return (
     <SafeAreaView style={styles.container}>
+
+      {/* Navigation Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -102,19 +106,32 @@ const Index = () => {
 
       <View style={{flex: 1}}>
         <View style={styles.flatlist}>
-          {workouts.length < 1 ? ( <Text>Create a workout!</Text> ) : (
+          {workouts.length < 1 ? ( 
+
+            // Display text when user has no workouts
+            <Text>Create a workout!</Text> 
+
+          ) : (
+
+            // Workouts Flatlist
             <FlatList 
               data={workouts}
               contentContainerStyle={{ width: '80%' }}
-              renderItem={({ item }) =>  <Item name={item.name} category={item.category} id={item.id} />}
+              renderItem={({ item }) =>  <Item name={item.name} id={item.id} />}
             />
+
           )}
         </View>
+
         <View>
+
+          {/* Add Workout Button */}
           <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
             <MaterialDesignIcons name='plus-circle-outline' size={24} color='black' />
             <Text style={styles.addButtonText}>Add Workout</Text>
           </TouchableOpacity>
+
+          {/* Add Workout Modal */}
           <Modal 
             visible={modalVisible}
             animationType='slide'
@@ -123,6 +140,8 @@ const Index = () => {
           >
             <View style={styles.modalBackground}>
               <View style={styles.modalContent}>
+
+                {/* New Workout Name Input */}
                 <Text style={styles.modalTitle}>Add Workout Name:</Text>
                 <TextInput
                   placeholder="Enter new workout name"
@@ -131,6 +150,8 @@ const Index = () => {
                   onChangeText={setNewWorkoutName}
                   style={styles.input}
                 />
+
+                {/* New Workout Category Input */}
                 <Text style={styles.modalTitle}>Add Workout Category:</Text>
                 <TextInput
                   placeholder="Push, pull, legs, upper, etc."
@@ -139,14 +160,21 @@ const Index = () => {
                   onChangeText={setNewWorkoutCategory}
                   style={styles.input}
                 />
+
+                {/* Cancel Button */}
                 <Button title="Cancel" color="gray" onPress={() => setModalVisible(false)} />
+
+                {/* Create Workout Button */}
                 <Button title="Save" onPress={() => addWorkoutEntry()} />
+
               </View>
             </View>
           </Modal>
+
         </View>
       </View>
 
+      {/* Exercise List Navigation Footer */}
       <View style={styles.footer}>
         <TouchableOpacity 
           style={styles.footerButton}
@@ -162,6 +190,7 @@ const Index = () => {
 
 export default Index
 
+// Styles for component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

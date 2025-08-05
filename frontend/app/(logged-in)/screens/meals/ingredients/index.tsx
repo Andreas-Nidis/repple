@@ -17,6 +17,7 @@ const Index = () => {
   const [ingredients, setIngredients] = useState<IngredientData[]>([]);
   const [ingredientName, setIngredientName] = useState('');
 
+  // Fetch ingredients from API and set state
   const getIngredientEntries = async () => {
     try {
       const user = getAuth().currentUser;
@@ -40,6 +41,7 @@ const Index = () => {
     }
   }
 
+  // Create a new ingredient API call and update local state
   const createNewIngredient = async () => {
     try {
       const user = getAuth().currentUser;
@@ -75,6 +77,7 @@ const Index = () => {
     }, [])
   )
 
+  // For rendering each ingredient item in the FlatList in the UI
   const Item = ({ name, id }: {name: string, id: string}) => (
     <TouchableOpacity style={styles.workoutButton} onPress={() => router.push(`/(logged-in)/screens/meals/ingredients/${id}`)}>
       <View style={styles.workoutBox}>
@@ -138,6 +141,7 @@ const Index = () => {
 
 export default Index
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

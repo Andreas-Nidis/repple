@@ -19,6 +19,8 @@ const WeightChart = () => {
     const [weightInput, setWeightInput] = useState('');
     const [showDatePicker, setShowDatePicker] = useState(false);
 
+    // Function to format date to ISO string (YYYY-MM-DD)
+    // This is used for the API to ensure the date is in the correct format
     function formatDateLocal(date: Date): string {
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -26,6 +28,7 @@ const WeightChart = () => {
         return `${year}-${month}-${day}`;
     }
 
+    // API call - Get all weight entries
     const getWeightEntries = async () => {
         try {
             const user = getAuth().currentUser;
@@ -49,6 +52,7 @@ const WeightChart = () => {
         }
     };
 
+    // API call - Add weight entry
     const handleAddEntry = async () => {
         try {
             const user = getAuth().currentUser;
@@ -88,8 +92,8 @@ const WeightChart = () => {
         }
     };
 
-    
-
+    // Function to check if an entry exists for the selected date
+    // This is used to determine if the "Delete Entry" button should be shown
     const entryExistsForDate = (date: Date) => {
         const selectedDateStr = formatDateLocal(date);
         return weightData.some(entry => entry.entry_date === selectedDateStr);
@@ -99,9 +103,12 @@ const WeightChart = () => {
         getWeightEntries();
     }, []);
 
+    // Prepare weight data for the chart
     const weights = weightData
         .map(data => typeof data.weight === 'number' ? data.weight : parseFloat(data.weight as string))
         .filter(weight => typeof weight === 'number' && !isNaN(weight));
+
+    // Prepare labels for the chart
     const labels = weightData
         .filter(data => typeof data.weight === 'number' || !isNaN(parseFloat(data.weight as string)))
         .map(data =>
@@ -113,38 +120,49 @@ const WeightChart = () => {
 
     return (
         <View style={styles.chartContainer}>
+
+            {/* Weight Chart Button that Opens Input Modal */}
             <TouchableOpacity style={styles.chartTouchableOpacity} onPress={() => setModalVisible(true)}>
                 {weights.length >= 1 ? (
-                <LineChart 
-                    data={{
-                        labels: labels,
-                        datasets: [{data: weights}]
-                    }}
-                    width={screenWidth - 32}
-                    height={220}
-                    yAxisSuffix='KG'
-                    yAxisInterval={1}
-                    chartConfig={{
-                        backgroundColor: 'white',
-                        backgroundGradientFrom: 'white',
-                        backgroundGradientTo: 'lightgray',
-                        decimalPlaces: 1,
-                        color: (opacity = 1) => `rgba(122, 45, 85, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                        propsForDots: {
-                            r: '5',
-                            strokeWidth: '2',
-                            stroke: '#000000'
-                        }
-                    }}
-                    bezier
-                    style={{
-                        marginVertical: 8,
-                        borderRadius: 16
-                    }}
-                />) : (
+
+                    // Linechart that uses Labels and Weights Data
+                    <LineChart 
+                        data={{
+                            labels: labels,
+                            datasets: [{data: weights}]
+                        }}
+                        width={screenWidth - 32}
+                        height={220}
+                        yAxisSuffix='KG'
+                        yAxisInterval={1}
+                        chartConfig={{
+                            backgroundColor: 'white',
+                            backgroundGradientFrom: 'white',
+                            backgroundGradientTo: 'lightgray',
+                            decimalPlaces: 1,
+                            color: (opacity = 1) => `rgba(122, 45, 85, ${opacity})`,
+                            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                            propsForDots: {
+                                r: '5',
+                                strokeWidth: '2',
+                                stroke: '#000000'
+                            }
+                        }}
+                        bezier
+                        style={{
+                            marginVertical: 8,
+                            borderRadius: 16
+                        }}
+                    />
+
+                ) : (
+
+                    // Display message if there is no user weight data inputs
                     <Text>Tap to add data to Weight Chart!</Text>
+
                 )}
+
+                {/* Add, Update, Delete Weight Entry Modal */}
                 <Modal
                     visible={modalVisible}
                     animationType='slide'
@@ -155,12 +173,14 @@ const WeightChart = () => {
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Add Weight Entry</Text>
 
+                            {/* Show Date Picker Button */}
                             <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
                                 <Text style={styles.datePickerText}>
                                     {selectedDate.toDateString()}
                                 </Text>
                             </TouchableOpacity>
 
+                            {/* Date Picker - Slider (iOS) // Calendar (Android) */}
                             {showDatePicker && (
                                 <DateTimePicker
                                     value={selectedDate}
@@ -173,6 +193,7 @@ const WeightChart = () => {
                                 />
                             )}
 
+                            {/* Weight Input */}
                             <TextInput
                                 placeholder="Enter weight (kg)"
                                 keyboardType="numeric"
@@ -182,8 +203,14 @@ const WeightChart = () => {
                             />
 
                             <View style={styles.buttonRow}>
+
+                                {/* Cancel Button */}
                                 <Button title="Cancel" color="gray" onPress={() => setModalVisible(false)} />
+
+                                {/* Save/Update Weight Button */}
                                 <Button title="Save" onPress={handleAddEntry} />
+
+                                {/* If Weight Entry Already Exists ->> Delete Weight Button */}
                                 {entryExistsForDate(selectedDate) && (
                                     <Button title="Delete Entry" color="red" onPress={async () => {
                                         try {
@@ -223,6 +250,7 @@ const WeightChart = () => {
 
 export default WeightChart
 
+// Styles for component
 const styles = StyleSheet.create({
     chartContainer: {
         marginTop: 10,
