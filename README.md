@@ -6,15 +6,13 @@
 - [Potential Future Features](#potential-future-features)
 - [Gif Demos](#gif-demos)
 
-
+### **Tech Stack:** React Native, Firebase Auth, Typescript, Express, Node.js, PostgreSQL, Socket.IO
 
 A social fitness app where users can create and customise exercises, workouts, and meals, while keeping their friends accountable.
 
 **Problem Solved:** Many fitness apps lack accountability. Ripple makes workouts more engaging through real-time connection.
 
 **Target Users:** Fitness enthusiasts, gym-goers, and friends who want to work out together.
-
-### **Tech Stack:** React Native, Firebase Auth, Typescript, Express, Node.js, PostgreSQL, Socket.IO
 
 
 ## Core Features
