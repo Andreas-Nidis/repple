@@ -55,33 +55,52 @@ Potential Future Features:
 
 ## Gif Demos
 
-### Workout Calendar
+### 1. Workout Calendar
+
 ![workout_calendar](https://github.com/user-attachments/assets/802231a9-6add-4d9b-8c96-de1876668ade)
 
-### Weight Tracker
+
+### 2. Weight Tracker
+
 ![weight_graph](https://github.com/user-attachments/assets/9a18dccb-cca9-4e8a-8c25-5ef4e9bdde5f)
 
-### Workout Planning
+
+### 3. Workout Planning
+
 ![workouts](https://github.com/user-attachments/assets/bc972320-f665-4d9a-95c7-74f49c90ef57)
 
-### Exercise Creation
+
+### 4. Exercise Creation
+
 ![exercises](https://github.com/user-attachments/assets/8e4c09a7-a893-41cf-a813-dae857c37f35)
 
-### Meal Planning
+
+### 5. Meal Planning
+
 ![meal_planning_landing_page](https://github.com/user-attachments/assets/c787d1fc-7ffd-438e-9d38-674a82b7b309)
 
-### Ingredient Creation
+
+### 6. Ingredient Creation
+
 ![ingredients](https://github.com/user-attachments/assets/bda5ea3f-b7c8-416d-a9da-daf5aea586bc)
 
-### Meal Creation
+
+### 7. Meal Creation
+
 ![meals](https://github.com/user-attachments/assets/d16a05c2-3dc8-4cde-891e-6c8ec539dd39)
 
-### Friend Search & List
+
+### 8. Friend Search & List
+
 ![friends_list](https://github.com/user-attachments/assets/d995dcd7-886f-4578-a541-510d782b85bf)
 
-### Add, Remove, Accept/Reject Friendship
+
+### 9. Add, Remove, Accept/Reject Friendship
+
 ![friendships](https://github.com/user-attachments/assets/a50ec6ff-af6d-438c-a843-e4745466e133)
 
-### Online Status & Firebase Auth
+
+### 10. Online Status & Firebase Auth
+
 ![login_logout](https://github.com/user-attachments/assets/c1e8519d-302d-4f32-a18f-02b4930fd30e)
 
