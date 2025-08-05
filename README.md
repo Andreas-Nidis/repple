@@ -104,3 +104,9 @@ Potential Future Features:
 
 ![login_logout](https://github.com/user-attachments/assets/c1e8519d-302d-4f32-a18f-02b4930fd30e)
 
+
+### Live Workout Notification
+
+![start_finish_workout](https://github.com/user-attachments/assets/b9c6a305-1a39-4a4f-b68d-784e69324e9b)
+
+
