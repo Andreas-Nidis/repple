@@ -1,5 +1,13 @@
 # Ripple
 
+## Table of Contents
+- [Tech Stack](#tech-stack)
+- [Core Features](#core-features)
+- [Potential Future Features](#potential-future-features)
+- [Gif Demos](#gif-demos)
+
+
+
 A social fitness app where users can create and customise exercises, workouts, and meals, while keeping their friends accountable.
 
 **Problem Solved:** Many fitness apps lack accountability. Ripple makes workouts more engaging through real-time connection.
@@ -13,11 +21,13 @@ A social fitness app where users can create and customise exercises, workouts, a
 
 1. User Authentication
 2. Custom Exercise Builder/Editor
+  Create exercises with the following fields:
   - Name
-  - Category (Push/Pull/Upper/Legs)?
+  - Category (e.g., Push, Pull, Upper, Legs) 
   - Equipment Used
-  - Instructions/Notes/Tutorial Link
+  - Instructions / Notes / Tutorial Link
 3. Custom Workout Builder/Editor
+  Create workouts with the following fields per exercise:
   - Sets
   - Reps
   - Rest
@@ -31,19 +41,14 @@ A social fitness app where users can create and customise exercises, workouts, a
   - Live Workout Started Notification
 7. Week by Week Calendar Workout Planner
 8. Custom Ingredient Builder/Editor
+  Create ingredients with the following fields:
   - Name
-  - Calories
-    - Protein
-    - Fat
-    - Carbs
+  - Macronutrients: Protein, Fat, Carbs
 9. Custom Meal Builder/Editor
+  Create meals with the following fields:
   - Name
-  - Ingredients
-    - Measurements
-  - Calories
-    - Protein
-    - Fat
-    - Carbs
+  - Select ingredients with measurements
+  - Auto-calculates macronutrients ratio
 10. Weight Graph
 
 Potential Future Features:
