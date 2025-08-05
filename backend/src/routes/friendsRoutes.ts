@@ -2,7 +2,6 @@ import express from 'express';
 import { authenticateFirebase } from '../middleware/authMiddleware';
 import {
   sendFriendRequestController,
-  getPendingRequestsController,
   acceptFriendRequestController,
   rejectFriendRequestController,
   getFriendsController,
@@ -12,7 +11,6 @@ import {
 const router = express.Router();
 
 router.post('/:friendId', authenticateFirebase, sendFriendRequestController);
-router.get('/pending', authenticateFirebase, getPendingRequestsController);
 router.post('/accept/:friendId', authenticateFirebase, acceptFriendRequestController);
 router.post('/reject/:friendId', authenticateFirebase, rejectFriendRequestController);
 router.get('/', authenticateFirebase, getFriendsController);

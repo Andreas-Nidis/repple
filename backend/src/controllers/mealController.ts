@@ -5,10 +5,6 @@ import {
   createMeal,
   updateMeal,
   deleteMeal,
-  // getMealIngredients,
-  // updateMealIngredient,
-  // addIngredientToMeal,
-  // getMealSummary
 } from '../db/mealQueries';
 
 export async function getMeals(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -107,78 +103,3 @@ export async function deleteMealHandler(req: Request, res: Response, next: NextF
     next(error);
   }
 }
-
-// export async function getMealIngredientsHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-//   const userId = req.user?.id;
-//   const mealId = req.params.mealId;
-
-//   if (!userId) {
-//     res.status(401).json({ error: 'Unauthorized' });
-//     return;
-//   }
-
-//   try {
-//     const ingredients = await getMealIngredients(userId, mealId);
-//     res.json(ingredients);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
-// export async function updateMealIngredientHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-//   const userId = req.user?.id;
-//   const mealId = req.params.mealId;
-//   const ingredientId = req.params.ingredientId;
-//   const { quantity, unit } = req.body;
-
-//   if (!userId || !mealId || !ingredientId) {
-//     res.status(400).json({ error: 'Invalid meal or ingredient ID or unauthorized' });
-//     return;
-//   }
-
-//   try {
-//     const updatedIngredient = await updateMealIngredient(userId, mealId, ingredientId, quantity, unit);
-//     if (!updatedIngredient) {
-//       res.status(404).json({ error: 'Ingredient not found in this meal' });
-//       return;
-//     }
-//     res.json(updatedIngredient);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
-// export async function addIngredientHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-//   const userId = req.user?.id;
-//   const mealId = req.params.mealId;
-//   const { ingredientId, quantity, unit } = req.body;
-
-//   if (!userId || !mealId || !ingredientId || !quantity || !unit) {
-//     res.status(400).json({ error: 'Ingredient ID, quantity, and unit are required' });
-//     return;
-//   }
-
-//   try {
-//     const newIngredient = await addIngredientToMeal(userId, mealId, ingredientId, quantity, unit);
-//     res.status(201).json(newIngredient);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
-// export async function getMealSummaryHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-//   const userId = req.user?.id;
-//   const mealId = req.params.mealId;
-
-//   if (!userId || !mealId) {
-//     res.status(400).json({ error: 'Invalid meal ID or unauthorized' });
-//     return;
-//   }
-
-//   try {
-//     const summary = await getMealSummary(userId, mealId);
-//     res.json(summary);
-//   } catch (error) {
-//     next(error);
-//   }
-// }

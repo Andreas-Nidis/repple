@@ -8,13 +8,6 @@ export async function sendFriendRequest(userId: string, friendId: string) {
     `;
 }
 
-export async function getPendingRequests(userId: string) {
-    return await sql`
-        SELECT * FROM friendships
-        WHERE friend_id = ${userId} AND status = 'pending'
-    `;
-}
-
 export async function acceptFriendRequest(userId: string, friendId: string) {
     await sql`
         INSERT INTO friendships (user_id, friend_id, status)
