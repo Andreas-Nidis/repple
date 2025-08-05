@@ -1,6 +1,6 @@
 # Ripple
 
-A social fitness app where users can create and customise exercises, workouts, and meals, while keeping their friends accountable.
+A minimalistic, social fitness app where users can create and customise exercises, workouts, and meals, while keeping their friends accountable.
 
 **Problem Solved:** Many fitness apps lack accountability. Ripple makes workouts more engaging through real-time connection.
 
