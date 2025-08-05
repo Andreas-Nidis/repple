@@ -55,4 +55,7 @@ Potential Future Features:
 
 ## Gif Demos
 
+### Firebase Authentication using Gmail
+
+![login_logout](https://github.com/user-attachments/assets/c1e8519d-302d-4f32-a18f-02b4930fd30e)
 
