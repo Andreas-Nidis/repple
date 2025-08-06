@@ -1,6 +1,6 @@
-# Ripple
+# Repple
 
-Ripple is a full-stack mobile fitness app that helps friends stay accountable through real-time social features, custom workouts, and meal planning — built with React Native, Firebase Auth, Node.js, and PostgreSQL.
+Repple is a full-stack mobile fitness app that helps friends stay accountable through real-time social features, custom workouts, and meal planning — built with React Native, Firebase Auth, Node.js, and PostgreSQL.
 
 **Built To Solve:** Most fitness apps are solo tools that forget user experience. Ripple is built around real-time motivation between friends — not just tracking workouts, but sharing the moment.
 
