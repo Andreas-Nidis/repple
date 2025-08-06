@@ -254,7 +254,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           <ActivityIndicator />
         ) : entries?.length > 0 ? (
           
-          {/* Selected Workout Details */}
+          // Selected Workout Details
           <View style={{ marginTop: 10, padding: 5 }}>
             <View style={{justifyContent: 'center', alignItems: 'center',}}>
               <Text style={styles.workoutTitle}>{workout[0]?.workout_name}</Text>

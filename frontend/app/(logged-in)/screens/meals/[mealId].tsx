@@ -345,7 +345,7 @@ const MealScreen = () => {
     return (
         <SafeAreaView style={styles.container}>
 
-             {/* Navigation Header */}
+            {/* Navigation Header */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={{ marginRight: 8, marginLeft: 8, position: 'absolute' }}
@@ -421,7 +421,7 @@ const MealScreen = () => {
                         </Modal>
                     </View>
                 ) : (
-                    {/* No Ingredients Text Display */}
+                    // No Ingredients Text Display
                     <View style={styles.inputsContainer}>
                         <Text style={styles.inputHeader}>Add an ingredient!</Text>
                     </View>
