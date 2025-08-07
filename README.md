@@ -27,7 +27,7 @@ This project demonstrates practical experience with full-stack mobile developmen
 - **TypeScript** throughout for type safety and maintainability  
 - Real-time features powered by **Socket.IO**
 
-The app’s core features are fully functional. An EAS build APK is available in the [Releases](#releases) section for easy testing.
+The app’s core features are fully functional. An EAS build APK is available in the [Releases](https://github.com/Andreas-Nidis/repple/releases) section for easy testing.
 
 Feel free to explore the codebase or reach out with any questions or feedback.
 
