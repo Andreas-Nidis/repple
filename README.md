@@ -8,13 +8,28 @@ Repple is a full-stack mobile fitness app that helps friends stay accountable th
 
 **Tech Stack:** React Native · Firebase Auth · Node.js · Express · PostgreSQL · Socket.IO · TypeScript
 
-***!! Currently working on deploying an EAS build so you can experience it firsthand !!***
-
 
 ## Table of Contents
+- [How to Try This App](#how-to-try-this-app)
 - [Core Features](#core-features)
 - [Potential Future Features](#potential-future-features)
 - [Gif Demos](#gif-demos)
+
+
+## How to Try This App
+
+This project demonstrates practical experience with full-stack mobile development, combining:
+
+- **React Native** for the mobile frontend  
+- **Node.js** and **Express** for the backend  
+- **Firebase Auth** for authentication  
+- **PostgreSQL** for data storage  
+- **TypeScript** throughout for type safety and maintainability  
+- Real-time features powered by **Socket.IO**
+
+The app’s core features are fully functional. An EAS build APK is available in the [Releases](#releases) section for easy testing.
+
+Feel free to explore the codebase or reach out with any questions or feedback.
 
 
 ## Core Features
