@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExerciseByUser = getExerciseByUser;
+exports.getExercisesByUser = getExercisesByUser;
 exports.getExerciseById = getExerciseById;
 exports.createExercise = createExercise;
 exports.updateExercise = updateExercise;
 exports.deleteExercise = deleteExercise;
 const db_1 = require("./db");
-async function getExerciseByUser(userId) {
+async function getExercisesByUser(userId) {
     return await (0, db_1.sql) `
-        SELECT * exercises WHERE user_id = ${userId}
-        ORDER BY created_at DESC
+        SELECT * FROM exercises 
+        WHERE user_id = ${userId}
     `;
 }
 async function getExerciseById(exerciseId) {

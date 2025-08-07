@@ -1,15 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUsers = void 0;
-const db_1 = require("../db/db");
-const getUsers = async (req, res) => {
+exports.getUsersHandler = getUsersHandler;
+const userQueries_1 = require("../db/userQueries");
+async function getUsersHandler(req, res, next) {
+    const userId = req.user?.id;
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
     try {
-        const result = await db_1.sql.query('SELECT id, username FROM users');
+        const result = await (0, userQueries_1.getUsers)(userId);
         res.json(result);
     }
     catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
-};
-exports.getUsers = getUsers;
+}
