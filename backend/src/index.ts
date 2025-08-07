@@ -34,10 +34,18 @@ export const io = new Server(server, {
   },
 });
 
-// Enable CORS middleware for REST API
+// CORS middleware for rejecting anything web based
 app.use(cors({
-  origin: '*', // Same as above
-  credentials: false,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Reject browser-based requests from unknown origins (dev/debug)
+    return callback(new Error('CORS policy: This origin is not allowed'));
+  },
+  credentials: false, // Usually false unless you're sending cookies
 }));
 
 app.use(express.json());

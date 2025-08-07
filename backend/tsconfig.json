@@ -15,5 +15,10 @@
     "src",
     "src/types/express.d.ts",
     
-  ]
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  }
 }
