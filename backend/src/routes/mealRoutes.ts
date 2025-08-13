@@ -3,17 +3,17 @@ import { authenticateFirebase } from '../middleware/authMiddleware';
 import {
   getMeals,
   getMeal,
-  createMealHandler,
-  updateMealHandler,
-  deleteMealHandler,
+  createMeal,
+  updateMeal,
+  deleteMeal,
 } from '../controllers/mealController';
 
 const router = express.Router();
 
 router.get('/', authenticateFirebase, getMeals);
 router.get('/:mealId', authenticateFirebase, getMeal);
-router.post('/', authenticateFirebase, createMealHandler);
-router.put('/:mealId', authenticateFirebase, updateMealHandler);
-router.delete('/:mealId', authenticateFirebase, deleteMealHandler);
+router.post('/', authenticateFirebase, createMeal);
+router.put('/:mealId', authenticateFirebase, updateMeal);
+router.delete('/:mealId', authenticateFirebase, deleteMeal);
 
 export default router;

@@ -1,74 +1,46 @@
 import { Request, Response, NextFunction } from 'express';
-import {
-  getWeightEntries,
-  createWeightEntry,
-  updateWeightEntry,
-  deleteWeightEntries
-} from '../db/weightQueries';
+import * as weightService from '../services/weightService';
 
 export async function getAllWeightEntries(req: Request, res: Response, next: NextFunction) {
-  const userId = req.user?.id;
-  if (!userId) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-
-  try {
-    const result = await getWeightEntries(userId);
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
+    try {
+        const entries = await weightService.listWeightEntries(req.user?.id!);
+        res.status(200).json(entries);
+    } catch (error) {
+        next(error);
+    }
 }
 
-export async function createWeightEntryHandler(req: Request, res: Response, next: NextFunction) {
-  const userId = req.user?.id;
-  const { entryDate, weight } = req.body;
-
-  if (!userId || !entryDate || !weight) {
-    res.status(400).json({ error: 'Missing required fields' });
-    return;
-  }
-
-  try {
-    await createWeightEntry(userId, entryDate, weight);
-    res.sendStatus(200);
-  } catch (error) {
-    next(error);
-  }
+export async function createWeightEntry(req: Request, res: Response, next: NextFunction) {
+    try {
+        const newEntry = await weightService.addWeightEntry(
+            req.user?.id!,
+            req.body.entryDate,
+            req.body.weight
+        );
+        res.status(201).json(newEntry);
+    } catch (error) {
+        next(error);
+    }
 }
 
-export async function updateWeightEntryHandler(req: Request, res: Response, next: NextFunction) {
-  const userId = req.user?.id;
-  const { entryDate } = req.params;
-  const { weight } = req.body;
-
-  if (!userId || !entryDate || !weight) {
-    res.status(400).json({ error: 'Missing required fields' });
-    return;
-  }
-
-  try {
-    await updateWeightEntry(userId, entryDate, weight);
-    res.sendStatus(200);
-  } catch (error) {
-    next(error);
-  }
+export async function updateWeightEntry(req: Request, res: Response, next: NextFunction) {
+    try {
+        const updatedEntry = await weightService.modifyWeightEntry(
+            req.user?.id!,
+            req.params.entryDate,
+            req.body.weight
+        );
+        res.status(200).json(updatedEntry);
+    } catch (error) {
+        next(error);
+    }
 }
 
-export async function deleteWeightEntryHandler(req: Request, res: Response, next: NextFunction) {
-  const userId = req.user?.id;
-  const { entryDate } = req.params;
-
-  if (!userId || !entryDate) {
-    res.status(400).json({ error: 'Missing required fields' });
-    return;
-  }
-
-  try {
-    await deleteWeightEntries(userId, entryDate);
-    res.status(200).json({ message: 'Weight entry deleted successfully.' });
-  } catch (error) {
-    next(error);
-  }
+export async function deleteWeightEntry(req: Request, res: Response, next: NextFunction) {
+    try {
+        const deletedEntry = await weightService.removeWeightEntry(req.user?.id!, req.params.entryDate);
+        res.status(200).json(deletedEntry);
+    } catch (error) {
+        next(error);
+    }
 }

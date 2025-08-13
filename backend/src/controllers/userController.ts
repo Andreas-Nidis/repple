@@ -1,18 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { 
-    getUsers,
-} from '../db/userQueries';
+import * as userService from '../services/userService';
 
 export async function getUsersHandler(req: Request, res: Response, next: NextFunction) {
-  const userId = req.user?.id;
-  if (!userId) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-
   try {
-    const result = await getUsers(userId);
-    res.json(result);
+    const users = await userService.listUsers(req.user?.id!);
+    res.status(200).json(users);
   } catch (error) {
     next(error);
   }
