@@ -67,7 +67,6 @@ export async function authenticateFirebase(req: AuthenticatedRequest, res: Respo
 
         next();
     } catch (error) {
-        console.error('Error verifying Firebase token:', error);
         res.status(401).json({ error: 'Invalid Firebase token' });
         return;
     };

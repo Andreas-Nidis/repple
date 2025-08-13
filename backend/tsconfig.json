@@ -11,6 +11,7 @@
     "skipLibCheck": true,
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
+  "isolatedModules": true,
   "include": [
     "src",
     "src/types/express.d.ts",

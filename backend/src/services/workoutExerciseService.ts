@@ -15,7 +15,7 @@ export async function getSingleExercise(userId: string, workoutId: string, exerc
   if (!userId) throw new Error('Unauthorized');
 
   const exercise = await getExerciseInWorkout(workoutId, exerciseId);
-  if (!exercise) throw new Error('NotFound');
+  if (!exercise || exercise.user_id !== userId) throw new Error('NotFound');
   
   return exercise;
 }
@@ -29,6 +29,7 @@ export async function addNewExercise(userId: string, workoutId: string, exercise
 
 export async function updateExerciseDetails(userId: string, workoutId: string, exerciseId: string, sets?: number, reps?: number, restSeconds?: number) {
   if (!userId) throw new Error('Unauthorized');
+  if (!sets || !reps) throw new Error('BadRequest');
 
   const updated = await updateExerciseInWorkout(workoutId, exerciseId, sets, reps, restSeconds);
   if (!updated) throw new Error('NotFound');
