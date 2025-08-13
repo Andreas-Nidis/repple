@@ -40,7 +40,8 @@ describe('loginController', () => {
             uid: '123',
             email: 'test@example.com',
             name: 'Test User',
-            picture: 'http://example.com/pic.jpg'
+            picture: 'http://example.com/pic.jpg',
+            friend_code: '456'
         });
 
         await loginController(req, res, next);
