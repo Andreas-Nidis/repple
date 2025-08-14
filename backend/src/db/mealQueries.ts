@@ -7,7 +7,7 @@ export async function getMealsByUser(userId: string) {
     `;
 }
 
-export async function getMealById(userId: string, mealId: string) {
+export async function getMealById(userId: string, mealId: string): Promise<Record<string, any> | undefined> {
     const meal = await sql`
         SELECT * FROM meals 
         WHERE id = ${mealId} AND user_id = ${userId}
@@ -24,7 +24,7 @@ export async function createMeal(userId: string, name: string) {
     return newMeal;
 }
 
-export async function updateMeal(userId: string, mealId: string, total_protein?: number, total_carbs?: number, total_fat?: number, selected?: boolean) {
+export async function updateMeal(userId: string, mealId: string, total_protein?: number, total_carbs?: number, total_fat?: number, selected?: boolean): Promise<Record<string, any> | undefined> {
     const [updatedMeal] = await sql`
         UPDATE meals
         SET
@@ -38,7 +38,7 @@ export async function updateMeal(userId: string, mealId: string, total_protein?:
     return updatedMeal;
 }
 
-export async function deleteMeal(userId: string, mealId: string) {
+export async function deleteMeal(userId: string, mealId: string): Promise<Record<string, any> | undefined> {
     const [deletedMeal] = await sql`
         DELETE FROM meals 
         WHERE id = ${mealId} AND user_id = ${userId}

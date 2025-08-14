@@ -7,7 +7,7 @@ export async function getAllIngredientsByUserId(userId: string) {
     `;
 }
 
-export async function getIngredientById(userId: string, ingredientId: string) {
+export async function getIngredientById(userId: string, ingredientId: string): Promise<Record<string, any> | undefined> {
     const [ingredient] = await sql`
         SELECT * FROM ingredients WHERE id = ${ingredientId} AND user_id = ${userId}
     `;
@@ -23,7 +23,7 @@ export async function createIngredient(userId: string, name: string) {
     return newIngredient;
 }
 
-export async function updateIngredient(userId: string, ingredientId: string, protein?: number, carbs?: number, fat?: number) {
+export async function updateIngredient(userId: string, ingredientId: string, protein?: number, carbs?: number, fat?: number): Promise<Record<string, any> | undefined> {
     const [updatedIngredient] = await sql`
         UPDATE ingredients
         SET
@@ -36,7 +36,7 @@ export async function updateIngredient(userId: string, ingredientId: string, pro
     return updatedIngredient;
 }
 
-export async function deleteIngredient(ingredientId: string) {
+export async function deleteIngredient(ingredientId: string): Promise<Record<string, any> | undefined> {
     const [deletedIngredient] = await sql`
         DELETE FROM ingredients WHERE id = ${ingredientId} RETURNING *
     `;

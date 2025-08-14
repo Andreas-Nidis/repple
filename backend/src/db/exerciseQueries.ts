@@ -7,7 +7,7 @@ export async function getExercisesByUser(userId: string) {
     `;
 }
 
-export async function getExerciseById(exerciseId: string) {
+export async function getExerciseById(exerciseId: string): Promise<Record<string, any> | undefined> {
     const exercise = await sql`
         SELECT * FROM exercises WHERE id = ${exerciseId}
     `;
@@ -23,7 +23,7 @@ export async function createExercise(userId: string, name: string, category?: st
     return newExercise;
 }
 
-export async function updateExercise(exerciseId: string, name?: string, category?: string, equipment?: string, description?: string, tutorial_url?: string) {
+export async function updateExercise(exerciseId: string, name?: string, category?: string, equipment?: string, description?: string, tutorial_url?: string): Promise<Record<string, any> | undefined> {
     const [updatedExercise] = await sql`
         UPDATE exercises
         SET
@@ -38,7 +38,7 @@ export async function updateExercise(exerciseId: string, name?: string, category
     return updatedExercise;
 }
 
-export async function deleteExercise(exerciseId: string) {
+export async function deleteExercise(exerciseId: string): Promise<Record<string, any> | undefined> {
     const [deletedExercise] = await sql`
         DELETE FROM exercises WHERE id = ${exerciseId} RETURNING *
     `;
