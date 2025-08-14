@@ -26,7 +26,7 @@ This project demonstrates practical experience with full-stack mobile developmen
 - **PostgreSQL** for data storage  
 - **TypeScript** throughout for type safety and maintainability  
 - Real-time features powered by **Socket.IO**
-- Unit Testing for backend services and middleware using **Jest**
+- Unit testing for backend services and middleware using **Jest**
 
 The app’s core features are fully functional. An EAS build APK is available in the [Releases](https://github.com/Andreas-Nidis/repple/releases) section for easy testing.
 
